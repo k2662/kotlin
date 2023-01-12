@@ -278,6 +278,13 @@ include ":kotlin-atomicfu-compiler-plugin",
         ":kotlinx-atomicfu-runtime",
         ":atomicfu"
 
+include ":kotlinx-jso-compiler-plugin",
+        ":kotlinx-jso-compiler-plugin.cli",
+        ":kotlinx-jso-compiler-plugin.k1",
+        ":kotlinx-jso-compiler-plugin.k2",
+        ":kotlinx-jso-compiler-plugin.common",
+        ":kotlinx-jso-runtime"
+
 include ":compiler:fir",
         ":compiler:fir:cones",
         ":compiler:fir:tree",
@@ -814,6 +821,13 @@ project(':kotlin-atomicfu-compiler-plugin-embeddable').projectDir = file("$rootD
 project(':kotlinx-atomicfu-runtime').projectDir = file("$rootDir/plugins/atomicfu/atomicfu-runtime")
 project(':atomicfu').projectDir = file("$rootDir/libraries/tools/atomicfu")
 
+project(':kotlinx-jso-compiler-plugin.cli').projectDir = "$rootDir/plugins/jso/jso-compiler/kotlinx-jso-compiler-plugin.cli" as File
+project(':kotlinx-jso-compiler-plugin.k1').projectDir = "$rootDir/plugins/jso/jso-compiler/kotlinx-jso-compiler-plugin.k1" as File
+project(':kotlinx-jso-compiler-plugin.k2').projectDir = "$rootDir/plugins/jso/jso-compiler/kotlinx-jso-compiler-plugin.k2" as File
+project(':kotlinx-jso-compiler-plugin.common').projectDir = "$rootDir/plugins/jso/jso-compiler/kotlinx-jso-compiler-plugin.common" as File
+project(':kotlinx-jso-compiler-plugin').projectDir = "$rootDir/plugins/jso/jso-compiler" as File
+project(':kotlinx-jso-runtime').projectDir = "$rootDir/plugins/jso/jso-runtime" as File
+
 project(':kotlin-scripting-ide-services-unshaded').projectDir = "$rootDir/plugins/scripting/scripting-ide-services" as File
 project(':kotlin-scripting-ide-services-test').projectDir = "$rootDir/plugins/scripting/scripting-ide-services-test" as File
 project(':kotlin-scripting-ide-services').projectDir = "$rootDir/plugins/scripting/scripting-ide-services-embeddable" as File
@@ -848,6 +862,7 @@ if (buildProperties.isKotlinNativeEnabled) {
     include ':kotlin-native:backend.native:tests'
     include ":kotlin-native-compiler-embeddable"
     project(":kotlin-native-compiler-embeddable").projectDir = "$rootDir/kotlin-native/prepare/kotlin-native-embeddable-compiler" as File
+<<<<<<< HEAD
 }
 include 'plugins:jso'
 findProject(':plugins:jso')?.name = 'jso'
@@ -870,3 +885,8 @@ findProject(':plugins:jso:jso-compiler:jso-compiler-plugin.common')?.name = 'jso
 include 'plugins:jso:jso-compiler:jso-compiler-plugin.cli'
 findProject(':plugins:jso:jso-compiler:jso-compiler-plugin.cli')?.name = 'jso-compiler-plugin.cli'
 
+=======
+    include ':kotlin-native-shared'
+    project(":kotlin-native-shared").projectDir = "$rootDir/kotlin-native/shared" as File
+}
+>>>>>>> 25fc21e38e8 (chore: add test infrastructure.)
