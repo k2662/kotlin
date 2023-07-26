@@ -36157,6 +36157,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 runTest("compiler/testData/codegen/box/reflection/callBy/inlineClassFunctionsAndConstructors.kt");
             }
 
+            @TestMetadata("inlineClassInterface.kt")
+            public void testInlineClassInterface() throws Exception {
+                runTest("compiler/testData/codegen/box/reflection/callBy/inlineClassInterface.kt");
+            }
+
             @TestMetadata("inlineClassMembers.kt")
             public void testInlineClassMembers() throws Exception {
                 runTest("compiler/testData/codegen/box/reflection/callBy/inlineClassMembers.kt");
@@ -36260,6 +36265,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             @TestMetadata("simpleTopLevelFunction.kt")
             public void testSimpleTopLevelFunction() throws Exception {
                 runTest("compiler/testData/codegen/box/reflection/callBy/simpleTopLevelFunction.kt");
+            }
+
+            @TestMetadata("valueClassInterface.kt")
+            public void testValueClassInterface() throws Exception {
+                runTest("compiler/testData/codegen/box/reflection/callBy/valueClassInterface.kt");
             }
         }
 
