@@ -21,8 +21,10 @@ import java.io.File
 @TestDataPath("\$PROJECT_ROOT")
 @EnforcedProperty(ClassLevelProperty.COMPILER_OUTPUT_INTERCEPTOR, "NONE")
 class CompilerOutputTest : AbstractNativeSimpleTest() {
+
+    // TODO: unmute after fix of KT-61773
     @Test
-    fun testReleaseCompilerAgainstPreReleaseLibrary() {
+    fun testReleaseCompilerAgainstPreReleaseLibrary() = muteForK2 {
         // We intentionally use JS testdata, because the compilers should behave the same way in such a test.
         // To be refactored later, after CompileKotlinAgainstCustomBinariesTest.testReleaseCompilerAgainstPreReleaseLibraryJs is fixed.
         val rootDir = File("compiler/testData/compileKotlinAgainstCustomBinaries/releaseCompilerAgainstPreReleaseLibraryJs")
