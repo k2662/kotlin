@@ -151,6 +151,7 @@ class KotlinCoreEnvironment private constructor(
                         } else {
                             val contentRoots = configuration.get(CLIConfigurationKeys.CONTENT_ROOTS)
                             if (contentRoots?.any { it is JvmClasspathRoot && it.file.path == outputJar.path } == true) {
+                                // See KT-61883
                                 messageCollector?.report(
                                     STRONG_WARNING,
                                     "You reuse JAR from classpath ${outputJar.path} as output jar, so the slower (old) version of JAR FS will be used"
