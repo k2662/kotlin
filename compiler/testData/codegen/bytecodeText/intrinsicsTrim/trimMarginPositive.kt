@@ -1,4 +1,4 @@
-// IGNORE_BACKEND: JVM
+// IGNORE_BACKEND_K1: JVM
 
 fun constant(): String {
     return """
