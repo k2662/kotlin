@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.konan.blackboxtest.support.compilation.LibraryCompil
 import org.jetbrains.kotlin.konan.blackboxtest.support.compilation.TestCompilationArtifact
 import org.jetbrains.kotlin.konan.blackboxtest.support.compilation.TestCompilationResult
 import org.jetbrains.kotlin.konan.blackboxtest.support.compilation.TestCompilationResult.Companion.assertSuccess
+import org.jetbrains.kotlin.konan.blackboxtest.support.settings.PipelineType
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -24,7 +25,7 @@ class CompilerOutputTest : AbstractNativeSimpleTest() {
 
     // TODO: unmute after fix of KT-61773
     @Test
-    fun testReleaseCompilerAgainstPreReleaseLibrary() = muteForK2 {
+    fun testReleaseCompilerAgainstPreReleaseLibrary() = muteForK2(isK2 = testRunSettings.get<PipelineType>() == PipelineType.K2) {
         // We intentionally use JS testdata, because the compilers should behave the same way in such a test.
         // To be refactored later, after CompileKotlinAgainstCustomBinariesTest.testReleaseCompilerAgainstPreReleaseLibraryJs is fixed.
         val rootDir = File("compiler/testData/compileKotlinAgainstCustomBinaries/releaseCompilerAgainstPreReleaseLibraryJs")

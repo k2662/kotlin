@@ -19,7 +19,10 @@ abstract class AbstractNativeSimpleTest {
     internal lateinit var testRunSettings: SimpleTestRunSettings
     internal lateinit var testRunProvider: SimpleTestRunProvider
 
-    fun muteForK2(test: () -> Unit) {
+    fun muteForK2(isK2: Boolean, test: () -> Unit) {
+        if (!isK2) {
+            return test()
+        }
         try {
             test()
         } catch (e: Throwable) {
