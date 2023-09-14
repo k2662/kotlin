@@ -140,7 +140,17 @@ fun compileWasm(
             "./$baseFileName.wasm",
             backendContext.jsModuleAndQualifierReferences
         )
-        jsWrapper = generateEsmExportsWrapper("./$baseFileName.uninstantiated.mjs")
+
+        val importedModules: List<String> = backendContext.jsModuleAndQualifierReferences
+            .mapNotNull { it.module?.toJsStringLiteral()?.toString() } +
+                compiledWasmModule.jsModuleImports
+                    .toList()
+                    .sorted()
+                    .map {
+                        it.toJsStringLiteral().toString()
+                    }
+
+        jsWrapper = generateEsmExportsWrapper("./$baseFileName.uninstantiated.mjs", importedModules.distinct())
     } else {
         jsUninstantiatedWrapper = null
         jsWrapper = compiledWasmModule.generateAsyncWasiWrapper("./$baseFileName.wasm")
@@ -226,7 +236,7 @@ fun WasmCompiledModuleFragment.generateAsyncJsWrapper(
         .sorted()
         .joinToString("") {
             val moduleSpecifier = it.toJsStringLiteral()
-            "        $moduleSpecifier: imports[$moduleSpecifier] ?? await import($moduleSpecifier),\n"
+            "        $moduleSpecifier: await imports[$moduleSpecifier],\n"
         }
 
     val referencesToQualifiedAndImportedDeclarations = jsModuleAndQualifierReferences
@@ -238,7 +248,7 @@ fun WasmCompiledModuleFragment.generateAsyncJsWrapper(
                 append(it.jsVariableName)
                 append(" = ")
                 if (module != null) {
-                    append("(imports[${module.toJsStringLiteral()}] ?? await import(${module.toJsStringLiteral()}))")
+                    append("await (imports[${module.toJsStringLiteral()}])")
                     if (qualifier != null)
                         append(".")
                 }
@@ -344,10 +354,16 @@ For more information, see https://kotl.in/wasm-help
 """
 }
 
-fun generateEsmExportsWrapper(asyncWrapperFileName: String): String = /*language=js */ """
+fun generateEsmExportsWrapper(asyncWrapperFileName: String, importedModules: List<String>): String {
+    val imports = importedModules.joinToString("", prefix = "{\n", postfix = "}") { moduleSpecifier ->
+        "    ${moduleSpecifier}: import(${moduleSpecifier}),\n"
+    }
+    /*language=js */
+    return """
 import { instantiate } from ${asyncWrapperFileName.toJsStringLiteral()};
-export default (await instantiate()).exports;
+export default (await instantiate($imports)).exports;
 """
+}
 
 fun writeCompilationResult(
     result: WasmCompilerResult,
