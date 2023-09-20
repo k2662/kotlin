@@ -5,8 +5,8 @@
 
 package org.jetbrains.kotlin.cli.common.extensions
 
-import com.intellij.core.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.cli.common.repl.ReplCompiler
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.extensions.ProjectExtensionDescriptor
 import java.io.File

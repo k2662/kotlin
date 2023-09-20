@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.analysis.api.standalone
 
-import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.mock.MockProject
 import com.intellij.openapi.application.Application
 import com.intellij.openapi.project.Project
@@ -13,6 +12,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analysis.project.structure.KtModule
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreProjectEnvironment
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.CoreApplicationEnvironment
 import org.jetbrains.kotlin.load.kotlin.PackagePartProvider
 
 public class StandaloneAnalysisAPISession internal constructor(

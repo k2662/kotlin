@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.cli.jvm.compiler
 import com.intellij.DynamicBundle
 import com.intellij.codeInsight.ContainerProvider
 import com.intellij.codeInsight.runner.JavaMainMethodProvider
-import com.intellij.core.JavaCoreApplicationEnvironment
 import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.lang.MetaLanguage
 import com.intellij.mock.MockApplication
@@ -21,6 +20,7 @@ import com.intellij.psi.codeStyle.JavaFileCodeStyleFacadeFactory
 import com.intellij.psi.impl.smartPointers.SmartPointerAnchorProvider
 import com.intellij.psi.meta.MetaDataContributor
 import org.jetbrains.kotlin.cli.jvm.compiler.IdeaExtensionPoints.registerVersionSpecificAppExtensionPoints
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.JavaCoreApplicationEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.jarfs.FastJarFileSystem
 import org.jetbrains.kotlin.cli.jvm.modules.CoreJrtFileSystem
 

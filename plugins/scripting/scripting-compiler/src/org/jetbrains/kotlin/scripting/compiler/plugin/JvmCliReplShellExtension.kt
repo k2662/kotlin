@@ -5,10 +5,10 @@
 
 package org.jetbrains.kotlin.scripting.compiler.plugin
 
-import com.intellij.core.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments
 import org.jetbrains.kotlin.cli.common.extensions.ShellExtension
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.scripting.compiler.plugin.repl.ReplFromTerminal
 

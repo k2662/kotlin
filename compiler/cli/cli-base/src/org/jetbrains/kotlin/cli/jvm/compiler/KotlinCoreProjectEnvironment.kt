@@ -16,9 +16,9 @@
 
 package org.jetbrains.kotlin.cli.jvm.compiler
 
-import com.intellij.core.JavaCoreProjectEnvironment
 import com.intellij.openapi.Disposable
 import com.intellij.psi.PsiManager
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.resolve.jvm.KotlinCliJavaFileManager
 
 open class KotlinCoreProjectEnvironment(

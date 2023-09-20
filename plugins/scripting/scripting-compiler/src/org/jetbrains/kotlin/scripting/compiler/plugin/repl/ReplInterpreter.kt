@@ -5,13 +5,13 @@
 
 package org.jetbrains.kotlin.scripting.compiler.plugin.repl
 
-import com.intellij.core.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.*
 import org.jetbrains.kotlin.cli.common.repl.ReplClassLoader
 import org.jetbrains.kotlin.cli.common.repl.ReplEvalResult
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.messageCollector
 import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
 import org.jetbrains.kotlin.cli.jvm.config.JvmModulePathRoot

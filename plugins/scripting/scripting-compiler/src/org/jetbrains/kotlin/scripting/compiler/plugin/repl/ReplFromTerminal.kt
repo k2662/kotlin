@@ -5,12 +5,12 @@
 
 package org.jetbrains.kotlin.scripting.compiler.plugin.repl
 
-import com.intellij.core.JavaCoreProjectEnvironment
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.GroupingMessageCollector
 import org.jetbrains.kotlin.cli.common.repl.ReplEvalResult
 import org.jetbrains.kotlin.cli.common.repl.replUnescapeLineBreaks
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.KotlinCompilerVersion
 import org.jetbrains.kotlin.descriptors.runtime.components.tryLoadClass

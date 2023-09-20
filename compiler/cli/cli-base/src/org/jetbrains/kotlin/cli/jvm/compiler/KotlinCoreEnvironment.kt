@@ -9,9 +9,7 @@ package org.jetbrains.kotlin.cli.jvm.compiler
 
 import com.intellij.codeInsight.ExternalAnnotationsManager
 import com.intellij.codeInsight.InferredAnnotationsManager
-import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.core.CoreJavaFileManager
-import com.intellij.core.JavaCoreProjectEnvironment
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.java.JavaParserDefinition
 import com.intellij.mock.MockProject
@@ -61,6 +59,8 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.ERROR
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.STRONG_WARNING
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.CoreApplicationEnvironment
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.JavaCoreProjectEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.cli.jvm.index.*
 import org.jetbrains.kotlin.cli.jvm.javac.JavacWrapperRegistrar

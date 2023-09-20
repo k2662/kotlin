@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.analysis.decompiler.stub.files
 
-import com.intellij.core.CoreApplicationEnvironment
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.impl.jar.CoreJarFileSystem
@@ -13,6 +12,7 @@ import org.jetbrains.kotlin.analysis.decompiler.stub.file.ClsKotlinBinaryClassCa
 import org.jetbrains.kotlin.analysis.decompiler.stub.file.DummyFileAttributeService
 import org.jetbrains.kotlin.analysis.decompiler.stub.file.FileAttributeService
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.compiler.intellijCore.CoreApplicationEnvironment
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.test.*
 import org.jetbrains.kotlin.test.directives.FirDiagnosticsDirectives
