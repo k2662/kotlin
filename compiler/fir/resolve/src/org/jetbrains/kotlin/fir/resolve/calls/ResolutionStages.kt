@@ -122,6 +122,8 @@ object CheckExtensionReceiver : ResolutionStage() {
             isDispatch = false,
         )
 
+        candidate.chosenExtensionReceiver = receiver.expression
+
         sink.yieldIfNeed()
     }
 
