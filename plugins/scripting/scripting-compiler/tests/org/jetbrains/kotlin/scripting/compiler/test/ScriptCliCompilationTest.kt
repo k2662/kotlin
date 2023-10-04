@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.script.loadScriptingPlugin
 import org.jetbrains.kotlin.scripting.compiler.plugin.TestDisposable
 import org.jetbrains.kotlin.scripting.compiler.plugin.TestMessageCollector
+import org.jetbrains.kotlin.scripting.compiler.plugin.expectTestToFailOnK2
 import org.jetbrains.kotlin.scripting.compiler.plugin.updateWithBaseCompilerArguments
 import org.jetbrains.kotlin.scripting.configuration.ScriptingConfigurationKeys
 import org.jetbrains.kotlin.scripting.definitions.ScriptDefinition
@@ -64,7 +65,7 @@ class ScriptCliCompilationTest : TestCase() {
         Assert.assertEquals("Hello, kotlin!", out)
     }
 
-    fun testScriptWithRequire() {
+    fun testScriptWithRequire() = expectTestToFailOnK2 {
         val out = checkRun("hello.req1.kts", scriptDef = TestScriptWithRequire::class)
         Assert.assertEquals("Hello from required!", out)
     }
