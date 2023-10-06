@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.filterIsInstanceWithChecker
 object FirImportsChecker : FirFileChecker() {
     override fun check(declaration: FirFile, context: CheckerContext, reporter: DiagnosticReporter) {
         declaration.imports.forEach { import ->
+            if (import.source?.kind?.shouldSkipErrorTypeReporting == true) return@forEach
             if (import is FirErrorImport) return@forEach
             if (import.isAllUnder) {
                 if (import !is FirResolvedImport) {
@@ -165,6 +166,7 @@ object FirImportsChecker : FirFileChecker() {
         val interestingImports = imports
             .filterIsInstanceWithChecker<FirResolvedImport> { import ->
                 !import.isAllUnder &&
+                        import.source?.kind?.shouldSkipErrorTypeReporting != true &&
                         import.importedName?.identifierOrNullIfSpecial?.isNotEmpty() == true &&
                         import.resolvesToClass(context)
             }

@@ -285,7 +285,7 @@ sealed class KtFakeSourceElementKind(final override val shouldSkipErrorTypeRepor
     object PropertyTypeFromGetterReturnType : KtFakeSourceElementKind()
 
     // Scripts get implicit imports from their configurations
-    object ImplicitImport : KtFakeSourceElementKind()
+    object ImplicitImport : KtFakeSourceElementKind(shouldSkipErrorTypeReporting = true)
 }
 
 sealed class AbstractKtSourceElement {
