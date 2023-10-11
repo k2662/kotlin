@@ -3455,15 +3455,16 @@ linkTest("inline_innerInlineFunCapturesOuter_linkTest") {
 }
 
 def generateWithSpaceDefFile() {
-    def mapOption = "--Map \"${buildDir}/cutom map.map\""
+    def buildDirectory = layout.buildDirectory.get().asFile
+    def mapOption = "--Map \"$buildDirectory/cutom map.map\""
     if (isAppleTarget(project)) {
-        mapOption = "-map \"${buildDir}/cutom map.map\""
+        mapOption = "-map \"$buildDirectory/cutom map.map\""
     } else if (isWindowsTarget(project)) {
-        mapOption = "\"-Wl,--Map,${buildDir}/cutom map.map\""
+        mapOption = "\"-Wl,--Map,$buildDirectory/cutom map.map\""
     }
 
-    buildDir.mkdirs()
-    def file = new File("${buildDir}/withSpaces.def")
+    buildDirectory.mkdirs()
+    def file = new File("${buildDirectory}/withSpaces.def")
     file.write """
 headers = stdio.h "${projectDir}/interop/basics/custom headers/custom.h"
 linkerOpts = $mapOption
@@ -4113,7 +4114,7 @@ interopTest("interop_withSpaces") {
     source = "interop/basics/withSpaces.kt"
 
     doLast {
-        assert file("${buildDir}/cutom map.map").exists()
+        assert layout.buildDirectory.file("cutom map.map").get().asFile.exists()
     }
 }
 
@@ -4279,7 +4280,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         source = "interop/objc/smoke.kt"
         interop = 'objcSmoke'
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/smoke.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4288,7 +4289,7 @@ if (PlatformInfo.isAppleTarget(project)) {
                 args '-O2'
             }
             if (UtilsKt.isSimulatorTarget(project, project.target)) {
-                UtilsKt.codesign(project, "$buildDir/libobjcsmoke.dylib")
+                UtilsKt.codesign(project, layout.buildDirectory.file(libobjcsmoke.dylib).get().asFile.toString())
             }
 
             copy {
@@ -4305,7 +4306,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         interop = 'objcSmoke'
         verifyIr = false  // KT-57716
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/smoke.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4343,7 +4344,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         }
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args fileTree("$projectDir/interop/objc/tests/") { include '**/*.m' }
                 args "-lobjc", '-fobjc-arc'
@@ -4387,7 +4388,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         interop = 'objcMisc'
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc_with_initializer/objc_misc.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4404,7 +4405,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         interop = 'objcMessaging'
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/msg_send/messaging.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4433,7 +4434,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         UtilsKt.dependsOnPlatformLibs(it)
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/foreignException/objc_wrap.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4452,7 +4453,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         UtilsKt.dependsOnPlatformLibs(it)
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/foreignException/objc_wrap.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4471,7 +4472,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         UtilsKt.dependsOnPlatformLibs(it)
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/foreignException/objc_wrap.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4504,7 +4505,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         useGoldenData = true
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/kt42172/objclib.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4569,7 +4570,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         }
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/kt55938/objclib.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4583,7 +4584,7 @@ if (PlatformInfo.isAppleTarget(project)) {
 
     standaloneTest("objc_arc_contract") {
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             ExecLlvmKt.execLlvmUtility(project, "llvm-as") {
                 args "$projectDir/interop/objc_arc_contract/main.ll"
                 args "-o", "$buildDir/objc_arc_contract.bc"
@@ -4599,7 +4600,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         source = "interop/objc/include_categories/main.kt"
         interop = "objc_include_categories"
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/include_categories/objc_include_categories.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4636,7 +4637,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         flags = ["-tr", "-e", "runAllTests"] // Generate test suites, but use custom entrypoint.
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/kt56402/objclib.m"
                 args "-g"
@@ -4657,7 +4658,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         flags = ["-tr"]
 
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/objc_friendly_dealloc/objclib.m"
                 args "-lobjc", '-fno-objc-arc'
@@ -4675,7 +4676,7 @@ if (PlatformInfo.isAppleTarget(project)) {
         interop = "objCAction"
         flags = ["-tr"]
         doBeforeBuild {
-            mkdir(buildDir)
+            mkdir(layout.buildDirectory.get().asFile)
             project.extensions.execClang.execClangForCompilerTests(project.target) {
                 args "$projectDir/interop/objc/objCAction/objclib.m"
                 args "-lobjc", '-fobjc-arc'
@@ -4701,7 +4702,7 @@ tasks.register("KT-50983", KonanDriverTest) {
     // TODO: Re-enable it after LLVM update where llvm-windres will be added.
     enabled = false
     doBeforeBuild {
-        mkdir(buildDir)
+        mkdir(layout.buildDirectory.get().asFile)
         exec {
             commandLine UtilsKt.binaryFromToolchain(project, "windres")
             args "$projectDir/windows/KT-50983/File.rc", "-O", "coff", "-o", "$buildDir/File.res"
@@ -4953,7 +4954,7 @@ standaloneTest("split_compilation_pipeline") {
     // Also, it is failing for some reason on Windows CI, but since MinGW targets are not inteneded
     // to use this mode, we can disable it for these targets.
     enabled = !twoStageEnabled && project.target.name != "mingw_x64" && project.target.name != "mingw_x86"
-    def dir = buildDir.absolutePath
+    def dir = layout.buildDirectory.get().asFile.absolutePath
     source = "link/private_fake_overrides/override_main.kt"
     doBeforeBuild {
         konanc("$projectDir/link/private_fake_overrides/override_lib.kt -p library -target ${target.name} -o $dir/lib.klib")
@@ -5576,7 +5577,7 @@ Task pluginTest(String name, String pluginName, Closure configureClosure) {
             sourceSets[pluginName].output
         }
         archiveBaseName = pluginName
-        destinationDirectory = buildDir
+        destinationDirectory = layout.buildDirectory.get().asFile
     }
     def taskName = "$name-with-$pluginName"
     return KotlinNativeTestKt.createTest(project, taskName, KonanStandaloneTest) { task ->
