@@ -105,28 +105,6 @@ class DelegatedMemberGenerator(private val components: Fir2IrComponents) : Fir2I
 
         val subClassLookupTag = firSubClass.symbol.toLookupTag()
 
-        subClassScope.processAllFunctions { functionSymbol ->
-            val unwrapped =
-                functionSymbol.unwrapDelegateTarget(subClassLookupTag, firField)
-                    ?: return@processAllFunctions
-
-            val delegateToSymbol = findDelegateToSymbol(
-                unwrapped.unwrapSubstitutionOverrides().symbol,
-                delegateToScope::processFunctionsByName,
-                delegateToScope::processOverriddenFunctions
-            ) ?: return@processAllFunctions
-
-            val delegateToLookupTag = delegateToSymbol.dispatchReceiverClassLookupTagOrNull()
-                ?: return@processAllFunctions
-
-            val irSubFunction = generateDelegatedFunction(
-                subClass, firSubClass, functionSymbol.fir
-            )
-
-            bodiesInfo += DeclarationBodyInfo(irSubFunction, irField, delegateToSymbol, delegateToLookupTag)
-            declarationStorage.cacheDelegationFunction(functionSymbol.fir, irSubFunction)
-        }
-
         subClassScope.processAllProperties { propertySymbol ->
             if (propertySymbol !is FirPropertySymbol) return@processAllProperties
 
@@ -153,6 +131,28 @@ class DelegatedMemberGenerator(private val components: Fir2IrComponents) : Fir2I
             )
             bodiesInfo += DeclarationBodyInfo(irSubProperty, irField, delegateToSymbol, delegateToLookupTag)
             declarationStorage.cacheDelegatedProperty(propertySymbol.fir, irSubProperty)
+        }
+
+        subClassScope.processAllFunctions { functionSymbol ->
+            val unwrapped =
+                functionSymbol.unwrapDelegateTarget(subClassLookupTag, firField)
+                    ?: return@processAllFunctions
+
+            val delegateToSymbol = findDelegateToSymbol(
+                unwrapped.unwrapSubstitutionOverrides().symbol,
+                delegateToScope::processFunctionsByName,
+                delegateToScope::processOverriddenFunctions
+            ) ?: return@processAllFunctions
+
+            val delegateToLookupTag = delegateToSymbol.dispatchReceiverClassLookupTagOrNull()
+                ?: return@processAllFunctions
+
+            val irSubFunction = generateDelegatedFunction(
+                subClass, firSubClass, functionSymbol.fir
+            )
+
+            bodiesInfo += DeclarationBodyInfo(irSubFunction, irField, delegateToSymbol, delegateToLookupTag)
+            declarationStorage.cacheDelegationFunction(functionSymbol.fir, irSubFunction)
         }
     }
 
