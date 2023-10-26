@@ -42548,6 +42548,12 @@ public class FirLightTreeOldFrontendDiagnosticsTestGenerated extends AbstractFir
                 public void testConstructorCase() throws Exception {
                     runTest("compiler/testData/diagnostics/testsWithStdLib/resolve/ambiguousTypeReferences/constructorCase.kt");
                 }
+
+                @Test
+                @TestMetadata("constructorCaseSpace.kt")
+                public void testConstructorCaseSpace() throws Exception {
+                    runTest("compiler/testData/diagnostics/testsWithStdLib/resolve/ambiguousTypeReferences/constructorCaseSpace.kt");
+                }
             }
         }
 
