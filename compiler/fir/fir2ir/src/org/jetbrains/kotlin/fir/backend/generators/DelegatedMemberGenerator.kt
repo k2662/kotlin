@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.backend.*
 import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.declarations.impl.FirPrimaryConstructor
 import org.jetbrains.kotlin.fir.declarations.utils.modality
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
 import org.jetbrains.kotlin.fir.resolve.scope
@@ -105,12 +106,15 @@ class DelegatedMemberGenerator(private val components: Fir2IrComponents) : Fir2I
 
         val subClassLookupTag = firSubClass.symbol.toLookupTag()
 
-        subClassScope.processAllProperties { propertySymbol ->
-            if (propertySymbol !is FirPropertySymbol) return@processAllProperties
+        val primaryConstructorValueParamNames: List<Name> = firSubClass.declarations
+            .mapNotNull { (it as? FirPrimaryConstructor)?.valueParameters }
+            .flatten().map { it.name }
+        subClassScope.processAllPropertiesSortedByTypeAndName(primaryConstructorValueParamNames) { propertySymbol ->
+            if (propertySymbol !is FirPropertySymbol) return@processAllPropertiesSortedByTypeAndName
 
             val unwrapped =
                 propertySymbol.unwrapDelegateTarget(subClassLookupTag, firField)
-                    ?: return@processAllProperties
+                    ?: return@processAllPropertiesSortedByTypeAndName
 
             val delegateToSymbol = findDelegateToSymbol(
                 unwrapped.unwrapSubstitutionOverrides().symbol,
@@ -121,10 +125,10 @@ class DelegatedMemberGenerator(private val components: Fir2IrComponents) : Fir2I
                     }
                 },
                 delegateToScope::processOverriddenProperties
-            ) ?: return@processAllProperties
+            ) ?: return@processAllPropertiesSortedByTypeAndName
 
             val delegateToLookupTag = delegateToSymbol.dispatchReceiverClassLookupTagOrNull()
-                ?: return@processAllProperties
+                ?: return@processAllPropertiesSortedByTypeAndName
 
             val irSubProperty = generateDelegatedProperty(
                 subClass, firSubClass, propertySymbol.fir

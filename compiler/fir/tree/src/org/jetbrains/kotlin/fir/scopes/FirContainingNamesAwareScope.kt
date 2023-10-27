@@ -26,6 +26,25 @@ fun FirContainingNamesAwareScope.processAllProperties(processor: (FirVariableSym
     }
 }
 
+/** Processes properties in the same order, as DeserializedMemberScope.addMembers() does by MemberComparator.NameAndTypeMemberComparator
+ * 1) primary constructor value parameters, sorted by name
+ * 2) non-extension properties, sorted by name
+ * 3) extension properties, sorted by name
+ */
+fun FirContainingNamesAwareScope.processAllPropertiesSortedByTypeAndName(
+    primaryConstructorValueParamNames: List<Name>,
+    processor: (FirVariableSymbol<*>) -> Unit
+) {
+    val (primaryConstructorValueParams, otherProperties) = getCallableNames().sorted()
+        .flatMap { getProperties(it) }
+        .partition { it.name in primaryConstructorValueParamNames }
+    val (extFunctions, memberFunctions) = otherProperties.partition { it.isExtension }
+
+    primaryConstructorValueParams.forEach { processPropertiesByName(it.name, processor) }
+    memberFunctions.forEach { processPropertiesByName(it.name, processor) }
+    extFunctions.forEach { processPropertiesByName(it.name, processor) }
+}
+
 fun FirContainingNamesAwareScope.processAllCallables(processor: (FirCallableSymbol<*>) -> Unit) {
     for (name in getCallableNames()) {
         processFunctionsByName(name, processor)
