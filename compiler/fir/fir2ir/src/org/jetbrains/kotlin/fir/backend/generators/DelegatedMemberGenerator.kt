@@ -137,19 +137,19 @@ class DelegatedMemberGenerator(private val components: Fir2IrComponents) : Fir2I
             declarationStorage.cacheDelegatedProperty(propertySymbol.fir, irSubProperty)
         }
 
-        subClassScope.processAllFunctions { functionSymbol ->
+        subClassScope.processAllFunctionsSortedByTypeAndName { functionSymbol ->
             val unwrapped =
                 functionSymbol.unwrapDelegateTarget(subClassLookupTag, firField)
-                    ?: return@processAllFunctions
+                    ?: return@processAllFunctionsSortedByTypeAndName
 
             val delegateToSymbol = findDelegateToSymbol(
                 unwrapped.unwrapSubstitutionOverrides().symbol,
                 delegateToScope::processFunctionsByName,
                 delegateToScope::processOverriddenFunctions
-            ) ?: return@processAllFunctions
+            ) ?: return@processAllFunctionsSortedByTypeAndName
 
             val delegateToLookupTag = delegateToSymbol.dispatchReceiverClassLookupTagOrNull()
-                ?: return@processAllFunctions
+                ?: return@processAllFunctionsSortedByTypeAndName
 
             val irSubFunction = generateDelegatedFunction(
                 subClass, firSubClass, functionSymbol.fir

@@ -23,6 +23,18 @@ class Impl : A, B {
     <this>.#$$delegate_0.clear()
   }
 
+  override operator fun contains(element: @FlexibleNullability String?): Boolean {
+    return <this>.#$$delegate_0.contains(element = element)
+  }
+
+  override fun containsAll(elements: Collection<@FlexibleNullability String?>): Boolean {
+    return <this>.#$$delegate_0.containsAll(elements = elements)
+  }
+
+  override fun isEmpty(): Boolean {
+    return <this>.#$$delegate_0.isEmpty()
+  }
+
   override operator fun iterator(): MutableIterator<@FlexibleNullability String?> {
     return <this>.#$$delegate_0.iterator()
   }
@@ -37,18 +49,6 @@ class Impl : A, B {
 
   override fun retainAll(elements: Collection<@FlexibleNullability String?>): Boolean {
     return <this>.#$$delegate_0.retainAll(elements = elements)
-  }
-
-  override fun isEmpty(): Boolean {
-    return <this>.#$$delegate_0.isEmpty()
-  }
-
-  override operator fun contains(element: @FlexibleNullability String?): Boolean {
-    return <this>.#$$delegate_0.contains(element = element)
-  }
-
-  override fun containsAll(elements: Collection<@FlexibleNullability String?>): Boolean {
-    return <this>.#$$delegate_0.containsAll(elements = elements)
   }
 
 }

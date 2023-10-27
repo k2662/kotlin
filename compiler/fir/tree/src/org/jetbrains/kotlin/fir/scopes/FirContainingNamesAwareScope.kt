@@ -20,6 +20,19 @@ fun FirContainingNamesAwareScope.processAllFunctions(processor: (FirNamedFunctio
     }
 }
 
+/** Processes functions in the same order, as DeserializedMemberScope.addMembers() does by MemberComparator.NameAndTypeMemberComparator
+ * 1) non-extension functions, sorted by name
+ * 2) extension functions, sorted by name
+ */
+fun FirContainingNamesAwareScope.processAllFunctionsSortedByTypeAndName(processor: (FirNamedFunctionSymbol) -> Unit) {
+    val (extFunctions, memberFunctions) = getCallableNames().sorted()
+        .flatMap { getFunctions(it) }
+        .partition { it.isExtension }
+
+    memberFunctions.forEach { processFunctionsByName(it.name, processor) }
+    extFunctions.forEach { processFunctionsByName(it.name, processor) }
+}
+
 fun FirContainingNamesAwareScope.processAllProperties(processor: (FirVariableSymbol<*>) -> Unit) {
     for (name in getCallableNames()) {
         processPropertiesByName(name, processor)
