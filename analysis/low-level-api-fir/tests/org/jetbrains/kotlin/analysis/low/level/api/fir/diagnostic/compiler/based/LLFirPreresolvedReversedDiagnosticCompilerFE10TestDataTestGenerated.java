@@ -44672,6 +44672,12 @@ public class LLFirPreresolvedReversedDiagnosticCompilerFE10TestDataTestGenerated
                 }
 
                 @Test
+                @TestMetadata("callableReferenceUnboundCase.kt")
+                public void testCallableReferenceUnboundCase() throws Exception {
+                    runTest("compiler/testData/diagnostics/testsWithStdLib/resolve/ambiguousTypeReferences/callableReferenceUnboundCase.kt");
+                }
+
+                @Test
                 @TestMetadata("classLiteralCase.kt")
                 public void testClassLiteralCase() throws Exception {
                     runTest("compiler/testData/diagnostics/testsWithStdLib/resolve/ambiguousTypeReferences/classLiteralCase.kt");
