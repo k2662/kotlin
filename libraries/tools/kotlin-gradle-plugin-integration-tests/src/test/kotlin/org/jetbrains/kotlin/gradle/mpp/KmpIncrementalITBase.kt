@@ -10,6 +10,7 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.testbase.relativizeTo
+import org.jetbrains.kotlin.gradle.util.replaceWithVersion
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.appendText
@@ -68,6 +69,21 @@ abstract class KmpIncrementalITBase : KGPBaseTest() {
                 assertIncrementalCompilation(listOf(it).relativizeTo(projectPath))
             }
             assertions()
+        }
+    }
+
+    protected open fun TestProject.multiStepTestCase(
+        alteredPath: Path,
+        steps: List<String>,
+        tasksToExecuteOnEachStep: Set<String>,
+        afterEachStep: BuildResult.() -> Unit = {}
+    ) {
+        for (step in steps) {
+            alteredPath.replaceWithVersion(step)
+            build(gradleTask, buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
+                assertSuccessOrUTD(allTasks = mainCompileTasks, executedTasks = tasksToExecuteOnEachStep)
+                afterEachStep()
+            }
         }
     }
 
