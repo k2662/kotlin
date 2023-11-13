@@ -11,13 +11,16 @@ import org.jetbrains.kotlin.fir.FirLoopTarget
 import org.jetbrains.kotlin.fir.declarations.FirTypeParameterRef
 import org.jetbrains.kotlin.fir.declarations.builder.buildOuterClassTypeParameterRef
 import org.jetbrains.kotlin.fir.expressions.FirExpression
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirTypeParameterSymbol
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
+import org.jetbrains.kotlin.fir.utils.exceptions.withFirSymbolEntry
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.util.PrivateForInline
+import org.jetbrains.kotlin.utils.exceptions.checkWithAttachment
 
 class Context<T> {
     lateinit var packageFqName: FqName
@@ -75,6 +78,21 @@ class Context<T> {
             if (!element.isInnerOrLocal) {
                 break
             }
+        }
+    }
+
+    val containerSymbolStack: MutableList<FirBasedSymbol<*>> = mutableListOf<FirBasedSymbol<*>>()
+
+    fun pushContainerSymbol(symbol: FirBasedSymbol<*>) {
+        containerSymbolStack += symbol
+    }
+
+    fun popContainerSymbol(symbol: FirBasedSymbol<*>) {
+        val removed = containerSymbolStack.removeLast()
+        checkWithAttachment(removed === symbol, { "Inconsistent declaration stack" }) {
+            withFirSymbolEntry("expected", symbol)
+            withFirSymbolEntry("actual", removed)
+            withEntry("stack", containerSymbolStack.asReversed().toString())
         }
     }
 

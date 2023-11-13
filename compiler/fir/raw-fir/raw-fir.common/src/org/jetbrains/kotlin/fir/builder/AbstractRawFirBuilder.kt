@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.fir.expressions.builder.*
 import org.jetbrains.kotlin.fir.references.builder.buildImplicitThisReference
 import org.jetbrains.kotlin.fir.references.builder.buildResolvedNamedReference
 import org.jetbrains.kotlin.fir.references.builder.buildSimpleNamedReference
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.fir.types.builder.buildErrorTypeRef
@@ -141,6 +142,18 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
             block()
         } finally {
             context.popFirTypeParameters()
+        }
+    }
+
+    inline fun <T> withContainerSymbol(
+        symbol: FirBasedSymbol<*>,
+        block: () -> T,
+    ): T {
+        context.pushContainerSymbol(symbol)
+        return try {
+            block()
+        } finally {
+            context.popContainerSymbol(symbol)
         }
     }
 
