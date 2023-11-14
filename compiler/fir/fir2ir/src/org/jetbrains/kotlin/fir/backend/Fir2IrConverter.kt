@@ -644,7 +644,7 @@ class Fir2IrConverter(
                     onError = { irFile, element, error ->
                         // We are using exactly this overload of `at` to eliminate differences between PSI and LightTree render
                         ktDiagnosticReporter.at(element.sourceElement(), element, irFile)
-                            .report(CommonBackendErrors.EVALUATION_ERROR, error.description)
+                            .report(CommonBackendErrors.EVALUATION_ERROR, error)
                     }
                 )
             }

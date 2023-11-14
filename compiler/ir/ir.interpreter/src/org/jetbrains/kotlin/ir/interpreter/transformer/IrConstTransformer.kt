@@ -36,8 +36,8 @@ fun IrElement.transformConst(
     mode: EvaluationMode,
     evaluatedConstTracker: EvaluatedConstTracker? = null,
     inlineConstTracker: InlineConstTracker? = null,
-    onWarning: (IrFile, IrElement, IrErrorExpression) -> Unit = { _, _, _ -> },
-    onError: (IrFile, IrElement, IrErrorExpression) -> Unit = { _, _, _ -> },
+    onWarning: (IrFile, IrElement, String) -> Unit = { _, _, _ -> },
+    onError: (IrFile, IrElement, String) -> Unit = { _, _, _ -> },
     suppressExceptions: Boolean = false,
 ): IrElement {
     val checker = IrInterpreterCommonChecker()
@@ -94,15 +94,15 @@ internal abstract class IrConstTransformer(
     private val checker: IrInterpreterChecker,
     private val evaluatedConstTracker: EvaluatedConstTracker?,
     private val inlineConstTracker: InlineConstTracker?,
-    private val onWarning: (IrFile, IrElement, IrErrorExpression) -> Unit,
-    private val onError: (IrFile, IrElement, IrErrorExpression) -> Unit,
+    private val onWarning: (IrFile, IrElement, String) -> Unit,
+    private val onError: (IrFile, IrElement, String) -> Unit,
     private val suppressExceptions: Boolean,
 ) : IrElementTransformer<IrConstTransformer.Data> {
     internal data class Data(val inConstantExpression: Boolean = false)
 
     private fun IrExpression.warningIfError(original: IrExpression): IrExpression {
         if (this is IrErrorExpression) {
-            onWarning(irFile, original, this)
+            onWarning(irFile, original, this.description)
             return original
         }
         return this
@@ -110,7 +110,7 @@ internal abstract class IrConstTransformer(
 
     private fun IrExpression.reportIfError(original: IrExpression): IrExpression {
         if (this is IrErrorExpression) {
-            onError(irFile, original, this)
+            onError(irFile, original, this.description)
             return when (mode) {
                 // need to pass any const value to be able to get some bytecode and then report error
                 EvaluationMode.ONLY_INTRINSIC_CONST -> IrConstImpl.constNull(startOffset, endOffset, type)

@@ -23,8 +23,8 @@ internal class IrConstDeclarationAnnotationTransformer(
     checker: IrInterpreterChecker,
     evaluatedConstTracker: EvaluatedConstTracker?,
     inlineConstTracker: InlineConstTracker?,
-    onWarning: (IrFile, IrElement, IrErrorExpression) -> Unit,
-    onError: (IrFile, IrElement, IrErrorExpression) -> Unit,
+    onWarning: (IrFile, IrElement, String) -> Unit,
+    onError: (IrFile, IrElement, String) -> Unit,
     suppressExceptions: Boolean,
 ) : IrConstAnnotationTransformer(
     interpreter, irFile, mode, checker, evaluatedConstTracker, inlineConstTracker, onWarning, onError, suppressExceptions
