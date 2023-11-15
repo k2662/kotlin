@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.ir.interpreter.intrinsicConstEvaluationAnnotation
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.util.*
+import org.jetbrains.kotlin.load.java.JavaDescriptorVisibilities
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames
 import org.jetbrains.kotlin.load.java.lazy.descriptors.isJavaField
 import org.jetbrains.kotlin.name.Name
@@ -30,7 +31,6 @@ import org.jetbrains.kotlin.name.StandardClassIds
 import org.jetbrains.kotlin.test.TargetBackend
 import org.jetbrains.kotlin.test.backend.codegenSuppressionChecker
 import org.jetbrains.kotlin.test.backend.ir.IrBackendInput
-import org.jetbrains.kotlin.test.directives.CodegenTestDirectives.DUMP_LOCAL_DECLARATION_SIGNATURES
 import org.jetbrains.kotlin.test.directives.CodegenTestDirectives.DUMP_SIGNATURES
 import org.jetbrains.kotlin.test.directives.CodegenTestDirectives.MUTE_SIGNATURE_COMPARISON_K2
 import org.jetbrains.kotlin.test.directives.CodegenTestDirectives.SKIP_SIGNATURE_DUMP
@@ -58,7 +58,6 @@ private const val CHECK_MARKER = "// CHECK"
  * Other useful directives:
  * - [MUTE_SIGNATURE_COMPARISON_K2] can be used for muting the comparison result on the K2 frontend. The comparison will
  *   still be performed, and if it succeeds, the test will fail with a message reminding you to unmute it.
- * - [DUMP_LOCAL_DECLARATION_SIGNATURES] enables printing signatures for local functions and classes.
  *
  * Since mangled names and signatures may be different depending on the backend, in order to reduce the number
  * of expectation files, this handler uses `// CHECK` blocks to compare the dump with an expectation in a smarter way than
@@ -143,10 +142,7 @@ class IrMangledNameAndSignatureDumpHandler(
                 ),
                 printFilePath = false,
                 printFakeOverridesStrategy = FakeOverridesStrategy.ALL_EXCEPT_ANY,
-                bodyPrintingStrategy = if (DUMP_LOCAL_DECLARATION_SIGNATURES in module.directives)
-                    BodyPrintingStrategy.PRINT_ONLY_LOCAL_CLASSES_AND_FUNCTIONS
-                else
-                    BodyPrintingStrategy.NO_BODIES,
+                bodyPrintingStrategy = BodyPrintingStrategy.NO_BODIES,
                 printUnitReturnType = true,
                 stableOrder = true,
             ),
@@ -280,6 +276,32 @@ class IrMangledNameAndSignatureDumpHandler(
         override fun willPrintElement(element: IrElement, container: IrDeclaration?, printer: Printer): Boolean {
             if (element !is IrDeclaration) return true
             if (element is IrAnonymousInitializer) return false
+
+            if (element is IrDeclarationWithVisibility) {
+                // Note: IrEnumEntry is not an instance of IrDeclarationWithVisibility,
+                // but it should not be ignored.
+                when (element.visibility) {
+                    DescriptorVisibilities.PUBLIC,
+                    DescriptorVisibilities.PROTECTED,
+                    DescriptorVisibilities.INTERNAL,
+                    JavaDescriptorVisibilities.PACKAGE_VISIBILITY,
+                    JavaDescriptorVisibilities.PROTECTED_AND_PACKAGE,
+                    -> {
+                        // This is effectively a public declaration. Do nothing specific. Proceed further.
+                        //
+                        // IMPORTANT: For the sake of simplicity we don't distinguish between `internal` and
+                        // `@PublishedApi internal` declarations here. Formally, `@PublishedApi internal` is
+                        // a truly public declaration while just `internal` is not. But from mangler's POV
+                        // there is no difference, in both cases public signatures are computed by exactly
+                        // the same algorithm.
+                    }
+                    else -> {
+                        // This is a Java package protected visibility.
+                        // This is effectively a non-public or a local declaration.
+                        return false
+                    }
+                }
+            }
 
             // Don't print fake overrides of Java fields
             if (element is IrProperty &&
