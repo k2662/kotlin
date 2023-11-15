@@ -67,7 +67,7 @@ internal abstract class IrConstAnnotationTransformer(
     }
 
     private fun IrExpression.transformSingleArg(expectedType: IrType): IrExpression {
-        if (this.canBeInterpreted()) {
+        if (this.canBeInterpreted(reportErrorIfCantInterpret = true)) {
             return this.interpret(failAsError = true).convertToConstIfPossible(expectedType)
         } else if (this is IrConstructorCall) {
             transformAnnotation(this)

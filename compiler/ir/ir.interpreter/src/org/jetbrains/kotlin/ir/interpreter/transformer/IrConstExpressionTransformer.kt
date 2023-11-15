@@ -45,7 +45,7 @@ internal abstract class IrConstExpressionTransformer(
     }
 
     override fun visitCall(expression: IrCall, data: Data): IrElement {
-        if (expression.canBeInterpreted()) {
+        if (expression.canBeInterpreted(reportErrorIfCantInterpret = data.inConstantExpression)) {
             return expression.interpret(failAsError = data.inConstantExpression)
         }
         return super.visitCall(expression, data)
@@ -56,15 +56,15 @@ internal abstract class IrConstExpressionTransformer(
         val expression = initializer?.expression ?: return declaration
         val getField = declaration.createGetField()
 
-        if (getField.canBeInterpreted()) {
-            initializer.expression = expression.interpret(failAsError = true)
+        if (getField.canBeInterpreted(reportErrorIfCantInterpret = data.inConstantExpression)) {
+            initializer.expression = expression.interpret(failAsError = data.inConstantExpression)
         }
 
         return super.visitField(declaration, data)
     }
 
     override fun visitGetField(expression: IrGetField, data: Data): IrExpression {
-        if (expression.canBeInterpreted()) {
+        if (expression.canBeInterpreted(reportErrorIfCantInterpret = data.inConstantExpression)) {
             return expression.interpret(failAsError = data.inConstantExpression)
         }
         return super.visitGetField(expression, data)
@@ -75,7 +75,6 @@ internal abstract class IrConstExpressionTransformer(
             this.startOffset, this.endOffset, expression.type, listOf(this@wrapInStringConcat)
         )
 
-        fun IrExpression.wrapInToStringConcatAndInterpret(): IrExpression = wrapInStringConcat().interpret(failAsError = data.inConstantExpression)
         fun IrExpression.getConstStringOrEmpty(): String = if (this is IrConst<*>) value.toString() else ""
 
         // If we have some complex expression in arguments (like some `IrComposite`) we will skip it,
@@ -87,17 +86,17 @@ internal abstract class IrConstExpressionTransformer(
         for (next in transformed.arguments) {
             val last = folded.lastOrNull()
             when {
-                !next.wrapInStringConcat().canBeInterpreted() -> {
+                !next.wrapInStringConcat().canBeInterpreted(reportErrorIfCantInterpret = data.inConstantExpression) -> {
                     folded += next
                     buildersList.add(StringBuilder(next.getConstStringOrEmpty()))
                 }
-                last == null || !last.wrapInStringConcat().canBeInterpreted() -> {
-                    val result = next.wrapInToStringConcatAndInterpret()
+                last == null || !last.wrapInStringConcat().canBeInterpreted(reportErrorIfCantInterpret = data.inConstantExpression) -> {
+                    val result = next.wrapInStringConcat().interpret(failAsError = data.inConstantExpression)
                     folded += result
                     buildersList.add(StringBuilder(result.getConstStringOrEmpty()))
                 }
                 else -> {
-                    val nextAsConst = next.wrapInToStringConcatAndInterpret()
+                    val nextAsConst = next.wrapInStringConcat().interpret(failAsError = data.inConstantExpression)
                     if (nextAsConst !is IrConst<*>) {
                         folded += next
                         buildersList.add(StringBuilder(next.getConstStringOrEmpty()))

@@ -32,8 +32,26 @@ public class FirPsiWithInterpreterDiagnosticsTestGenerated extends AbstractFirPs
     }
 
     @Test
+    @TestMetadata("javaProperties.kt")
+    public void testJavaProperties() throws Exception {
+        runTest("compiler/testData/diagnostics/irInterpreter/javaProperties.kt");
+    }
+
+    @Test
+    @TestMetadata("nonConstantInJava.kt")
+    public void testNonConstantInJava() throws Exception {
+        runTest("compiler/testData/diagnostics/irInterpreter/nonConstantInJava.kt");
+    }
+
+    @Test
     @TestMetadata("recursionAccess.kt")
     public void testRecursionAccess() throws Exception {
         runTest("compiler/testData/diagnostics/irInterpreter/recursionAccess.kt");
+    }
+
+    @Test
+    @TestMetadata("staticFinalJavaField.kt")
+    public void testStaticFinalJavaField() throws Exception {
+        runTest("compiler/testData/diagnostics/irInterpreter/staticFinalJavaField.kt");
     }
 }

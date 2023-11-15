@@ -1,0 +1,1 @@
+/test.kt:(44,45): error: Cannot evaluate constant expression: expression is not a valid constant

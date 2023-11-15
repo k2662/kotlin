@@ -1,0 +1,9 @@
+/a.kt:(86,88): error: Cannot evaluate constant expression: expression is not a valid constant
+
+/a.kt:(112,114): error: Cannot evaluate constant expression: expression is not a valid constant
+
+/a.kt:(138,140): error: Cannot evaluate constant expression: expression is not a valid constant
+
+/a.kt:(151,153): error: Cannot evaluate constant expression: expression is not a valid constant
+
+/a.kt:(166,168): error: Cannot evaluate constant expression: expression is not a valid constant

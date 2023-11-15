@@ -120,8 +120,8 @@ internal abstract class IrConstTransformer(
         return this
     }
 
-    protected fun IrExpression.canBeInterpreted(): Boolean {
-        return try {
+    protected fun IrExpression.canBeInterpreted(reportErrorIfCantInterpret: Boolean): Boolean {
+        val canBeInterpreted = try {
             this.accept(checker, IrInterpreterCheckerData(irFile, mode, interpreter.irBuiltIns))
         } catch (e: Throwable) {
             if (suppressExceptions) {
@@ -129,6 +129,13 @@ internal abstract class IrConstTransformer(
             }
             throw AssertionError("Error occurred while optimizing an expression:\n${this.dump()}", e)
         }
+
+        if (!canBeInterpreted && reportErrorIfCantInterpret) {
+            onError(irFile, this, "expression is not a valid constant")
+            return false
+        }
+
+        return canBeInterpreted
     }
 
     protected fun IrExpression.interpret(failAsError: Boolean): IrExpression {
