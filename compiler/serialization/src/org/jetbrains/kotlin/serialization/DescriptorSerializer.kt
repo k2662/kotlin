@@ -189,6 +189,10 @@ class DescriptorSerializer private constructor(
 
         builder.addAllVersionRequirement(versionRequirementTable.serializeVersionRequirements(classDescriptor))
 
+        for (annotation in classDescriptor.nonSourceAnnotations) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation)!!)
+        }
+
         extension.serializeClass(classDescriptor, builder, versionRequirementTable, this)
 
         plugins.forEach { it.afterClass(classDescriptor, builder, versionRequirementTable, this, extension) }
@@ -233,6 +237,9 @@ class DescriptorSerializer private constructor(
             if (accessorFlags != defaultAccessorFlags) {
                 builder.getterFlags = accessorFlags
             }
+            for (annotation in getter.nonSourceAnnotations) {
+                builder.addGetterAnnotation(extension.annotationSerializer.serializeAnnotation(annotation)!!)
+            }
         }
 
         val setter = descriptor.setter
@@ -241,6 +248,9 @@ class DescriptorSerializer private constructor(
             val accessorFlags = getAccessorFlags(setter)
             if (accessorFlags != defaultAccessorFlags) {
                 builder.setterFlags = accessorFlags
+            }
+            for (annotation in setter.nonSourceAnnotations) {
+                builder.addSetterAnnotation(extension.annotationSerializer.serializeAnnotation(annotation)!!)
             }
 
             if (!setter.isDefault) {
@@ -297,6 +307,10 @@ class DescriptorSerializer private constructor(
             if (local.metDefinitelyNotNullType) {
                 builder.addVersionRequirement(writeVersionRequirement(LanguageFeature.DefinitelyNonNullableTypes))
             }
+        }
+
+        for (annotation in descriptor.nonSourceAnnotations) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation)!!)
         }
 
         extension.serializeProperty(descriptor, builder, versionRequirementTable, local)
@@ -372,6 +386,10 @@ class DescriptorSerializer private constructor(
 
         contractSerializer.serializeContractOfFunctionIfAny(descriptor, builder, this)
 
+        for (annotation in descriptor.nonSourceAnnotations) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation)!!)
+        }
+
         extension.serializeFunction(descriptor, builder, versionRequirementTable, local)
 
         plugins.forEach { it.afterFunction(descriptor, builder, versionRequirementTable, this, extension) }
@@ -414,6 +432,10 @@ class DescriptorSerializer private constructor(
             if (local.metDefinitelyNotNullType) {
                 builder.addVersionRequirement(writeVersionRequirement(LanguageFeature.DefinitelyNonNullableTypes))
             }
+        }
+
+        for (annotation in descriptor.nonSourceAnnotations) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation)!!)
         }
 
         extension.serializeConstructor(descriptor, builder, local)
@@ -507,6 +529,10 @@ class DescriptorSerializer private constructor(
             } else {
                 builder.setVarargElementType(type(varargElementType))
             }
+        }
+
+        for (annotation in descriptor.nonSourceAnnotations) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation)!!)
         }
 
         extension.serializeValueParameter(descriptor, builder)

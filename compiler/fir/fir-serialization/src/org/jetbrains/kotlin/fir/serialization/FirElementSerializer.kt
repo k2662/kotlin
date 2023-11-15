@@ -280,6 +280,10 @@ class FirElementSerializer private constructor(
 
         builder.addAllVersionRequirement(versionRequirementTable.serializeVersionRequirements(klass))
 
+        for (annotation in klass.nonSourceAnnotations(session)) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation))
+        }
+
         extension.serializeClass(klass, builder, versionRequirementTable, this)
 
         if (metDefinitelyNotNullType) {
@@ -491,6 +495,9 @@ class FirElementSerializer private constructor(
             if (accessorFlags != defaultAccessorFlags) {
                 builder.getterFlags = accessorFlags
             }
+            for (annotation in getter.nonSourceAnnotations(session)) {
+                builder.addGetterAnnotation(extension.annotationSerializer.serializeAnnotation(annotation))
+            }
         }
 
         val setter = property.setter ?: with(property) {
@@ -507,13 +514,15 @@ class FirElementSerializer private constructor(
             if (accessorFlags != defaultAccessorFlags) {
                 builder.setterFlags = accessorFlags
             }
-
-            val nonSourceAnnotations = setter.nonSourceAnnotations(session)
+            val setterAnnotations = setter.nonSourceAnnotations(session)
+            for (annotation in setterAnnotations) {
+                builder.addSetterAnnotation(extension.annotationSerializer.serializeAnnotation(annotation))
+            }
             if (Flags.IS_NOT_DEFAULT.get(accessorFlags)) {
                 val setterLocal = local.createChildSerializer(setter)
-                for ((index, valueParameterDescriptor) in setter.valueParameters.withIndex()) {
-                    val annotations = nonSourceAnnotations.filter { it.useSiteTarget == AnnotationUseSiteTarget.SETTER_PARAMETER }
-                    builder.setSetterValueParameter(setterLocal.valueParameterProto(valueParameterDescriptor, index, setter, annotations))
+                for ((index, setterParameter) in setter.valueParameters.withIndex()) {
+                    val setparamAnnotations = setterAnnotations.filter { it.useSiteTarget == AnnotationUseSiteTarget.SETTER_PARAMETER }
+                    builder.setSetterValueParameter(setterLocal.valueParameterProto(setterParameter, index, setter, setparamAnnotations))
                 }
             }
         }
@@ -568,6 +577,10 @@ class FirElementSerializer private constructor(
             if (local.metDefinitelyNotNullType) {
                 builder.addVersionRequirement(writeVersionRequirement(LanguageFeature.DefinitelyNonNullableTypes))
             }
+        }
+
+        for (annotation in property.nonSourceAnnotations(session)) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation))
         }
 
         extension.serializeProperty(property, builder, versionRequirementTable, local)
@@ -654,6 +667,10 @@ class FirElementSerializer private constructor(
         }
 
         contractSerializer.serializeContractOfFunctionIfAny(function, builder, this)
+
+        for (annotation in function.nonSourceAnnotations(session)) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation))
+        }
 
         extension.serializeFunction(function, builder, versionRequirementTable, local)
 
@@ -771,6 +788,10 @@ class FirElementSerializer private constructor(
             }
         }
 
+        for (annotation in constructor.nonSourceAnnotations(session)) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation))
+        }
+
         extension.serializeConstructor(constructor, builder, local)
 
         return builder
@@ -813,6 +834,10 @@ class FirElementSerializer private constructor(
             } else {
                 builder.setVarargElementType(typeProto(varargElementType))
             }
+        }
+
+        for (annotation in parameter.nonSourceAnnotations(session)) {
+            builder.addAnnotation(extension.annotationSerializer.serializeAnnotation(annotation))
         }
 
         extension.serializeValueParameter(parameter, builder)
