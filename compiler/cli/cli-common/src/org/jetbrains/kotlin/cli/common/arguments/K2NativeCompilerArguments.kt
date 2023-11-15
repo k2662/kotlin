@@ -345,21 +345,6 @@ class K2NativeCompilerArguments : CommonCompilerArguments() {
     @Argument(value = "-Xdebug-info-version", description = "generate debug info of given version (1, 2)")
     var debugInfoFormatVersion: String = "1" /* command line parser doesn't accept kotlin.Int type */
 
-    @Argument(value = "-Xcoverage", description = "emit coverage")
-    var coverage: Boolean = false
-
-    @Argument(
-        value = "-Xlibrary-to-cover",
-        valueDescription = "<path>",
-        description = "Provide code coverage for the given library.\n" +
-                "Must be one of libraries passed with '-library'",
-        delimiter = Argument.Delimiters.none
-    )
-    var coveredLibraries: Array<String>? = null
-
-    @Argument(value = "-Xcoverage-file", valueDescription = "<path>", description = "Save coverage information to the given file")
-    var coverageFile: String? = null
-
     @Argument(value = "-Xno-objc-generics", description = "Disable generics support for framework header")
     var noObjcGenerics: Boolean = false
 

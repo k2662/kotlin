@@ -298,7 +298,6 @@ internal fun <C : PhaseContext> PhaseEngine<C>.compileAndLink(
             moduleCompilationOutput.dependenciesTrackingResult,
             outputFiles,
             cacheBinaries,
-            isCoverageEnabled = isCoverageEnabled
     )
     runPhase(LinkerPhase, linkerPhaseInput)
     if (context.config.produce.isCache) {
