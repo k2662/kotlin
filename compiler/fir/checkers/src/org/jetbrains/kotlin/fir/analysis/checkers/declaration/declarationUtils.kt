@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
+import org.jetbrains.kotlin.fir.analysis.checkers.getContainingClassSymbol
 import org.jetbrains.kotlin.fir.analysis.checkers.modality
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.utils.*
@@ -36,11 +37,17 @@ private inline fun isInsideSpecificClass(
             context.containingDeclarations.asReversed().any { it is FirRegularClass && predicate.invoke(it) }
 }
 
-internal fun FirMemberDeclaration.isEffectivelyFinal(context: CheckerContext): Boolean {
-    if (this.isFinal) return true
-    val containingClass = context.containingDeclarations.lastOrNull() as? FirRegularClass ?: return true
+internal fun FirMemberDeclaration.isEffectivelyFinal(context: CheckerContext): Boolean =
+    this.isFinal || this.symbol.isEffectivelyFinalIn(context.containingDeclarations.lastOrNull()?.symbol as? FirRegularClassSymbol)
+
+internal fun FirCallableSymbol<*>.isEffectivelyFinal(session: FirSession): Boolean =
+    this.isFinal || this.isEffectivelyFinalIn(this.getContainingClassSymbol(session) as? FirClassSymbol<*>)
+
+private fun FirBasedSymbol<*>.isEffectivelyFinalIn(containingClass: FirClassSymbol<*>?): Boolean {
+    if (containingClass == null) return true
+
     if (containingClass.isEnumClass) {
-        // Enum class has enum entries and hence is not considered final.
+        // Enum class has enum entries and hence is not considered final
         return false
     }
     return containingClass.isFinal
