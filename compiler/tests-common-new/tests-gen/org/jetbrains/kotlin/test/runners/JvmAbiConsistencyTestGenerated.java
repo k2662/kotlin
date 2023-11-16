@@ -15481,6 +15481,12 @@ public class JvmAbiConsistencyTestGenerated extends AbstractJvmAbiConsistencyTes
             }
 
             @Test
+            @TestMetadata("resolveGetValueWithWholeDelegate.kt")
+            public void testResolveGetValueWithWholeDelegate() throws Exception {
+                runTest("compiler/testData/codegen/box/delegatedProperty/resolveGetValueWithWholeDelegate.kt");
+            }
+
+            @Test
             @TestMetadata("setAsExtensionFun.kt")
             public void testSetAsExtensionFun() throws Exception {
                 runTest("compiler/testData/codegen/box/delegatedProperty/setAsExtensionFun.kt");
@@ -17911,6 +17917,12 @@ public class JvmAbiConsistencyTestGenerated extends AbstractJvmAbiConsistencyTes
             }
 
             @Test
+            @TestMetadata("noRedeclaration.kt")
+            public void testNoRedeclaration() throws Exception {
+                runTest("compiler/testData/codegen/box/extensionClasses/noRedeclaration.kt");
+            }
+
+            @Test
             @TestMetadata("propertyWithContext.kt")
             public void testPropertyWithContext() throws Exception {
                 runTest("compiler/testData/codegen/box/extensionClasses/propertyWithContext.kt");
@@ -18281,6 +18293,12 @@ public class JvmAbiConsistencyTestGenerated extends AbstractJvmAbiConsistencyTes
                 @TestMetadata("kt58476.kt")
                 public void testKt58476() throws Exception {
                     runTest("compiler/testData/codegen/box/extensionFunctions/contextReceivers/kt58476.kt");
+                }
+
+                @Test
+                @TestMetadata("kt63430.kt")
+                public void testKt63430() throws Exception {
+                    runTest("compiler/testData/codegen/box/extensionFunctions/contextReceivers/kt63430.kt");
                 }
 
                 @Test
@@ -19000,6 +19018,12 @@ public class JvmAbiConsistencyTestGenerated extends AbstractJvmAbiConsistencyTes
             @TestMetadata("ConstValAccess.kt")
             public void testConstValAccess() throws Exception {
                 runTest("compiler/testData/codegen/box/fir/ConstValAccess.kt");
+            }
+
+            @Test
+            @TestMetadata("contextReceiverToExtensionReceiver.kt")
+            public void testContextReceiverToExtensionReceiver() throws Exception {
+                runTest("compiler/testData/codegen/box/fir/contextReceiverToExtensionReceiver.kt");
             }
 
             @Test
@@ -50587,6 +50611,12 @@ public class JvmAbiConsistencyTestGenerated extends AbstractJvmAbiConsistencyTes
             }
 
             @Test
+            @TestMetadata("genericInheritanceWithNonGenericNoAmbiguity.kt")
+            public void testGenericInheritanceWithNonGenericNoAmbiguity() throws Exception {
+                runTest("compiler/testData/codegen/box/smartCasts/genericInheritanceWithNonGenericNoAmbiguity.kt");
+            }
+
+            @Test
             @TestMetadata("genericIntersection.kt")
             public void testGenericIntersection() throws Exception {
                 runTest("compiler/testData/codegen/box/smartCasts/genericIntersection.kt");
@@ -50734,6 +50764,12 @@ public class JvmAbiConsistencyTestGenerated extends AbstractJvmAbiConsistencyTes
             @TestMetadata("smartCastInsideIf.kt")
             public void testSmartCastInsideIf() throws Exception {
                 runTest("compiler/testData/codegen/box/smartCasts/smartCastInsideIf.kt");
+            }
+
+            @Test
+            @TestMetadata("smartcastFromGenericToString.kt")
+            public void testSmartcastFromGenericToString() throws Exception {
+                runTest("compiler/testData/codegen/box/smartCasts/smartcastFromGenericToString.kt");
             }
 
             @Test
