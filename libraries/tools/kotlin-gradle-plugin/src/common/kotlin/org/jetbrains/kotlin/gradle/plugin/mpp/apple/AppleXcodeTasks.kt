@@ -177,7 +177,7 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
         return
     }
 
-    if (userScriptSandboxingEnabled != null && userScriptSandboxingEnabled == "YES") {
+    if (userScriptSandboxingEnabled == "YES") {
         locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
             task.group = BasePlugin.BUILD_GROUP
             task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
