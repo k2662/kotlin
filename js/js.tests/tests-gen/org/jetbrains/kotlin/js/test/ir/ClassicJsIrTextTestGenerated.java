@@ -2395,6 +2395,12 @@ public class ClassicJsIrTextTestGenerated extends AbstractClassicJsIrTextTest {
         }
 
         @Test
+        @TestMetadata("IntArrayAsVararg.kt")
+        public void testIntArrayAsVararg() throws Exception {
+            runTest("compiler/testData/ir/irText/firProblems/IntArrayAsVararg.kt");
+        }
+
+        @Test
         @TestMetadata("integerLiteralWithExpectedTypealiasType.kt")
         public void testIntegerLiteralWithExpectedTypealiasType() throws Exception {
             runTest("compiler/testData/ir/irText/firProblems/integerLiteralWithExpectedTypealiasType.kt");
@@ -2609,6 +2615,12 @@ public class ClassicJsIrTextTestGenerated extends AbstractClassicJsIrTextTest {
             @TestMetadata("dynamicExclExclOperator.kt")
             public void testDynamicExclExclOperator() throws Exception {
                 runTest("compiler/testData/ir/irText/js/dynamic/dynamicExclExclOperator.kt");
+            }
+
+            @Test
+            @TestMetadata("dynamicInDataClass.kt")
+            public void testDynamicInDataClass() throws Exception {
+                runTest("compiler/testData/ir/irText/js/dynamic/dynamicInDataClass.kt");
             }
 
             @Test

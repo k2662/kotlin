@@ -22,13 +22,16 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.tasks.USING_JVM_INCREMENTAL_COMPILATION_MESSAGE
 import org.jetbrains.kotlin.gradle.testbase.*
+import org.jetbrains.kotlin.gradle.testbase.project as testBaseProject
 import org.jetbrains.kotlin.gradle.util.addBeforeSubstring
 import org.jetbrains.kotlin.gradle.util.checkedReplace
 import org.jetbrains.kotlin.gradle.util.testResolveAllConfigurations
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.OS
+import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.appendText
@@ -61,6 +64,38 @@ abstract class Kapt3BaseIT : KGPBaseTest() {
             "Kapt hasn't done any processing"
         }
     }
+
+    // All Kapt projects require around 2.5g of heap size for Kotlin daemon
+    @OptIn(EnvironmentalVariablesOverride::class)
+    protected fun Kapt3BaseIT.project(
+        projectName: String,
+        gradleVersion: GradleVersion,
+        buildOptions: BuildOptions = defaultBuildOptions,
+        forceOutput: Boolean = false,
+        enableBuildScan: Boolean = false,
+        addHeapDumpOptions: Boolean = true,
+        enableGradleDebug: Boolean = false,
+        enableKotlinDaemonMemoryLimitInMb: Int? = 2512,
+        projectPathAdditionalSuffix: String = "",
+        buildJdk: File? = null,
+        localRepoDir: Path? = null,
+        environmentVariables: EnvironmentalVariables = EnvironmentalVariables(),
+        test: TestProject.() -> Unit = {},
+    ): TestProject = testBaseProject(
+        projectName = projectName,
+        gradleVersion = gradleVersion,
+        buildOptions = buildOptions,
+        forceOutput = forceOutput,
+        enableBuildScan = enableBuildScan,
+        addHeapDumpOptions = addHeapDumpOptions,
+        enableGradleDebug = enableGradleDebug,
+        enableKotlinDaemonMemoryLimitInMb = enableKotlinDaemonMemoryLimitInMb,
+        projectPathAdditionalSuffix = projectPathAdditionalSuffix,
+        buildJdk = buildJdk,
+        localRepoDir = localRepoDir,
+        environmentVariables = environmentVariables,
+        test = test,
+    )
 
     protected val String.withPrefix get() = "kapt2/$this"
 }
@@ -155,6 +190,33 @@ open class Kapt3IT : Kapt3BaseIT() {
         project("kaptSkipped".withPrefix, gradleVersion) {
             build("build") {
                 assertTasksSkipped(":kaptGenerateStubsKotlin", ":kaptKotlin")
+                assertOutputContains("No annotation processors provided. Skip KAPT processing.")
+            }
+        }
+    }
+
+    @DisplayName("KT-63366: Adding kapt AP dependency in afterEvaluate for custom SourceSet")
+    @GradleTest
+    fun testKaptCustomSourceSetDependencyAfterEvaluate(gradleVersion: GradleVersion) {
+        project("simple".withPrefix, gradleVersion) {
+            buildGradle.appendText(
+                //language=groovy
+                """
+                |
+                |sourceSets.create("custom")
+                |
+                |afterEvaluate {
+                |    configurations.getByName("kaptCustom").dependencies.add(
+                |        dependencies.create("org.jetbrains.kotlin:annotation-processor-example")
+                |    )
+                |}
+                """.trimMargin()
+            )
+
+            build(":kaptCustomKotlin") {
+                assertTasksExecuted(":kaptCustomKotlin")
+                assertOutputDoesNotContain("No annotation processors provided. Skip KAPT processing.")
+                assertOutputContains("Annotation processors: example.ExampleAnnotationProcessor, example.KotlinFilerGeneratingProcessor")
             }
         }
     }
@@ -208,7 +270,7 @@ open class Kapt3IT : Kapt3BaseIT() {
     ) {
         project(
             "simple".withPrefix,
-            gradleVersion
+            gradleVersion,
         ) {
             //language=Groovy
             buildGradle.appendText(

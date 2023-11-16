@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.gradle.plugin.konan.tasks.KonanCacheTask
 import org.jetbrains.kotlin.konan.properties.loadProperties
 import org.jetbrains.kotlin.konan.properties.saveProperties
 import org.jetbrains.kotlin.konan.target.*
+import org.jetbrains.kotlin.library.KLIB_PROPERTY_COMPILER_VERSION
 import org.jetbrains.kotlin.library.KLIB_PROPERTY_NATIVE_TARGETS
 import org.jetbrains.kotlin.konan.file.File as KFile
 import org.jetbrains.kotlin.konan.target.Architecture as TargetArchitecture
@@ -17,6 +18,8 @@ import org.jetbrains.kotlin.konan.target.Architecture as TargetArchitecture
 val distDir: File by project
 val konanHome: String by extra(distDir.absolutePath)
 extra["org.jetbrains.kotlin.native.home"] = konanHome
+
+val kotlinVersion: String by rootProject.extra
 
 plugins {
     id("compile-to-bitcode")
@@ -394,15 +397,15 @@ bitcode {
             testSupportModules.addAll("main", "mm", "common_alloc", "common_gc", "common_gcScheduler", "manual_gcScheduler", "concurrent_ms_gc_custom", "objc")
         }
 
-        testsGroup("experimentalMM_mimalloc_runtime_tests") {
+        testsGroup("experimentalMM_stms_mimalloc_runtime_tests") {
             testedModules.addAll("main", "mm", "common_alloc", "common_gc", "common_gcScheduler", "manual_gcScheduler", "same_thread_ms_gc", "mimalloc", "mimalloc_alloc", "legacy_alloc", "objc")
         }
 
-        testsGroup("experimentalMM_std_alloc_runtime_tests") {
+        testsGroup("experimentalMM_stms_std_alloc_runtime_tests") {
             testedModules.addAll("main", "mm", "common_alloc", "common_gc", "common_gcScheduler", "manual_gcScheduler", "same_thread_ms_gc", "std_alloc", "legacy_alloc", "objc")
         }
 
-        testsGroup("experimentalMM_custom_alloc_runtime_tests") {
+        testsGroup("experimentalMM_stms_custom_alloc_runtime_tests") {
             testedModules.addAll("mm", "same_thread_ms_gc_custom")
             testSupportModules.addAll("main", "common_alloc", "common_gc", "common_gcScheduler", "manual_gcScheduler", "custom_alloc", "objc")
         }
@@ -600,6 +603,10 @@ targetList.forEach { targetName ->
                 with(KFile(destinationDir.resolve("default/manifest").absolutePath)) {
                     val props = loadProperties()
                     props[KLIB_PROPERTY_NATIVE_TARGETS] = targetName
+                    val version = props[KLIB_PROPERTY_COMPILER_VERSION]
+                    check(version == kotlinVersion) {
+                        "Manifest file ($this) processing: $version was found while $kotlinVersion was expected"
+                    }
                     saveProperties(props)
                 }
             }

@@ -59,7 +59,7 @@ abstract class AbstractConeSubstitutor(protected val typeContext: ConeTypeContex
         }
 
         val substitutedType = newType ?: type.substituteRecursive()
-        val substitutedAttributes = (substitutedType ?: type).attributes.substituteAbbreviationOrNull()
+        val substitutedAttributes = (substitutedType ?: type).attributes.transformTypesWith(this::substituteOrNull)
 
         return if (substitutedType != null || substitutedAttributes != null) {
             var result = substitutedType ?: type
@@ -74,18 +74,10 @@ abstract class AbstractConeSubstitutor(protected val typeContext: ConeTypeContex
         }
     }
 
-    private fun ConeAttributes.substituteAbbreviationOrNull(): ConeAttributes? {
-        val abbreviatedTypeAttribute = abbreviatedType ?: return null
-        substituteOrNull(abbreviatedTypeAttribute.coneType)?.let {
-            return replace(abbreviatedTypeAttribute, AbbreviatedTypeAttribute(it))
-        }
-        return null
-    }
-
     private fun ConeKotlinType.substituteRecursive(): ConeKotlinType? {
         return when (this) {
             is ConeClassLikeType -> this.substituteArguments()
-            is ConeLookupTagBasedType -> return null
+            is ConeLookupTagBasedType, is ConeTypeVariableType -> return null
             is ConeFlexibleType -> this.substituteBounds()?.let {
                 // TODO: may be (?) it's worth adding regular type comparison via AbstractTypeChecker
                 // However, the simplified check here should be enough for typical flexible types
@@ -156,7 +148,7 @@ abstract class AbstractConeSubstitutor(protected val typeContext: ConeTypeContex
         return null
     }
 
-    private fun ConeClassLikeType.substituteArguments(): ConeKotlinType? {
+    private fun ConeSimpleKotlinType.substituteArguments(): ConeKotlinType? {
         val newArguments by lazy { arrayOfNulls<ConeTypeProjection>(typeArguments.size) }
         var initialized = false
 
@@ -325,7 +317,7 @@ internal class ConeTypeSubstitutorByTypeConstructor(
     private val approximateIntegerLiterals: Boolean
 ) : AbstractConeSubstitutor(typeContext), TypeSubstitutorMarker {
     override fun substituteType(type: ConeKotlinType): ConeKotlinType? {
-        if (type !is ConeLookupTagBasedType && type !is ConeStubType) return null
+        if (type !is ConeLookupTagBasedType && type !is ConeStubType && type !is ConeTypeVariableType) return null
         val new = map[type.typeConstructor(typeContext)] ?: return null
         val approximatedIntegerLiteralType = if (approximateIntegerLiterals) new.approximateIntegerLiteralType() else new
         return approximatedIntegerLiteralType.updateNullabilityIfNeeded(type)?.withCombinedAttributesFrom(type)

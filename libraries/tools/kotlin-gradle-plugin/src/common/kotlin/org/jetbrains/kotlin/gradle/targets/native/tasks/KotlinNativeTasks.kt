@@ -37,7 +37,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerArgumentsProducer.Create
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerArgumentsProducer.CreateCompilerArgumentsContext.Companion.create
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.asValidFrameworkName
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
-import org.jetbrains.kotlin.gradle.plugin.statistics.KotlinBuildStatsService
+import org.jetbrains.kotlin.gradle.plugin.statistics.UsesBuildFusService
 import org.jetbrains.kotlin.gradle.report.*
 import org.jetbrains.kotlin.gradle.report.UsesBuildMetricsService
 import org.jetbrains.kotlin.gradle.targets.native.KonanPropertiesBuildService
@@ -45,7 +45,6 @@ import org.jetbrains.kotlin.gradle.targets.native.tasks.*
 import org.jetbrains.kotlin.gradle.utils.*
 import org.jetbrains.kotlin.gradle.utils.GradleLoggerAdapter
 import org.jetbrains.kotlin.gradle.utils.listFilesOrEmpty
-import org.jetbrains.kotlin.incremental.deleteDirectoryContents
 import org.jetbrains.kotlin.ir.linkage.partial.PartialLinkageMode
 import org.jetbrains.kotlin.konan.library.KLIB_INTEROP_IR_PROVIDER_IDENTIFIER
 import org.jetbrains.kotlin.konan.properties.saveToFile
@@ -217,15 +216,6 @@ abstract class AbstractKotlinNativeCompile<
         get() = compilation.compilerOptions.options.progressiveMode.get()
     // endregion.
 
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated(
-        "Please declare explicit dependency on kotlinx-cli. This option has no longer effect since 1.9.0",
-        level = DeprecationLevel.ERROR
-    )
-    @get:Input
-    val enableEndorsedLibs: Boolean
-        get() = false
-
     @get:Input
     val kotlinNativeVersion: String = project.konanVersion
 
@@ -316,7 +306,8 @@ internal constructor(
     KotlinCompile<KotlinCommonOptions>,
     K2MultiplatformCompilationTask,
     UsesBuildMetricsService,
-    KotlinCompilationTask<KotlinNativeCompilerOptions> {
+    KotlinCompilationTask<KotlinNativeCompilerOptions>,
+    UsesBuildFusService {
 
     @get:Input
     override val outputKind = LIBRARY
@@ -545,13 +536,13 @@ internal constructor(
     }
 
     private fun collectCommonCompilerStats() {
-        KotlinBuildStatsService.getInstance()?.apply {
-            report(BooleanMetrics.KOTLIN_PROGRESSIVE_MODE, compilerOptions.progressiveMode.get())
+        buildFusService.orNull?.reportFusMetrics {
+            it.report(BooleanMetrics.KOTLIN_PROGRESSIVE_MODE, compilerOptions.progressiveMode.get())
             compilerOptions.apiVersion.orNull?.also { v ->
-                report(StringMetrics.KOTLIN_API_VERSION, v.version)
+                it.report(StringMetrics.KOTLIN_API_VERSION, v.version)
             }
             compilerOptions.languageVersion.orNull?.also { v ->
-                report(StringMetrics.KOTLIN_LANGUAGE_VERSION, v.version)
+                it.report(StringMetrics.KOTLIN_LANGUAGE_VERSION, v.version)
             }
         }
     }
@@ -734,7 +725,7 @@ internal class CacheBuilder(
     private val executionContext: KotlinToolRunner.GradleExecutionContext,
     private val settings: Settings,
     private val konanPropertiesService: KonanPropertiesBuildService,
-    private val metricsReporter: BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>
+    private val metricsReporter: BuildMetricsReporter<GradleBuildTime, GradleBuildPerformanceMetric>,
 ) {
     class Settings(
         val runnerSettings: KotlinNativeCompilerRunner.Settings,
@@ -964,7 +955,8 @@ internal class CacheBuilder(
     }
 
     private fun ensureCompilerProvidedLibsPrecached() {
-        val distribution = Distribution(settings.runnerSettings.parent.konanHome, konanDataDir = settings.runnerSettings.parent.konanDataDir)
+        val distribution =
+            Distribution(settings.runnerSettings.parent.konanHome, konanDataDir = settings.runnerSettings.parent.konanDataDir)
         val platformLibs = mutableListOf<File>().apply {
             this += File(distribution.stdlib)
             this += File(distribution.platformLibs(konanTarget)).listFiles().orEmpty()
@@ -1181,7 +1173,7 @@ abstract class CInteropProcess @Inject internal constructor(params: Params) :
                 addAll(extraOpts)
 
             }
-        addBuildMetricsForTaskAction(buildMetrics, languageVersion =  null) {
+        addBuildMetricsForTaskAction(buildMetrics, languageVersion = null) {
             outputFile.parentFile.mkdirs()
             KotlinNativeCInteropRunner.createExecutionContext(
                 task = this,

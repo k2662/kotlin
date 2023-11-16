@@ -79,6 +79,8 @@ abstract class KonanCompileTask: KonanBuildingTask(), KonanCompileSpec {
     val apiVersion      : String?
         @Optional @Input get() = project.konanExtension.apiVersion
 
+    @Input var buildNumber = project.properties.get("kotlinVersion") ?: error("kotlinVersion property is not specified in the project")
+
     /**
      * Is the two-stage compilation enabled.
      *
@@ -173,18 +175,14 @@ abstract class KonanCompileTask: KonanBuildingTask(), KonanCompileSpec {
 
     /** Args passed to the compiler at both stages of the two-stage compilation and during the singe-stage compilation. */
     protected open fun buildCommonArgs() = mutableListOf<String>().apply {
-        addArgs("-repo", libraries.repos.map { it.canonicalPath })
-
         if (platformConfiguration.files.isNotEmpty()) {
             platformConfiguration.files.filter { it.name.endsWith(".klib") }.forEach {
                 // The library's directory is added in libraries.repos.
-                addArg("-library", it.nameWithoutExtension)
+                addArg("-library", it.absolutePath)
             }
         }
-        addFileArgs("-library", libraries.files)
-        addArgs("-library", libraries.namedKlibs)
-        // The library's directory is added in libraries.repos.
-        addArgs("-library", libraries.artifacts.map { it.artifact.nameWithoutExtension })
+        addFileArgs("-library", libraries.klibFiles)
+        addArgs("-library", libraries.artifacts.map { it.artifact.canonicalPath })
 
         addArgIfNotNull("-target", konanTarget.visibleName)
         addArgIfNotNull("-language-version", languageVersion)

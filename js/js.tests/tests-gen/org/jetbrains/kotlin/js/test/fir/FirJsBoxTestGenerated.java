@@ -963,6 +963,12 @@ public class FirJsBoxTestGenerated extends AbstractFirJsBoxTest {
         }
 
         @Test
+        @TestMetadata("suspendLambdaWithValueClass.kt")
+        public void testSuspendLambdaWithValueClass() throws Exception {
+            runTest("js/js.translator/testData/box/coroutines/suspendLambdaWithValueClass.kt");
+        }
+
+        @Test
         @TestMetadata("suspendMethodWithSuperCall.kt")
         public void testSuspendMethodWithSuperCall() throws Exception {
             runTest("js/js.translator/testData/box/coroutines/suspendMethodWithSuperCall.kt");
@@ -1842,6 +1848,12 @@ public class FirJsBoxTestGenerated extends AbstractFirJsBoxTest {
         @Test
         public void testAllFilesPresentInEnum() throws Exception {
             KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("js/js.translator/testData/box/enum"), Pattern.compile("^([^_](.+))\\.kt$"), null, TargetBackend.JS_IR, true);
+        }
+
+        @Test
+        @TestMetadata("enumEntriesOnExportedEnum.kt")
+        public void testEnumEntriesOnExportedEnum() throws Exception {
+            runTest("js/js.translator/testData/box/enum/enumEntriesOnExportedEnum.kt");
         }
 
         @Test
@@ -5894,6 +5906,12 @@ public class FirJsBoxTestGenerated extends AbstractFirJsBoxTest {
         @TestMetadata("recursiveDependency.kt")
         public void testRecursiveDependency() throws Exception {
             runTest("js/js.translator/testData/box/inline/recursiveDependency.kt");
+        }
+
+        @Test
+        @TestMetadata("requireNotNull.kt")
+        public void testRequireNotNull() throws Exception {
+            runTest("js/js.translator/testData/box/inline/requireNotNull.kt");
         }
 
         @Test

@@ -59,6 +59,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
         }
 
         @Test
+        @TestMetadata("addTestForFalsePositiveDuplicateLabelInWhen.kt")
+        public void testAddTestForFalsePositiveDuplicateLabelInWhen() throws Exception {
+            runTest("compiler/testData/diagnostics/tests/addTestForFalsePositiveDuplicateLabelInWhen.kt");
+        }
+
+        @Test
         public void testAllFilesPresentInTests() throws Exception {
             KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true, "multiplatform");
         }
@@ -2194,6 +2200,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             @TestMetadata("typeArgumentsInAnnotation.kt")
             public void testTypeArgumentsInAnnotation() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/annotations/typeArgumentsInAnnotation.kt");
+            }
+
+            @Test
+            @TestMetadata("typeParameterAnnotations.kt")
+            public void testTypeParameterAnnotations() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/typeParameterAnnotations.kt");
             }
 
             @Test
@@ -23049,12 +23061,6 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             }
 
             @Test
-            @TestMetadata("expectActualAnnotationsWithLazyResolve.kt")
-            public void testExpectActualAnnotationsWithLazyResolve() throws Exception {
-                runTest("compiler/testData/diagnostics/tests/multimodule/expectActualAnnotationsWithLazyResolve.kt");
-            }
-
-            @Test
             @TestMetadata("friendModule.kt")
             public void testFriendModule() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/multimodule/friendModule.kt");
@@ -24807,72 +24813,108 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             }
 
             @Nested
-            @TestMetadata("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated")
+            @TestMetadata("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden")
             @TestDataPath("$PROJECT_ROOT")
-            public class NoConflictingOverloadsWithDeprecated {
+            public class NoConflictingOverloadsWithDeprecatedHidden {
                 @Test
-                public void testAllFilesPresentInNoConflictingOverloadsWithDeprecated() throws Exception {
-                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true, "multiplatform");
-                }
-
-                @Test
-                @TestMetadata("ConflictingOverloadsFunsDifferentReturnInClass.kt")
-                public void testConflictingOverloadsFunsDifferentReturnInClass() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConflictingOverloadsFunsDifferentReturnInClass.kt");
-                }
-
-                @Test
-                @TestMetadata("ConflictingOverloadsFunsDifferentReturnInPackage.kt")
-                public void testConflictingOverloadsFunsDifferentReturnInPackage() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConflictingOverloadsFunsDifferentReturnInPackage.kt");
-                }
-
-                @Test
-                @TestMetadata("ConflictingOverloadsGenericFunctions.kt")
-                public void testConflictingOverloadsGenericFunctions() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConflictingOverloadsGenericFunctions.kt");
-                }
-
-                @Test
-                @TestMetadata("ConflictingOverloadsIdenticalExtFunsInPackage.kt")
-                public void testConflictingOverloadsIdenticalExtFunsInPackage() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConflictingOverloadsIdenticalExtFunsInPackage.kt");
-                }
-
-                @Test
-                @TestMetadata("ConflictingOverloadsIdenticalFunsInClass.kt")
-                public void testConflictingOverloadsIdenticalFunsInClass() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConflictingOverloadsIdenticalFunsInClass.kt");
+                public void testAllFilesPresentInNoConflictingOverloadsWithDeprecatedHidden() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden"), Pattern.compile("^(.*)\\.kts?$"), Pattern.compile("^(.+)\\.(reversed|fir|ll)\\.kts?$"), true, "multiplatform");
                 }
 
                 @Test
                 @TestMetadata("ConflictingOverloadsIdenticalValsInClass.kt")
                 public void testConflictingOverloadsIdenticalValsInClass() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConflictingOverloadsIdenticalValsInClass.kt");
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/ConflictingOverloadsIdenticalValsInClass.kt");
                 }
 
                 @Test
                 @TestMetadata("ConflictingOverloadsValsDifferentTypeInClass.kt")
                 public void testConflictingOverloadsValsDifferentTypeInClass() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConflictingOverloadsValsDifferentTypeInClass.kt");
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/ConflictingOverloadsValsDifferentTypeInClass.kt");
                 }
 
                 @Test
                 @TestMetadata("ConstructorVsFunOverload.kt")
                 public void testConstructorVsFunOverload() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/ConstructorVsFunOverload.kt");
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/ConstructorVsFunOverload.kt");
+                }
+
+                @Test
+                @TestMetadata("ConstructorsInMemberScope.kt")
+                public void testConstructorsInMemberScope() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/ConstructorsInMemberScope.kt");
+                }
+
+                @Test
+                @TestMetadata("ConstructorsInPackage.kt")
+                public void testConstructorsInPackage() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/ConstructorsInPackage.kt");
+                }
+
+                @Test
+                @TestMetadata("ConstructorsOnTopLevel.kt")
+                public void testConstructorsOnTopLevel() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/ConstructorsOnTopLevel.kt");
+                }
+
+                @Test
+                @TestMetadata("DifferentDeprecationLevels.kt")
+                public void testDifferentDeprecationLevels() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/DifferentDeprecationLevels.kt");
+                }
+
+                @Test
+                @TestMetadata("FunctionsAndConstructorsInMemberScope.kt")
+                public void testFunctionsAndConstructorsInMemberScope() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/FunctionsAndConstructorsInMemberScope.kt");
+                }
+
+                @Test
+                @TestMetadata("FunctionsAndConstructorsInPackage.kt")
+                public void testFunctionsAndConstructorsInPackage() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/FunctionsAndConstructorsInPackage.kt");
+                }
+
+                @Test
+                @TestMetadata("FunctionsAndConstructorsOnTopLevel.kt")
+                public void testFunctionsAndConstructorsOnTopLevel() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/FunctionsAndConstructorsOnTopLevel.kt");
+                }
+
+                @Test
+                @TestMetadata("FunctionsInMemberScope.kt")
+                public void testFunctionsInMemberScope() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/FunctionsInMemberScope.kt");
+                }
+
+                @Test
+                @TestMetadata("FunctionsInPackage.kt")
+                public void testFunctionsInPackage() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/FunctionsInPackage.kt");
+                }
+
+                @Test
+                @TestMetadata("FunctionsOnTopLevel.kt")
+                public void testFunctionsOnTopLevel() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/FunctionsOnTopLevel.kt");
                 }
 
                 @Test
                 @TestMetadata("LocalFunctions.kt")
                 public void testLocalFunctions() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/LocalFunctions.kt");
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/LocalFunctions.kt");
+                }
+
+                @Test
+                @TestMetadata("NoHiddenTransitivityFromClassifierToConstructor.kt")
+                public void testNoHiddenTransitivityFromClassifierToConstructor() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/NoHiddenTransitivityFromClassifierToConstructor.kt");
                 }
 
                 @Test
                 @TestMetadata("TypeParameterMultipleBounds.kt")
                 public void testTypeParameterMultipleBounds() throws Exception {
-                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecated/TypeParameterMultipleBounds.kt");
+                    runTest("compiler/testData/diagnostics/tests/overload/noConflictingOverloadsWithDeprecatedHidden/TypeParameterMultipleBounds.kt");
                 }
             }
         }
@@ -26558,6 +26600,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             @TestMetadata("localPropertyExtensions.kt")
             public void testLocalPropertyExtensions() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/properties/localPropertyExtensions.kt");
+            }
+
+            @Test
+            @TestMetadata("PrivateSetInSuperclass.kt")
+            public void testPrivateSetInSuperclass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/properties/PrivateSetInSuperclass.kt");
             }
 
             @Test
@@ -35199,6 +35247,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             }
 
             @Test
+            @TestMetadata("outerTypeParameterAsSupertype.kt")
+            public void testOuterTypeParameterAsSupertype() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeParameters/outerTypeParameterAsSupertype.kt");
+            }
+
+            @Test
             @TestMetadata("propertyTypeParameters.kt")
             public void testPropertyTypeParameters() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/typeParameters/propertyTypeParameters.kt");
@@ -40689,6 +40743,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             public void testIfWithCallableReferenceInLazy() throws Exception {
                 runTest("compiler/testData/diagnostics/testsWithStdLib/delegateInference/ifWithCallableReferenceInLazy.kt");
             }
+
+            @Test
+            @TestMetadata("resolveGetValueWithWholeDelegate.kt")
+            public void testResolveGetValueWithWholeDelegate() throws Exception {
+                runTest("compiler/testData/diagnostics/testsWithStdLib/delegateInference/resolveGetValueWithWholeDelegate.kt");
+            }
         }
 
         @Nested
@@ -41056,6 +41116,12 @@ public class FirPsiOldFrontendDiagnosticsTestGenerated extends AbstractFirPsiDia
             @TestMetadata("wasExperimental.kt")
             public void testWasExperimental() throws Exception {
                 runTest("compiler/testData/diagnostics/testsWithStdLib/experimental/wasExperimental.kt");
+            }
+
+            @Test
+            @TestMetadata("wasExperimentalCombined.kt")
+            public void testWasExperimentalCombined() throws Exception {
+                runTest("compiler/testData/diagnostics/testsWithStdLib/experimental/wasExperimentalCombined.kt");
             }
 
             @Test

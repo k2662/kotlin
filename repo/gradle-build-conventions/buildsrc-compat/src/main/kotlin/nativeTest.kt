@@ -94,7 +94,8 @@ fun Project.nativeTest(
     requirePlatformLibs: Boolean = false,
     customCompilerDependencies: List<Configuration> = emptyList(),
     customTestDependencies: List<Configuration> = emptyList(),
-    compilerPluginDependencies: List<Configuration> = emptyList()
+    compilerPluginDependencies: List<Configuration> = emptyList(),
+    body: Test.() -> Unit = {},
 ) = projectTest(
     taskName,
     jUnitMode = JUnitMode.JUnit5,
@@ -147,7 +148,7 @@ fun Project.nativeTest(
 
                 val kotlinNativeCompilerEmbeddable = if (customNativeHome == null)
                     configurations.detachedConfiguration(
-                        dependencies.project(":kotlin-native-compiler-embeddable"),
+                        dependencies.project(":kotlin-native:prepare:kotlin-native-compiler-embeddable"),
                         dependencies.module(commonDependency("org.jetbrains.intellij.deps:trove4j"))
                     ).also { dependsOn(it) }
                 else
@@ -227,4 +228,5 @@ fun Project.nativeTest(
                 """.trimIndent()
             )
         }
+    body()
 }

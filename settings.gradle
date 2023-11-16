@@ -579,7 +579,8 @@ include ":generators:analysis-api-generator",
 
 if (buildProperties.isKotlinNativeEnabled) {
     include ":generators:analysis-api-generator:generator-kotlin-native",
-            ":analysis:low-level-api-fir:low-level-api-fir-native"
+            ":analysis:low-level-api-fir:low-level-api-fir-native",
+            ":analysis:analysis-api-standalone:analysis-api-standalone-native"
 }
 
 
@@ -850,6 +851,5 @@ if (buildProperties.isKotlinNativeEnabled) {
     include ':kotlin-native:platformLibs'
     include ':kotlin-native:libclangext'
     include ':kotlin-native:backend.native:tests'
-    include ":kotlin-native-compiler-embeddable"
-    project(":kotlin-native-compiler-embeddable").projectDir = "$rootDir/kotlin-native/prepare/kotlin-native-embeddable-compiler" as File
+    include ":kotlin-native:prepare:kotlin-native-compiler-embeddable"
 }

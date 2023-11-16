@@ -33,8 +33,7 @@ import org.jetbrains.kotlin.gradle.plugin.internal.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinMultiplatformPlugin
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSetFactory
-import org.jetbrains.kotlin.gradle.plugin.statistics.BuildFlowService
-import org.jetbrains.kotlin.gradle.plugin.statistics.KotlinBuildStatsService
+import org.jetbrains.kotlin.gradle.plugin.statistics.BuildFusService
 import org.jetbrains.kotlin.gradle.report.BuildMetricsService
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsCompilerAttribute
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsPlugin
@@ -48,7 +47,6 @@ import org.jetbrains.kotlin.gradle.targets.native.internal.CommonizerTargetAttri
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool
 import org.jetbrains.kotlin.gradle.testing.internal.KotlinTestsRegistry
 import org.jetbrains.kotlin.gradle.utils.*
-import org.jetbrains.kotlin.statistics.metrics.StringMetrics
 import org.jetbrains.kotlin.tooling.core.KotlinToolingVersion
 import kotlin.reflect.KClass
 
@@ -63,10 +61,7 @@ abstract class DefaultKotlinBasePlugin : KotlinBasePlugin {
 
     override fun apply(project: Project) {
         project.registerDefaultVariantImplementations()
-        KotlinBuildStatsService.getOrCreateInstance(project)?.apply {
-            report(StringMetrics.KOTLIN_COMPILER_VERSION, pluginVersion)
-        }
-        BuildFlowService.registerIfAbsent(project)
+        val buildFusService = BuildFusService.registerIfAbsent(project, pluginVersion)
 
         project.gradle.projectsEvaluated {
             whenBuildEvaluated(project)
@@ -82,12 +77,12 @@ abstract class DefaultKotlinBasePlugin : KotlinBasePlugin {
             addGradlePluginMetadataAttributes(project)
         }
 
-        val kotlinGradleBuildServices = KotlinGradleBuildServices.registerIfAbsent(project.gradle).get()
+        val kotlinGradleBuildServices = KotlinGradleBuildServices.registerIfAbsent(project).get()
         if (!project.isProjectIsolationEnabled) {
             kotlinGradleBuildServices.detectKotlinPluginLoadedInMultipleProjects(project, pluginVersion)
         }
 
-        BuildMetricsService.registerIfAbsent(project)
+        BuildMetricsService.registerIfAbsent(project, buildFusService)
     }
 
     private fun addKotlinCompilerConfiguration(project: Project) {
@@ -186,6 +181,11 @@ abstract class DefaultKotlinBasePlugin : KotlinBasePlugin {
             ConfigurationCacheStartParameterAccessor.Factory::class,
             DefaultConfigurationCacheStartParameterAccessorVariantFactory()
         )
+
+        factories.putIfAbsent(
+            SourceSetCompatibilityHelper.SourceSetCompatibilityHelperVariantFactory::class,
+            DefaultSourceSetCompatibilityHelperVariantFactory()
+        )
     }
 
     protected fun setupAttributeMatchingStrategy(
@@ -194,12 +194,18 @@ abstract class DefaultKotlinBasePlugin : KotlinBasePlugin {
     ) = with(project.dependencies.attributesSchema) {
         KotlinPlatformType.setupAttributesMatchingStrategy(this)
         KotlinUsages.setupAttributesMatchingStrategy(this, isKotlinGranularMetadata)
-        KotlinJsCompilerAttribute.setupAttributesMatchingStrategy(project.dependencies.attributesSchema)
-        KotlinWasmTargetAttribute.setupAttributesMatchingStrategy(project.dependencies.attributesSchema)
         ProjectLocalConfigurations.setupAttributesMatchingStrategy(this)
-        CInteropKlibLibraryElements.setupAttributesMatchingStrategy(this)
-        CommonizerTargetAttribute.setupAttributesMatchingStrategy(this)
-        CInteropCommonizerArtifactTypeAttribute.setupTransform(project)
+
+        project.whenJsOrMppEnabled {
+            KotlinJsCompilerAttribute.setupAttributesMatchingStrategy(project.dependencies.attributesSchema)
+            KotlinWasmTargetAttribute.setupAttributesMatchingStrategy(project.dependencies.attributesSchema)
+        }
+
+        project.whenMppEnabled {
+            CInteropKlibLibraryElements.setupAttributesMatchingStrategy(this)
+            CommonizerTargetAttribute.setupAttributesMatchingStrategy(this)
+            CInteropCommonizerArtifactTypeAttribute.setupTransform(project)
+        }
     }
 
     open fun whenBuildEvaluated(project: Project) {

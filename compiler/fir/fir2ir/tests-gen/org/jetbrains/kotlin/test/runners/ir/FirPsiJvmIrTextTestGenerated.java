@@ -2779,6 +2779,12 @@ public class FirPsiJvmIrTextTestGenerated extends AbstractFirPsiJvmIrTextTest {
         }
 
         @Test
+        @TestMetadata("IntArrayAsVararg.kt")
+        public void testIntArrayAsVararg() throws Exception {
+            runTest("compiler/testData/ir/irText/firProblems/IntArrayAsVararg.kt");
+        }
+
+        @Test
         @TestMetadata("integerLiteralWithExpectedTypealiasType.kt")
         public void testIntegerLiteralWithExpectedTypealiasType() throws Exception {
             runTest("compiler/testData/ir/irText/firProblems/integerLiteralWithExpectedTypealiasType.kt");
@@ -2842,6 +2848,12 @@ public class FirPsiJvmIrTextTestGenerated extends AbstractFirPsiJvmIrTextTest {
         @TestMetadata("LocalSuspendFun.kt")
         public void testLocalSuspendFun() throws Exception {
             runTest("compiler/testData/ir/irText/firProblems/LocalSuspendFun.kt");
+        }
+
+        @Test
+        @TestMetadata("MissingFieldInJavaClass.kt")
+        public void testMissingFieldInJavaClass() throws Exception {
+            runTest("compiler/testData/ir/irText/firProblems/MissingFieldInJavaClass.kt");
         }
 
         @Test
