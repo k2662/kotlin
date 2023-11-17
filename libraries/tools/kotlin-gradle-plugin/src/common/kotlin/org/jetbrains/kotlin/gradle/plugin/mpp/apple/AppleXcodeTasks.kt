@@ -82,7 +82,7 @@ private object XcodeEnvironment {
 
     val sign: String? get() = System.getenv("EXPANDED_CODE_SIGN_IDENTITY")
 
-    val userScriptSandboxingEnabled: String? get() = System.getenv("ENABLE_USER_SCRIPT_SANDBOXING")
+    val userScriptSandboxingEnabled: Boolean get() = System.getenv("ENABLE_USER_SCRIPT_SANDBOXING") == "YES"
 
     override fun toString() = """
         XcodeEnvironment:
@@ -156,7 +156,7 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
     val envFrameworkSearchDir = XcodeEnvironment.frameworkSearchDir
     val envSign = XcodeEnvironment.sign
     val srcRoot = XcodeEnvironment.srcRootDir
-    val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled == "YES"
+    val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
 
     val frameworkTaskName = lowerCamelCaseName(AppleXcodeTasks.embedAndSignTaskPrefix, framework.namePrefix, AppleXcodeTasks.embedAndSignTaskPostfix)
 
