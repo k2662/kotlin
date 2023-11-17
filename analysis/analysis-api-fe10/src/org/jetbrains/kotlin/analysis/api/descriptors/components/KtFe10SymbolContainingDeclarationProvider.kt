@@ -11,23 +11,25 @@ import com.intellij.psi.search.ProjectScope
 import org.jetbrains.kotlin.analysis.api.components.KtSymbolContainingDeclarationProvider
 import org.jetbrains.kotlin.analysis.api.descriptors.KtFe10AnalysisSession
 import org.jetbrains.kotlin.analysis.api.descriptors.components.base.Fe10KtAnalysisSessionComponent
-import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.KtFe10DescDefaultBackingFieldSymbol
 import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.KtFe10DynamicFunctionDescValueParameterSymbol
 import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.base.getDescriptor
 import org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.base.toKtSymbol
 import org.jetbrains.kotlin.analysis.api.getModule
 import org.jetbrains.kotlin.analysis.api.lifetime.KtLifetimeToken
-import org.jetbrains.kotlin.analysis.api.symbols.KtBackingFieldSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KtDeclarationSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KtSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.*
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolKind
 import org.jetbrains.kotlin.analysis.api.symbols.markers.KtSymbolWithKind
 import org.jetbrains.kotlin.analysis.project.structure.*
-import org.jetbrains.kotlin.load.kotlin.JvmPackagePartSource
+import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
+import org.jetbrains.kotlin.load.kotlin.*
 import org.jetbrains.kotlin.platform.TargetPlatform
+import org.jetbrains.kotlin.platform.isCommon
+import org.jetbrains.kotlin.platform.jvm.isJvm
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.PlatformDependentAnalyzerServices
 import org.jetbrains.kotlin.resolve.descriptorUtil.platform
+import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformAnalyzerServices
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DescriptorWithContainerSource
 import java.nio.file.Path
@@ -47,6 +49,59 @@ internal class KtFe10SymbolContainingDeclarationProvider(
         return when (symbol) {
             is KtBackingFieldSymbol -> symbol.owningProperty
             else -> symbol.getDescriptor()?.containingDeclaration?.toKtSymbol(analysisContext) as? KtDeclarationSymbol
+        }
+    }
+
+    override fun getContainingFileSymbol(symbol: KtSymbol): KtFileSymbol? {
+        if (symbol is KtFileSymbol) return null
+        // psiBased
+        (symbol.psi?.containingFile as? KtFile)?.let { ktFile ->
+            with(analysisSession) {
+                return ktFile.getFileSymbol()
+            }
+        }
+        // descriptorBased
+        val descriptor = symbol.getDescriptor()
+        val ktFile = descriptor?.let(DescriptorToSourceUtils::getContainingFile) ?: return null
+        with(analysisSession) {
+            return ktFile.getFileSymbol()
+        }
+    }
+
+    override fun getContainingJvmClassName(symbol: KtCallableSymbol): JvmClassName? {
+        val platform = getContainingModule(symbol).platform
+        if (!platform.isCommon() && !platform.isJvm()) return null
+
+        return when (val descriptor = symbol.getDescriptor()) {
+            is DescriptorWithContainerSource -> {
+                when (val containerSource = descriptor.containerSource) {
+                    is FacadeClassSource -> containerSource.facadeClassName ?: containerSource.className
+                    is KotlinJvmBinarySourceElement -> JvmClassName.byClassId(containerSource.binaryClass.classId)
+                    else -> null
+                }
+            }
+            else -> {
+                val containingSymbolOrSelf = when (symbol) {
+                    is KtValueParameterSymbol -> {
+                        getContainingDeclaration(symbol) as? KtFunctionLikeSymbol ?: symbol
+                    }
+                    is KtPropertyAccessorSymbol -> {
+                        getContainingDeclaration(symbol) as? KtPropertySymbol ?: symbol
+                    }
+                    is KtBackingFieldSymbol -> symbol.owningProperty
+                    else -> symbol
+                }
+                return if (containingSymbolOrSelf.symbolKind == KtSymbolKind.TOP_LEVEL) {
+                    descriptor?.let(DescriptorToSourceUtils::getContainingFile)
+                        ?.takeUnless { it.isScript() }
+                        ?.let { JvmClassName.byFqNameWithoutInnerClasses(it.javaFileFacadeFqName) }
+                } else {
+                    val classId = (containingSymbolOrSelf as? KtConstructorSymbol)?.containingClassIdIfNonLocal
+                        ?: containingSymbolOrSelf.callableIdIfNonLocal?.classId
+                    classId?.takeUnless { it.shortClassName.isSpecial }
+                        ?.let { JvmClassName.byClassId(it) }
+                }
+            }
         }
     }
 
