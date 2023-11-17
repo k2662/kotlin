@@ -74,6 +74,12 @@ private object XcodeEnvironment {
             return File(xcodeTargetBuildDir, xcodeFrameworksFolderPath).absoluteFile
         }
 
+    val srcRootDir: File?
+        get() {
+            val srcroot = System.getenv("SRCROOT") ?: return null
+            return File(srcroot).absoluteFile
+        }
+
     val sign: String? get() = System.getenv("EXPANDED_CODE_SIGN_IDENTITY")
 
     val userScriptSandboxingEnabled: String? get() = System.getenv("ENABLE_USER_SCRIPT_SANDBOXING")
@@ -149,9 +155,24 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
     val envEmbeddedFrameworksDir = XcodeEnvironment.embeddedFrameworksDir
     val envFrameworkSearchDir = XcodeEnvironment.frameworkSearchDir
     val envSign = XcodeEnvironment.sign
-    val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
+    val srcRoot = XcodeEnvironment.srcRootDir
+    val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled == "YES"
 
     val frameworkTaskName = lowerCamelCaseName(AppleXcodeTasks.embedAndSignTaskPrefix, framework.namePrefix, AppleXcodeTasks.embedAndSignTaskPostfix)
+
+    val srcRootAccessible: Boolean = if (srcRoot != null) {
+        try {
+            val tempFile = File.createTempFile("sandbox", null, srcRoot)
+            if (tempFile.exists()) {
+                tempFile.delete()
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    } else {
+        false
+    }
 
     if (envBuildType == null || envTargets.isEmpty() || envEmbeddedFrameworksDir == null || envFrameworkSearchDir == null) {
         locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
@@ -177,13 +198,15 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
         return
     }
 
-    if (userScriptSandboxingEnabled == "YES") {
+    if (userScriptSandboxingEnabled || srcRootAccessible.not()) {
         locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
             task.group = BasePlugin.BUILD_GROUP
             task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
             task.doFirst {
+                val message = if (userScriptSandboxingEnabled) "You " else "SRCROOT is not accessible, probably you "
                 throw IllegalStateException(
-                    "You have sandboxing for user scripts enabled. " +
+                    message +
+                            "have sandboxing for user scripts enabled." +
                             "\nTo make the $frameworkTaskName task pass, disable this feature. " +
                             "\nIn your Xcode project, navigate to \"Build Setting\", " +
                             "and under \"Build Options\" set \"User script sandboxing\" (ENABLE_USER_SCRIPT_SANDBOXING) to \"NO\". " +

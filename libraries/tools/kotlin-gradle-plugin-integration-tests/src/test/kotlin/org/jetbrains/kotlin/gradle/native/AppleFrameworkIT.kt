@@ -236,7 +236,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 environmentVariables = EnvironmentalVariables(environmentVariables)
             ) {
                 assertTasksFailed(":shared:embedAndSignAppleFrameworkForXcode")
-                assertOutputContains("Sandboxing for user scripts is currently enabled")
+                assertOutputContains("You have sandboxing for user scripts enabled.")
             }
         }
     }
