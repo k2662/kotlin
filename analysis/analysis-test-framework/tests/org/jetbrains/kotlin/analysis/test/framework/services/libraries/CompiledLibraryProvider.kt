@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2022 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Copyright 2010-2023 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
@@ -21,6 +21,8 @@ class CompiledLibraryProvider(private val testServices: TestServices) : TestServ
         val librarySourcesJar = TestModuleCompiler.compileTestModuleToLibrarySources(module, testServices)
         return CompiledLibrary(libraryJar, librarySourcesJar).also { libraries[module.name] = it }
     }
+
+    fun getCompiledLibrary(moduleName: String): CompiledLibrary? = libraries[moduleName]
 }
 
 val TestServices.compiledLibraryProvider: CompiledLibraryProvider by TestServices.testServiceAccessor()
