@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.analysis.low.level.api.fir.test.base.AbstractLowLeve
 import org.jetbrains.kotlin.analysis.low.level.api.fir.test.configurators.AnalysisApiFirLibraryBinaryTestConfigurator
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.FirDeclarationForCompiledElementSearcher
 import org.jetbrains.kotlin.analysis.project.structure.ProjectStructureProvider
-import org.jetbrains.kotlin.analysis.test.framework.services.libraries.CompiledLibraryProvider
+import org.jetbrains.kotlin.test.services.libraries.CompiledLibraryProvider
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.test.builders.TestConfigurationBuilder
