@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.test.services.TestServices
 import java.nio.file.Path
 
 class CompiledLibraryProvider(private val testServices: TestServices) : TestService {
-    private val libraries = mutableMapOf<String, CompiledLibrary>()
+    internal val libraries = mutableMapOf<String, CompiledLibrary>()
 
     fun compileToLibrary(module: TestModule): CompiledLibrary {
         if (module.name in libraries) {
