@@ -62,6 +62,9 @@ pill {
 val isTeamcityBuild = project.kotlinBuildProperties.isTeamcityBuild
 
 val defaultSnapshotVersion: String by extra
+findProperty("deployVersion")?.let {
+    assert(findProperty("build.number") != null) { "`build.number` parameter is expected to be explicitly set with the `deployVersion`" }
+}
 val buildNumber by extra(findProperty("build.number")?.toString() ?: defaultSnapshotVersion)
 val kotlinVersion by extra(
     findProperty("deployVersion")?.toString()?.let { deploySnapshotStr ->
@@ -488,7 +491,6 @@ val projectsWithEnabledContextReceivers by extra {
         ":kotlinx-serialization-compiler-plugin.k2",
         ":plugins:parcelize:parcelize-compiler:parcelize.k2",
         ":plugins:fir-plugin-prototype",
-        ":plugins:kapt4",
     )
 }
 

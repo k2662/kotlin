@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.fromSrcPackageJson
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockCopyTask.Companion.STORE_YARN_LOCK_NAME
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockCopyTask.Companion.UPGRADE_YARN_LOCK
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockCopyTask.Companion.YARN_LOCK_MISMATCH_MESSAGE
-import org.jetbrains.kotlin.gradle.tasks.USING_JS_IR_BACKEND_MESSAGE
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.testbase.TestVersions.Gradle.G_7_6
 import org.jetbrains.kotlin.gradle.util.replaceText
@@ -40,12 +39,28 @@ class Kotlin2JsIrGradlePluginIT : KGPBaseTest() {
     fun generateDts(gradleVersion: GradleVersion) {
         project("kotlin2JsIrDtsGeneration", gradleVersion) {
             build("build") {
-                checkIrCompilationMessage()
-
                 assertFileInProjectExists("build/js/packages/kotlin2JsIrDtsGeneration/kotlin/kotlin2JsIrDtsGeneration.js")
                 val dts = projectPath.resolve("build/js/packages/kotlin2JsIrDtsGeneration/kotlin/kotlin2JsIrDtsGeneration.d.ts")
                 assertFileExists(dts)
                 assertFileContains(dts, "function bar(): string")
+            }
+        }
+    }
+
+    @DisplayName("nodejs main function arguments")
+    @GradleTest
+    fun testNodeJsMainArguments(gradleVersion: GradleVersion) {
+        project("kotlin-js-nodejs-project", gradleVersion) {
+            buildGradle.appendText(
+                """
+                |
+                |tasks.withType(org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExec).configureEach {
+                |   args += ["test", "'Hello, World'"]
+                |}
+               """.trimMargin()
+            )
+            build("nodeRun") {
+                assertOutputContains("ACCEPTED: test;'Hello, World'")
             }
         }
     }
@@ -747,17 +762,11 @@ class Kotlin2JsIrGradlePluginIT : KGPBaseTest() {
         }
     }
 
-    protected fun BuildResult.checkIrCompilationMessage() {
-        assertOutputContains(USING_JS_IR_BACKEND_MESSAGE)
-    }
-
     @DisplayName("test compilation can access main compilation")
     @GradleTest
     fun testCompileTestCouldAccessProduction(gradleVersion: GradleVersion) {
         project("kotlin2JsProjectWithTests", gradleVersion) {
             build("build") {
-                checkIrCompilationMessage()
-
                 assertTasksExecuted(
                     ":compileKotlinJs",
                     ":compileTestKotlinJs"
@@ -774,7 +783,6 @@ class Kotlin2JsIrGradlePluginIT : KGPBaseTest() {
     fun testCompilerTestAccessInternalProduction(gradleVersion: GradleVersion) {
         project("kotlin2JsInternalTest", gradleVersion) {
             build("build") {
-                checkIrCompilationMessage()
             }
         }
     }
@@ -1180,8 +1188,6 @@ class Kotlin2JsIrGradlePluginIT : KGPBaseTest() {
     fun testNodeJsForkOptions(gradleVersion: GradleVersion) {
         project("kotlin-js-nodejs-custom-node-module", gradleVersion) {
             build("build") {
-                checkIrCompilationMessage()
-
                 // It makes sense only since Tests will be run on Gradle 7.2
                 assertOutputDoesNotContain("Execution optimizations have been disabled for task ':nodeTest'")
 

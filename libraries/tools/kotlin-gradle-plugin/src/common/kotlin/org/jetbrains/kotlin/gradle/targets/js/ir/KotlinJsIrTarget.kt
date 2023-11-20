@@ -433,6 +433,19 @@ constructor(
 
     }
 
+    override fun passAsArgumentToMainFunction(jsExpression: String) {
+        compilations
+            .all {
+                it.binaries
+                    .withType(JsIrBinary::class.java)
+                    .all {
+                        it.linkTask.configure { linkTask ->
+                            linkTask.compilerOptions.freeCompilerArgs.add("-Xplatform-arguments-in-main-function=$jsExpression")
+                        }
+                    }
+            }
+    }
+
     private fun KotlinJsOptions.configureCommonJsOptions() {
         moduleKind = "commonjs"
         sourceMap = true
@@ -464,9 +477,7 @@ constructor(
     internal override val compilerOptions: KotlinJsCompilerOptions = project.objects
         .newInstance<KotlinJsCompilerOptionsDefault>()
         .apply {
-            configureJsDefaultOptions(platformType)
-
-            freeCompilerArgs.add(DISABLE_PRE_IR)
+            configureJsDefaultOptions()
         }
 }
 
