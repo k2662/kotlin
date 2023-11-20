@@ -2451,6 +2451,52 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 }
             }
 
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53422")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt53422 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt53422() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt53422"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("alternative1.kt")
+                public void testAlternative1() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53422/alternative1.kt");
+                }
+
+                @TestMetadata("alternative2.kt")
+                public void testAlternative2() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53422/alternative2.kt");
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53422/simplified.kt");
+                }
+            }
+
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53553")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt53553 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt53553() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt53553"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53553/simplified.kt");
+                }
+            }
+
             @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53639")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
@@ -2466,6 +2512,52 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 @TestMetadata("simplified.kt")
                 public void testSimplified() throws Exception {
                     runTest("compiler/testData/codegen/box/builderInference/issues/kt53639/simplified.kt");
+                }
+            }
+
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53740")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt53740 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt53740() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt53740"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("simplified1.kt")
+                public void testSimplified1() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53740/simplified1.kt");
+                }
+
+                @TestMetadata("simplified2.kt")
+                public void testSimplified2() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53740/simplified2.kt");
+                }
+            }
+
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt54664")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt54664 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt54664() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt54664"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("alternative.kt")
+                public void testAlternative() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt54664/alternative.kt");
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt54664/simplified.kt");
                 }
             }
 
@@ -2487,6 +2579,42 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 }
             }
 
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt55281")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt55281 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt55281() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt55281"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt55281/simplified.kt");
+                }
+            }
+
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt56949")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt56949 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt56949() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt56949"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt56949/simplified.kt");
+                }
+            }
+
             @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt60291")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
@@ -2502,6 +2630,24 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 @TestMetadata("simplified.kt")
                 public void testSimplified() throws Exception {
                     runTest("compiler/testData/codegen/box/builderInference/issues/kt60291/simplified.kt");
+                }
+            }
+
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63648")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt63648 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt63648() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63648"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt63648/simplified.kt");
                 }
             }
         }

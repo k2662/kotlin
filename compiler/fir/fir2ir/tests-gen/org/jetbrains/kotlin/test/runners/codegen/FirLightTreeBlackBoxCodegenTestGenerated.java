@@ -2797,6 +2797,50 @@ public class FirLightTreeBlackBoxCodegenTestGenerated extends AbstractFirLightTr
             }
 
             @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53422")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt53422 {
+                @Test
+                public void testAllFilesPresentInKt53422() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt53422"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("alternative1.kt")
+                public void testAlternative1() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53422/alternative1.kt");
+                }
+
+                @Test
+                @TestMetadata("alternative2.kt")
+                public void testAlternative2() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53422/alternative2.kt");
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53422/simplified.kt");
+                }
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53553")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt53553 {
+                @Test
+                public void testAllFilesPresentInKt53553() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt53553"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53553/simplified.kt");
+                }
+            }
+
+            @Nested
             @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53639")
             @TestDataPath("$PROJECT_ROOT")
             public class Kt53639 {
@@ -2809,6 +2853,50 @@ public class FirLightTreeBlackBoxCodegenTestGenerated extends AbstractFirLightTr
                 @TestMetadata("simplified.kt")
                 public void testSimplified() throws Exception {
                     runTest("compiler/testData/codegen/box/builderInference/issues/kt53639/simplified.kt");
+                }
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt53740")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt53740 {
+                @Test
+                public void testAllFilesPresentInKt53740() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt53740"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("simplified1.kt")
+                public void testSimplified1() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53740/simplified1.kt");
+                }
+
+                @Test
+                @TestMetadata("simplified2.kt")
+                public void testSimplified2() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt53740/simplified2.kt");
+                }
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt54664")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt54664 {
+                @Test
+                public void testAllFilesPresentInKt54664() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt54664"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("alternative.kt")
+                public void testAlternative() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt54664/alternative.kt");
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt54664/simplified.kt");
                 }
             }
 
@@ -2829,6 +2917,38 @@ public class FirLightTreeBlackBoxCodegenTestGenerated extends AbstractFirLightTr
             }
 
             @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt55281")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt55281 {
+                @Test
+                public void testAllFilesPresentInKt55281() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt55281"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt55281/simplified.kt");
+                }
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt56949")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt56949 {
+                @Test
+                public void testAllFilesPresentInKt56949() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt56949"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt56949/simplified.kt");
+                }
+            }
+
+            @Nested
             @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt60291")
             @TestDataPath("$PROJECT_ROOT")
             public class Kt60291 {
@@ -2841,6 +2961,22 @@ public class FirLightTreeBlackBoxCodegenTestGenerated extends AbstractFirLightTr
                 @TestMetadata("simplified.kt")
                 public void testSimplified() throws Exception {
                     runTest("compiler/testData/codegen/box/builderInference/issues/kt60291/simplified.kt");
+                }
+            }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63648")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt63648 {
+                @Test
+                public void testAllFilesPresentInKt63648() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63648"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt63648/simplified.kt");
                 }
             }
         }
