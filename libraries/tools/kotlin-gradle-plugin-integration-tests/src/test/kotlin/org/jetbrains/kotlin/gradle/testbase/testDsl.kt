@@ -60,6 +60,7 @@ fun KGPBaseTest.project(
     projectPath.addDefaultBuildFiles()
     projectPath.enableCacheRedirector()
     projectPath.enableAndroidSdk()
+    projectPath.enableIosSrcRoot()
     if (buildOptions.languageVersion != null || buildOptions.languageApiVersion != null) {
         projectPath.applyKotlinCompilerArgsPlugin()
     }
@@ -614,6 +615,11 @@ internal fun Path.enableAndroidSdk() {
         )
     acceptAndroidSdkLicenses(androidSdk)
     applyAndroidTestFixes()
+}
+
+internal fun Path.enableIosSrcRoot() {
+    resolve("iosApp/")
+        .also { if (!it.exists()) it.createDirectory() }
 }
 
 internal fun Path.enableCacheRedirector() {

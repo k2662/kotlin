@@ -28,27 +28,34 @@ class AppleFrameworkIT : KGPBaseTest() {
     fun shouldAssembleAppleFrameworkForXcodeForIosArm64(
         gradleVersion: GradleVersion,
     ) {
-
         nativeProject(
             "sharedAppleFramework",
             gradleVersion,
-            buildOptions = defaultBuildOptions,
-            environmentVariables = EnvironmentalVariables(
+            buildOptions = defaultBuildOptions
+        ) {
+
+            val environmentVariables = mapOf(
                 "CONFIGURATION" to "debug",
                 "SDK_NAME" to "iphoneos123",
                 "ARCHS" to "arm64",
                 "TARGET_BUILD_DIR" to "no use",
-                "FRAMEWORKS_FOLDER_PATH" to "no use"
-            ),
-        ) {
+                "FRAMEWORKS_FOLDER_PATH" to "no use",
+                "SRCROOT" to iosSrcRootDir().absolutePathString(),
+            )
 
-            build("assembleDebugAppleFrameworkForXcodeIosArm64") {
+            build(
+                "assembleDebugAppleFrameworkForXcodeIosArm64",
+                environmentVariables = EnvironmentalVariables(environmentVariables)
+            ) {
                 assertTasksExecuted(":shared:assembleDebugAppleFrameworkForXcodeIosArm64")
                 assertDirectoryInProjectExists("shared/build/xcode-frameworks/debug/iphoneos123/sdk.framework")
                 assertDirectoryInProjectExists("shared/build/xcode-frameworks/debug/iphoneos123/sdk.framework.dSYM")
             }
 
-            build("assembleCustomDebugAppleFrameworkForXcodeIosArm64") {
+            build(
+                "assembleCustomDebugAppleFrameworkForXcodeIosArm64",
+                environmentVariables = EnvironmentalVariables(environmentVariables)
+            ) {
                 assertTasksExecuted(":shared:assembleCustomDebugAppleFrameworkForXcodeIosArm64")
                 assertDirectoryInProjectExists("shared/build/xcode-frameworks/debug/iphoneos123/lib.framework")
                 assertDirectoryInProjectExists("shared/build/xcode-frameworks/debug/iphoneos123/lib.framework.dSYM")
@@ -73,7 +80,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "SDK_NAME" to "iphonesimulator",
                 "ARCHS" to "arm64 x86_64",
                 "TARGET_BUILD_DIR" to "no use",
-                "FRAMEWORKS_FOLDER_PATH" to "no use"
+                "FRAMEWORKS_FOLDER_PATH" to "no use",
+                "SRCROOT" to iosSrcRootDir().absolutePathString(),
             )
             build("assembleReleaseAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertTasksExecuted(":shared:linkReleaseFrameworkIosSimulatorArm64")
@@ -103,7 +111,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "ARCHS" to "x86_64",
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to testBuildDir.toString(),
-                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived"
+                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
+                "SRCROOT" to iosSrcRootDir().absolutePathString(),
             )
             build(":shared:embedAndSignAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertTasksExecuted(":shared:assembleDebugAppleFrameworkForXcodeMacosX64")
@@ -129,7 +138,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "SDK_NAME" to "iphoneos",
                 "ARCHS" to "arm64",
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
-                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived"
+                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
+                "SRCROOT" to iosSrcRootDir().absolutePathString(),
             )
             build(":shared:embedAndSignAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertDirectoryInProjectExists("build/xcode-derived/sdk.framework")
@@ -154,7 +164,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "ARCHS" to "arm64",
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
-                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived"
+                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
+                "SRCROOT" to iosSrcRootDir().absolutePathString(),
             )
             build(":shared:embedAndSignAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertDirectoryInProjectExists("build/xcode-derived/sdk.framework")
@@ -192,7 +203,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "ARCHS" to "arm64",
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to testBuildDir.toString(),
-                "FRAMEWORKS_FOLDER_PATH" to "testFrameworksDir"
+                "FRAMEWORKS_FOLDER_PATH" to "testFrameworksDir",
+                "SRCROOT" to iosSrcRootDir().absolutePathString(),
             )
             buildAndAssertAllTasks(
                 registeredTasks = listOf(
@@ -229,7 +241,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
                 "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
-                "ENABLE_USER_SCRIPT_SANDBOXING" to "YES"
+                "ENABLE_USER_SCRIPT_SANDBOXING" to "YES",
+                "SRCROOT" to iosSrcRootDir().absolutePathString(),
             )
             buildAndFail(
                 ":shared:embedAndSignAppleFrameworkForXcode",
@@ -255,7 +268,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                 mapOf(
                     "CONFIGURATION" to "Debug",
                     "SDK_NAME" to "iphoneos",
-                    "ARCHS" to "arm64"
+                    "ARCHS" to "arm64",
+                    "SRCROOT" to iosSrcRootDir().absolutePathString(),
                 )
             )
             buildAndAssertAllTasks(
@@ -303,7 +317,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "SDK_NAME" to "iphoneos123",
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
-                    "FRAMEWORKS_FOLDER_PATH" to "no use"
+                    "FRAMEWORKS_FOLDER_PATH" to "no use",
+                    "SRCROOT" to iosSrcRootDir().absolutePathString(),
                 )
             )
 
@@ -339,7 +354,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "SDK_NAME" to "iphoneos123",
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
-                    "FRAMEWORKS_FOLDER_PATH" to "no use"
+                    "FRAMEWORKS_FOLDER_PATH" to "no use",
+                    "SRCROOT" to iosSrcRootDir().absolutePathString(),
                 )
             )
 
@@ -375,7 +391,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "SDK_NAME" to "iphoneos123",
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
-                    "FRAMEWORKS_FOLDER_PATH" to "no use"
+                    "FRAMEWORKS_FOLDER_PATH" to "no use",
+                    "SRCROOT" to iosSrcRootDir().absolutePathString(),
                 )
             )
 
@@ -405,7 +422,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "SDK_NAME" to "iphoneos123",
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
-                    "FRAMEWORKS_FOLDER_PATH" to "no use"
+                    "FRAMEWORKS_FOLDER_PATH" to "no use",
+                    "SRCROOT" to iosSrcRootDir().absolutePathString(),
                 )
             )
 
@@ -435,7 +453,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "SDK_NAME" to "iphoneos123",
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
-                    "FRAMEWORKS_FOLDER_PATH" to "no use"
+                    "FRAMEWORKS_FOLDER_PATH" to "no use",
+                    "SRCROOT" to iosSrcRootDir().absolutePathString(),
                 )
             )
 
@@ -469,7 +488,8 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "SDK_NAME" to "iphoneos123",
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
-                    "FRAMEWORKS_FOLDER_PATH" to "no use"
+                    "FRAMEWORKS_FOLDER_PATH" to "no use",
+                    "SRCROOT" to iosSrcRootDir().absolutePathString(),
                 )
             )
 
@@ -535,3 +555,5 @@ class AppleFrameworkIT : KGPBaseTest() {
         }
     }
 }
+
+private fun GradleProject.iosSrcRootDir(): Path = projectPath.resolve("iosApp/")
