@@ -9,6 +9,7 @@ import kotlinx.metadata.*
 import kotlinx.metadata.internal.common.KmModuleFragment
 import kotlinx.metadata.klib.impl.klibExtensions
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // TODO: deprecated-hidden + provide new declarations
 val KmFunction.annotations: MutableList<KmAnnotation>
     get() = klibExtensions.annotations
 
@@ -24,6 +25,7 @@ var KmFunction.file: KlibSourceFile?
         klibExtensions.file = value
     }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 val KmClass.annotations: MutableList<KmAnnotation>
     get() = klibExtensions.annotations
 
@@ -42,6 +44,7 @@ var KmClass.file: KlibSourceFile?
 val KmClass.klibEnumEntries: MutableList<KlibEnumEntry>
     get() = klibExtensions.enumEntries
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 val KmProperty.annotations: MutableList<KmAnnotation>
     get() = klibExtensions.annotations
 
@@ -72,6 +75,7 @@ var KmProperty.compileTimeValue: KmAnnotationArgument?
 val KmType.annotations: MutableList<KmAnnotation>
     get() = klibExtensions.annotations
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 val KmConstructor.annotations: MutableList<KmAnnotation>
     get() = klibExtensions.annotations
 
@@ -114,5 +118,6 @@ var KmTypeAlias.uniqId: UniqId?
         klibExtensions.uniqId = value
     }
 
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 val KmValueParameter.annotations: MutableList<KmAnnotation>
     get() = klibExtensions.annotations
