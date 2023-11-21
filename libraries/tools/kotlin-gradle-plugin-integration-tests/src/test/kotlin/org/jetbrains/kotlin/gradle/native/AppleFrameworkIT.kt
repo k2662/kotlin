@@ -254,6 +254,34 @@ class AppleFrameworkIT : KGPBaseTest() {
         }
     }
 
+    @DisplayName("embedAndSignAppleFrameworkForXcode was registered with missing SRCROOT directory")
+    @OptIn(EnvironmentalVariablesOverride::class)
+    @GradleTest
+    fun shouldFailEmbedAndSignAppleFrameworkForXcodeWithMissingSRCROOT(
+        gradleVersion: GradleVersion,
+    ) {
+        nativeProject(
+            "sharedAppleFramework",
+            gradleVersion,
+        ) {
+            val environmentVariables = mapOf(
+                "CONFIGURATION" to "Debug",
+                "SDK_NAME" to "iphoneos",
+                "ARCHS" to "arm64",
+                "EXPANDED_CODE_SIGN_IDENTITY" to "-",
+                "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
+                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived"
+            )
+            buildAndFail(
+                ":shared:embedAndSignAppleFrameworkForXcode",
+                environmentVariables = EnvironmentalVariables(environmentVariables)
+            ) {
+                assertTasksFailed(":shared:embedAndSignAppleFrameworkForXcode")
+                assertOutputContains("SRCROOT is not accessible, probably you have sandboxing for user scripts enabled.")
+            }
+        }
+    }
+
     @DisplayName("embedAndSignAppleFrameworkForXcode was registered without required Xcode environments")
     @OptIn(EnvironmentalVariablesOverride::class)
     @GradleTest
