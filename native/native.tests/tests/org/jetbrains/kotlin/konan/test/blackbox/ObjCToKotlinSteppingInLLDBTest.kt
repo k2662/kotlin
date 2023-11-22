@@ -17,11 +17,15 @@ import org.jetbrains.kotlin.konan.test.blackbox.support.runner.TestRunChecks
 import org.jetbrains.kotlin.konan.test.blackbox.support.settings.LLDB
 import org.jetbrains.kotlin.konan.test.blackbox.support.settings.PipelineType
 import org.jetbrains.kotlin.konan.test.blackbox.support.settings.Timeouts
+import org.jetbrains.kotlin.konan.test.blackbox.support.settings.configurables
 import org.jetbrains.kotlin.konan.test.blackbox.support.util.LLDBSessionSpec
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Test
 import java.io.File
 
+
+@EnforcedProperty(ClassLevelProperty.COMPILER_OUTPUT_INTERCEPTOR, "NONE")
+@EnforcedHostTarget
 class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
 
     @Test
@@ -36,7 +40,8 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
             [..]`objc2kotlin_kfun:#bar(){} at <compiler-generated>:1
             > c
             """.trimIndent(),
-            CLANG_FILE_NAME
+            CLANG_FILE_NAME,
+            "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepInFromObjCToKotlin___WithDisabledStopHook___StopsAtABridgingRoutine.name}"
         )
     }
 
@@ -55,17 +60,17 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
                3   	}
             > c
             """.trimIndent(),
-            CLANG_FILE_NAME
+            CLANG_FILE_NAME,
+            "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepInFromObjCToKotlin___WithStopHook___StepsThroughToKotlinCode.name}"
         )
     }
 
     private fun testSteppingFromObjcToKotlin(
         lldbSpec: String,
         clangFileName: String,
+        testName: String,
     ) {
-        if (!targets.testTarget.family.isAppleFamily) {
-            Assumptions.abort<Nothing>("not supported at non-Apple targets")
-        }
+        if (!targets.testTarget.family.isAppleFamily) { Assumptions.abort<Nothing>("This test is supported only on Apple targets") }
 
         val kotlinFrameworkName = "Kotlin"
         val clangMainSources = """
@@ -89,6 +94,7 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
             clangMainSources = clangMainSources,
             clangFileName = clangFileName,
             lldbSpec = lldbSpec,
+            testName = testName,
         )
     }
 
@@ -99,6 +105,7 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
         clangMainSources: String,
         clangFileName: String,
         lldbSpec: String,
+        testName: String,
     ) {
         // 1. Create sources
         val sourceDirectory = buildDir.resolve("sources")
@@ -129,28 +136,29 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
         // 3. Compile the executable
         val clangExecutableName = "clangMain"
         val executableFile = File(buildDir, clangExecutableName)
-        val builder = ProcessBuilder(
-            // FIXME: sysroot and triple?
-            "clang", "-g", clangFile.absolutePath,
-            "-fmodules",
-            "-F", ".",
-            "-o", executableFile.absolutePath
+
+        assert(
+            ProcessBuilder(
+                "${testRunSettings.configurables.absoluteTargetToolchain}/bin/clang",
+                clangFile.absolutePath,
+                "-isysroot", testRunSettings.configurables.absoluteTargetSysRoot,
+                "-target", testRunSettings.configurables.targetTriple.toString(),
+                "-g", "-fmodules",
+                "-F", buildDir.absolutePath,
+                "-o", executableFile.absolutePath
+            ).inheritIO().start().waitFor() == 0
         )
-        builder.directory(buildDir)
-        assert(builder.start().waitFor() == 0)
 
         // 4. Generate the test case
         val testExecutable = TestExecutable(
             TestCompilationArtifact.Executable(executableFile),
-            // FIXME: ???
             loggedCompilationToolCall = LoggedData.NoopCompilerCall(buildDir),
-            // FIXME: ???
-            testNames = emptyList(),
+            testNames = listOf(TestName(testName)),
         )
         val spec = LLDBSessionSpec.parse(lldbSpec)
-        val moduleForTestCase = TestModule.Exclusive("lldbTest", emptySet(), emptySet(), emptySet())
+        val moduleForTestCase = TestModule.Exclusive(testName, emptySet(), emptySet(), emptySet())
         val testCase = TestCase(
-            id = TestCaseId.Named("lldbTest"),
+            id = TestCaseId.Named(testName),
             kind = TestKind.STANDALONE_LLDB,
             modules = setOf(moduleForTestCase),
             freeCompilerArgs = freeCompilerArgs,
@@ -164,7 +172,6 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
                 fileCheckMatcher = null,
             ),
             extras = TestCase.NoTestRunnerExtras(
-                // FIXME: ???
                 "main",
                 arguments = spec.generateCLIArguments(testRunSettings.get<LLDB>().prettyPrinters)
             )
