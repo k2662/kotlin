@@ -154,7 +154,7 @@ public class KotlinModuleMetadata public constructor(
                     ModuleMapping.EMPTY, ModuleMapping.CORRUPTED ->
                         throw IllegalArgumentException("Data is not the content of a .kotlin_module file, or it has been corrupted.")
                 }
-                val module = readModuleMetadataImpl(bytes, result)
+                val module = readModuleMetadataImpl(result)
                 KotlinModuleMetadata(module, JvmMetadataVersion(result.version.toArray()))
             }
         }
