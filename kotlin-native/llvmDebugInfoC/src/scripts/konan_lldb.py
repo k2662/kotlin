@@ -636,7 +636,7 @@ class KonanHook:
         is_bridging_functions_skip_enabled = not execution_context.target.GetEnvironment().Get(KONAN_LLDB_DONT_SKIP_BRIDGING_FUNCTIONS)
         if is_bridging_functions_skip_enabled and execution_context.frame.addr.line_entry.file.basename == '<compiler-generated>':
             thread: lldb.SBThread = execution_context.thread
-            thread.StepUsingScriptedThreadPlan('konan_lldb.KonanStepIn')
+            thread.StepUsingScriptedThreadPlan('{}.KonanStepIn'.format(__name__))
         return True
 
 
