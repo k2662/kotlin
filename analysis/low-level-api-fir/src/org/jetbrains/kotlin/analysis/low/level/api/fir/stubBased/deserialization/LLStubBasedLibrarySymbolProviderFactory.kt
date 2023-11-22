@@ -87,9 +87,6 @@ class LLStubBasedLibrarySymbolProviderFactory(private val project: Project) : LL
             createStubBasedFirSymbolProviderForKotlinNativeMetadataFiles(
                 project, scope, session, moduleDataProvider, kotlinScopeProvider
             ),
-            createStubBasedFirSymbolProviderForKotlinJavaScriptMetadataFiles(
-                project, scope, session, moduleDataProvider, kotlinScopeProvider
-            ),
         )
     }
 

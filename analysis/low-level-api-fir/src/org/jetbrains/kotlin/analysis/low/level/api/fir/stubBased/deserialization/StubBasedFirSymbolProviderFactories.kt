@@ -62,17 +62,6 @@ internal fun createStubBasedFirSymbolProviderForKotlinNativeMetadataFiles(
     fileFilter = { file -> file.extension == KLIB_METADATA_FILE_EXTENSION },
 )
 
-internal fun createStubBasedFirSymbolProviderForKotlinJavaScriptMetadataFiles(
-    project: Project,
-    baseScope: GlobalSearchScope,
-    session: FirSession,
-    moduleDataProvider: SingleModuleDataProvider,
-    kotlinScopeProvider: FirKotlinScopeProvider,
-): FirSymbolProvider = createStubBasedFirSymbolProviderForScopeLimitedByFiles(
-    project, baseScope, session, moduleDataProvider, kotlinScopeProvider,
-    fileFilter = { file -> file.extension == KotlinJavascriptSerializationUtil.CLASS_METADATA_FILE_EXTENSION },
-)
-
 internal fun createStubBasedFirSymbolProviderForScopeLimitedByFiles(
     project: Project,
     baseScope: GlobalSearchScope,
