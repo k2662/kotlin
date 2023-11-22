@@ -627,6 +627,19 @@ class KonanStepOut(KonanStep):
       return self.thread_plan.QueueThreadPlanForStepOut(0)
 
 
+KONAN_LLDB_DONT_SKIP_BRIDGING_FUNCTIONS = 'KONAN_LLDB_DONT_SKIP_BRIDGING_FUNCTIONS'
+class KonanHook:
+    def __init__(self, target: lldb.SBTarget, extra_args: lldb.SBStructuredData, _):
+        pass
+
+    def handle_stop(self, execution_context: lldb.SBExecutionContext, stream: lldb.SBStream) -> bool:
+        is_bridging_functions_skip_enabled = not execution_context.target.GetEnvironment().Get(KONAN_LLDB_DONT_SKIP_BRIDGING_FUNCTIONS)
+        if is_bridging_functions_skip_enabled and execution_context.frame.addr.line_entry.file.basename == '<compiler-generated>':
+            thread: lldb.SBThread = execution_context.thread
+            thread.StepUsingScriptedThreadPlan('konan_lldb.KonanStepIn')
+        return True
+
+
 def __lldb_init_module(debugger, _):
     log(lambda: "init start")
     __FACTORY['object'] = lambda x, y, z: KonanObjectSyntheticProvider(x, y, z)
@@ -652,4 +665,5 @@ def __lldb_init_module(debugger, _):
     debugger.HandleCommand('command script add -f {}.symbol_by_name_command symbol_by_name'.format(__name__))
     # Avoid Kotlin/Native runtime
     debugger.HandleCommand('settings set target.process.thread.step-avoid-regexp ^::Kotlin_')
+    debugger.HandleCommand('target stop-hook add -P {}.KonanHook'.format(__name__))
     log(lambda: "init end")
