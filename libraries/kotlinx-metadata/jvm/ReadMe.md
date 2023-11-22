@@ -191,7 +191,7 @@ so there is a relaxed version of the reading method: `KotlinClassMetadata.readLe
 but still provide some access to metadata. Keep in mind that this method has limitations:
 
 1. Metadata returned by this method can not be written back, because we are not sure if it is still valid format for newer versions. It is intended for introspection alone.
-2. We cannot guarantee that metadata is not changed in the other unpredictable ways in the future. `readLenient()` tries its best, but still may throw a decoding exception if metadata cannot be read at all. 
+2. We cannot guarantee that metadata is not changed in the other unpredictable ways in the future. `readLenient()` tries its best, but still can throw a decoding exception or even return incorrect result.
 
 ## Module metadata
 
