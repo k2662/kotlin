@@ -74,10 +74,10 @@ private object XcodeEnvironment {
             return File(xcodeTargetBuildDir, xcodeFrameworksFolderPath).absoluteFile
         }
 
-    val srcRootDir: File?
+    val derivedFileDir: File?
         get() {
-            val srcroot = System.getenv("SRCROOT") ?: return null
-            return File(srcroot).absoluteFile
+            val derivedFileDir = System.getenv("DERIVED_FILE_DIR") ?: return null
+            return File(derivedFileDir).absoluteFile
         }
 
     val sign: String? get() = System.getenv("EXPANDED_CODE_SIGN_IDENTITY")
@@ -155,14 +155,14 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
     val envEmbeddedFrameworksDir = XcodeEnvironment.embeddedFrameworksDir
     val envFrameworkSearchDir = XcodeEnvironment.frameworkSearchDir
     val envSign = XcodeEnvironment.sign
-    val srcRoot = XcodeEnvironment.srcRootDir
+    val derivedFileDir = XcodeEnvironment.derivedFileDir
     val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
 
     val frameworkTaskName = lowerCamelCaseName(AppleXcodeTasks.embedAndSignTaskPrefix, framework.namePrefix, AppleXcodeTasks.embedAndSignTaskPostfix)
 
-    val srcRootAccessible: Boolean = if (srcRoot != null) {
+    val derivedFileDirAccessible: Boolean = if (derivedFileDir != null && userScriptSandboxingEnabled.not()) {
         try {
-            val tempFile = File.createTempFile("sandbox", null, srcRoot)
+            val tempFile = File.createTempFile("sandbox", null, derivedFileDir)
             if (tempFile.exists()) {
                 tempFile.delete()
             }
@@ -174,7 +174,7 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
         false
     }
 
-    if (envBuildType == null || envTargets.isEmpty() || envEmbeddedFrameworksDir == null || envFrameworkSearchDir == null) {
+    if (envBuildType == null || envTargets.isEmpty() || envEmbeddedFrameworksDir == null || envFrameworkSearchDir == null || derivedFileDir == null) {
         locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
             task.group = BasePlugin.BUILD_GROUP
             task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
@@ -189,7 +189,7 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
                 } else {
                     throw IllegalStateException(
                         "Please run the $frameworkTaskName task from Xcode " +
-                                "('SDK_NAME', 'CONFIGURATION', 'TARGET_BUILD_DIR', 'ARCHS' and 'FRAMEWORKS_FOLDER_PATH' not provided)" +
+                                "('SDK_NAME', 'CONFIGURATION', 'TARGET_BUILD_DIR', 'ARCHS', 'DERIVED_FILE_DIR' and 'FRAMEWORKS_FOLDER_PATH' not provided)" +
                                 "\n$XcodeEnvironment"
                     )
                 }
@@ -198,12 +198,12 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
         return
     }
 
-    if (userScriptSandboxingEnabled || srcRootAccessible.not()) {
+    if (userScriptSandboxingEnabled || derivedFileDirAccessible.not()) {
         locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
             task.group = BasePlugin.BUILD_GROUP
             task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
             task.doFirst {
-                val message = if (userScriptSandboxingEnabled) "You " else "SRCROOT is not accessible, probably you "
+                val message = if (userScriptSandboxingEnabled) "You " else "DERIVED_FILE_DIR is not accessible, probably you "
                 throw IllegalStateException(
                     message +
                             "have sandboxing for user scripts enabled." +
@@ -226,11 +226,9 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
             property("type", envBuildType)
             property("targets", envTargets)
             property("embeddedFrameworksDir", envEmbeddedFrameworksDir)
+            property("userScriptSandboxingEnabled", userScriptSandboxingEnabled)
             if (envSign != null) {
                 property("sign", envSign)
-            }
-            if (userScriptSandboxingEnabled != null) {
-                property("userScriptSandboxingEnabled", userScriptSandboxingEnabled)
             }
         }
     }
