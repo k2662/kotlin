@@ -8,40 +8,20 @@ package org.jetbrains.kotlin.name
 import org.jetbrains.kotlin.name.StandardClassIds.BASE_KOTLIN_PACKAGE
 
 object WasmStandardClassIds {
-    val BASE_JS_PACKAGE = BASE_KOTLIN_PACKAGE.child(Name.identifier("js"))
     val BASE_WASM_PACKAGE = BASE_KOTLIN_PACKAGE.child(Name.identifier("wasm"))
 
     object Annotations {
-        @JvmField
-        val JsQualifier = "JsQualifier".jsId()
-
-        @JvmField
-        val JsModule = "JsModule".jsId()
-
-        @JvmField
-        val JsName = "JsName".jsId()
-
-        @JvmField
-        val JsExport = "JsExport".jsId()
-
         @JvmField
         val WasmImport = "WasmImport".wasmId()
 
         @JvmField
         val WasmExport = "WasmExport".wasmId()
-    }
-
-    object Callables {
-        @JvmField
-        val JsDefinedExternally = "definedExternally".callableId(BASE_JS_PACKAGE)
 
         @JvmField
-        val Js = "js".callableId(BASE_JS_PACKAGE)
+        val JsFun = "JsFun".baseId()
     }
 }
 
-private fun String.jsId() = ClassId(WasmStandardClassIds.BASE_JS_PACKAGE, Name.identifier(this))
+private fun String.baseId() = ClassId(BASE_KOTLIN_PACKAGE, Name.identifier(this))
 
 private fun String.wasmId() = ClassId(WasmStandardClassIds.BASE_WASM_PACKAGE, Name.identifier(this))
-
-private fun String.callableId(packageName: FqName) = CallableId(packageName, Name.identifier(this))

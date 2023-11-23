@@ -626,6 +626,42 @@ public class FirStandaloneNormalAnalysisSourceModuleReferenceShortenerTestGenera
         }
 
         @Test
+        @TestMetadata("classAndObjectHaveConflictingNestedClasses_inside.kt")
+        public void testClassAndObjectHaveConflictingNestedClasses_inside() throws Exception {
+            runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/nestedClasses/classAndObjectHaveConflictingNestedClasses_inside.kt");
+        }
+
+        @Test
+        @TestMetadata("classAndObjectHaveConflictingNestedClasses_inside_companion.kt")
+        public void testClassAndObjectHaveConflictingNestedClasses_inside_companion() throws Exception {
+            runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/nestedClasses/classAndObjectHaveConflictingNestedClasses_inside_companion.kt");
+        }
+
+        @Test
+        @TestMetadata("classAndObjectHaveConflictingNestedClasses_inside_namedCompanion.kt")
+        public void testClassAndObjectHaveConflictingNestedClasses_inside_namedCompanion() throws Exception {
+            runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/nestedClasses/classAndObjectHaveConflictingNestedClasses_inside_namedCompanion.kt");
+        }
+
+        @Test
+        @TestMetadata("classAndObjectHaveConflictingNestedClasses_outside.kt")
+        public void testClassAndObjectHaveConflictingNestedClasses_outside() throws Exception {
+            runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/nestedClasses/classAndObjectHaveConflictingNestedClasses_outside.kt");
+        }
+
+        @Test
+        @TestMetadata("classAndObjectHaveConflictingNestedClasses_outside_companion.kt")
+        public void testClassAndObjectHaveConflictingNestedClasses_outside_companion() throws Exception {
+            runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/nestedClasses/classAndObjectHaveConflictingNestedClasses_outside_companion.kt");
+        }
+
+        @Test
+        @TestMetadata("classAndObjectHaveConflictingNestedClasses_outside_namedCompanion.kt")
+        public void testClassAndObjectHaveConflictingNestedClasses_outside_namedCompanion() throws Exception {
+            runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/nestedClasses/classAndObjectHaveConflictingNestedClasses_outside_namedCompanion.kt");
+        }
+
+        @Test
         @TestMetadata("nestedClassFromSupertypes1.kt")
         public void testNestedClassFromSupertypes1() throws Exception {
             runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/nestedClasses/nestedClassFromSupertypes1.kt");
@@ -949,6 +985,64 @@ public class FirStandaloneNormalAnalysisSourceModuleReferenceShortenerTestGenera
         @TestMetadata("this_safeCall.kt")
         public void testThis_safeCall() throws Exception {
             runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/this_safeCall.kt");
+        }
+
+        @Nested
+        @TestMetadata("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel")
+        @TestDataPath("$PROJECT_ROOT")
+        public class WithLabel {
+            @Test
+            public void testAllFilesPresentInWithLabel() throws Exception {
+                KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel"), Pattern.compile("^(.+)\\.kt$"), null, true);
+            }
+
+            @Test
+            @TestMetadata("extensionReceiver.kt")
+            public void testExtensionReceiver() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/extensionReceiver.kt");
+            }
+
+            @Test
+            @TestMetadata("extensionReceiver_vs_lambdaReceiver.kt")
+            public void testExtensionReceiver_vs_lambdaReceiver() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/extensionReceiver_vs_lambdaReceiver.kt");
+            }
+
+            @Test
+            @TestMetadata("extensionReceiver_vs_local.kt")
+            public void testExtensionReceiver_vs_local() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/extensionReceiver_vs_local.kt");
+            }
+
+            @Test
+            @TestMetadata("lambdaReceiver.kt")
+            public void testLambdaReceiver() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/lambdaReceiver.kt");
+            }
+
+            @Test
+            @TestMetadata("lambdaReceiver_vs_lambdaReceiver.kt")
+            public void testLambdaReceiver_vs_lambdaReceiver() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/lambdaReceiver_vs_lambdaReceiver.kt");
+            }
+
+            @Test
+            @TestMetadata("regularClass.kt")
+            public void testRegularClass() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/regularClass.kt");
+            }
+
+            @Test
+            @TestMetadata("regularClass_vs_extensionReceiver.kt")
+            public void testRegularClass_vs_extensionReceiver() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/regularClass_vs_extensionReceiver.kt");
+            }
+
+            @Test
+            @TestMetadata("regularClass_vs_innerClass.kt")
+            public void testRegularClass_vs_innerClass() throws Exception {
+                runTest("analysis/analysis-api/testData/components/referenceShortener/referenceShortener/thisReference/withLabel/regularClass_vs_innerClass.kt");
+            }
         }
     }
 

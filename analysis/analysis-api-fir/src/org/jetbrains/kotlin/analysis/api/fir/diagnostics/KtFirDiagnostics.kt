@@ -861,10 +861,6 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
         override val diagnosticClass get() = PotentiallyNonReportedAnnotation::class
     }
 
-    interface WrongJsQualifier : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = WrongJsQualifier::class
-    }
-
     interface JsModuleProhibitedOnVar : KtFirDiagnostic<KtElement> {
         override val diagnosticClass get() = JsModuleProhibitedOnVar::class
     }
@@ -972,6 +968,10 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
         val name: String
         val override: KtSymbol
         val existing: List<KtSymbol>
+    }
+
+    interface WrongJsQualifier : KtFirDiagnostic<KtElement> {
+        override val diagnosticClass get() = WrongJsQualifier::class
     }
 
     interface OptInUsage : KtFirDiagnostic<PsiElement> {
@@ -1526,6 +1526,7 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
 
     interface TypeArgumentsNotAllowed : KtFirDiagnostic<PsiElement> {
         override val diagnosticClass get() = TypeArgumentsNotAllowed::class
+        val place: String
     }
 
     interface TypeArgumentsForOuterClassWhenNestedReferenced : KtFirDiagnostic<PsiElement> {
@@ -3855,21 +3856,6 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
         val type: KtType
     }
 
-    interface CannotCheckForExternalInterface : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = CannotCheckForExternalInterface::class
-        val targetType: KtType
-    }
-
-    interface UncheckedCastToExternalInterface : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = UncheckedCastToExternalInterface::class
-        val sourceType: KtType
-        val targetType: KtType
-    }
-
-    interface ExternalInterfaceAsClassLiteral : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = ExternalInterfaceAsClassLiteral::class
-    }
-
     interface JsExternalInheritorsOnly : KtFirDiagnostic<KtDeclaration> {
         override val diagnosticClass get() = JsExternalInheritorsOnly::class
         val parent: KtClassLikeSymbol
@@ -3879,15 +3865,6 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
     interface JsExternalArgument : KtFirDiagnostic<KtExpression> {
         override val diagnosticClass get() = JsExternalArgument::class
         val argType: KtType
-    }
-
-    interface ExternalInterfaceAsReifiedTypeArgument : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = ExternalInterfaceAsReifiedTypeArgument::class
-        val typeArgument: KtType
-    }
-
-    interface NestedJsExport : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = NestedJsExport::class
     }
 
     interface WrongExportedDeclaration : KtFirDiagnostic<KtElement> {
@@ -3906,6 +3883,10 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
         val name: String
     }
 
+    interface NestedJsExport : KtFirDiagnostic<KtElement> {
+        override val diagnosticClass get() = NestedJsExport::class
+    }
+
     interface DelegationByDynamic : KtFirDiagnostic<KtElement> {
         override val diagnosticClass get() = DelegationByDynamic::class
     }
@@ -3921,10 +3902,6 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
     interface WrongOperationWithDynamic : KtFirDiagnostic<KtElement> {
         override val diagnosticClass get() = WrongOperationWithDynamic::class
         val operation: String
-    }
-
-    interface JscodeArgumentNonConstExpression : KtFirDiagnostic<KtElement> {
-        override val diagnosticClass get() = JscodeArgumentNonConstExpression::class
     }
 
     interface Syntax : KtFirDiagnostic<PsiElement> {
@@ -3979,6 +3956,30 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
 
     interface WrongDefaultValueForExternalFunParameter : KtFirDiagnostic<KtElement> {
         override val diagnosticClass get() = WrongDefaultValueForExternalFunParameter::class
+    }
+
+    interface CannotCheckForExternalInterface : KtFirDiagnostic<KtElement> {
+        override val diagnosticClass get() = CannotCheckForExternalInterface::class
+        val targetType: KtType
+    }
+
+    interface UncheckedCastToExternalInterface : KtFirDiagnostic<KtElement> {
+        override val diagnosticClass get() = UncheckedCastToExternalInterface::class
+        val sourceType: KtType
+        val targetType: KtType
+    }
+
+    interface ExternalInterfaceAsClassLiteral : KtFirDiagnostic<KtElement> {
+        override val diagnosticClass get() = ExternalInterfaceAsClassLiteral::class
+    }
+
+    interface ExternalInterfaceAsReifiedTypeArgument : KtFirDiagnostic<KtElement> {
+        override val diagnosticClass get() = ExternalInterfaceAsReifiedTypeArgument::class
+        val typeArgument: KtType
+    }
+
+    interface JscodeArgumentNonConstExpression : KtFirDiagnostic<KtElement> {
+        override val diagnosticClass get() = JscodeArgumentNonConstExpression::class
     }
 
 }

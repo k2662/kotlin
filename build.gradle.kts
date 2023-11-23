@@ -116,6 +116,7 @@ val irCompilerModules = arrayOf(
     ":compiler:ir.serialization.native",
     ":compiler:ir.objcinterop",
     ":compiler:ir.backend.common",
+    ":compiler:ir.actualization",
     ":compiler:ir.interpreter",
     ":wasm:wasm.ir"
 ).also { extra["irCompilerModules"] = it }
@@ -126,6 +127,7 @@ val irCompilerModulesForIDE = arrayOf(
     ":compiler:ir.serialization.jvm",
     ":compiler:ir.serialization.js", // used in IJ android plugin in `ComposeIrGenerationExtension`
     ":compiler:ir.backend.common",
+    ":compiler:ir.actualization",
     ":compiler:ir.interpreter",
     ":compiler:ir.objcinterop",
 ).also { extra["irCompilerModulesForIDE"] = it }
@@ -150,11 +152,13 @@ val commonCompilerModules = arrayOf(
     ":core:compiler.common.js",
     ":core:compiler.common.native",
     ":core:compiler.common.wasm",
+    ":core:compiler.common.web",
     ":core:util.runtime",
     ":compiler:frontend.common.jvm",
     ":compiler:frontend.java", // TODO this is fe10 module but some utils used in fir ide now
     ":analysis:decompiled:decompiler-to-stubs",
     ":analysis:decompiled:decompiler-to-file-stubs",
+    ":analysis:decompiled:decompiler-js",
     ":analysis:decompiled:decompiler-native",
     ":analysis:decompiled:decompiler-to-psi",
     ":analysis:decompiled:light-classes-for-decompiled",
@@ -355,6 +359,7 @@ extra["kotlinJpsPluginEmbeddedDependencies"] = listOf(
     ":core:compiler.common.js",
     ":core:compiler.common.native",
     ":core:compiler.common.wasm",
+    ":core:compiler.common.web",
     ":core:descriptors",
     ":core:descriptors.jvm",
     ":compiler:backend.common.jvm",
@@ -491,6 +496,7 @@ val projectsWithEnabledContextReceivers by extra {
         ":kotlinx-serialization-compiler-plugin.k2",
         ":plugins:parcelize:parcelize-compiler:parcelize.k2",
         ":plugins:fir-plugin-prototype",
+        ":plugins:kapt4",
     )
 }
 

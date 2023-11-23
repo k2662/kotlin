@@ -10,12 +10,12 @@ import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.web.common.FirWebCommonErrors
-import org.jetbrains.kotlin.fir.analysis.web.common.FirWebCommonExternalChecker
+import org.jetbrains.kotlin.fir.analysis.web.common.checkers.declaration.FirWebCommonExternalChecker
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.utils.*
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.WasmStandardClassIds
+import org.jetbrains.kotlin.name.WebCommonStandardClassIds
 
 object FirWasmExternalChecker : FirWebCommonExternalChecker() {
     override fun isNativeOrEffectivelyExternal(symbol: FirBasedSymbol<*>, session: FirSession): Boolean {
@@ -47,7 +47,7 @@ object FirWasmExternalChecker : FirWebCommonExternalChecker() {
     }
 
     override fun isDefinedExternallyCallableId(callableId: CallableId): Boolean =
-        callableId == WasmStandardClassIds.Callables.JsDefinedExternally
+        callableId == WebCommonStandardClassIds.Callables.JsDefinedExternally
 
     override fun hasExternalLikeAnnotations(declaration: FirDeclaration, session: FirSession): Boolean =
         false

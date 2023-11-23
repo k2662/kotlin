@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.gradle.plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.util.GradleVersion
+import org.jetbrains.kotlin.compilerRunner.KotlinCompilerArgumentsLogLevel
 import org.jetbrains.kotlin.gradle.dsl.NativeCacheKind
 import org.jetbrains.kotlin.gradle.dsl.NativeCacheOrchestration
 import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode
@@ -18,8 +19,8 @@ import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLI
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_COMPILER_USE_PRECISE_COMPILATION_RESULTS_BACKUP
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_CREATE_ARCHIVE_TASKS_FOR_CUSTOM_COMPILATIONS
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_CREATE_DEFAULT_MULTIPLATFORM_PUBLICATIONS
-import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_EXPERIMENTAL_TRY_K2
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_INCREMENTAL_USE_CLASSPATH_SNAPSHOT
+import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_EXPERIMENTAL_TRY_NEXT
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_INTERNAL_DIAGNOSTICS_SHOW_STACKTRACE
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_INTERNAL_DIAGNOSTICS_USE_PARSABLE_FORMATTING
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.PropertyNames.KOTLIN_JS_KARMA_BROWSERS
@@ -479,9 +480,9 @@ internal class PropertiesProvider private constructor(private val project: Proje
     val allowLegacyMppDependencies: Boolean
         get() = booleanProperty(KOTLIN_MPP_ALLOW_LEGACY_DEPENDENCIES) ?: false
 
-    val kotlinExperimentalTryK2: Provider<Boolean> = project.providers
+    val kotlinExperimentalTryNext: Provider<Boolean> = project.providers
         .provider<Boolean> {
-            booleanProperty(KOTLIN_EXPERIMENTAL_TRY_K2)
+            booleanProperty(KOTLIN_EXPERIMENTAL_TRY_NEXT)
         }
         .orElse(false)
 
@@ -530,6 +531,8 @@ internal class PropertiesProvider private constructor(private val project: Proje
 
     internal fun get(propertyName: String): String? = propertiesBuildService.get(propertyName, project)
 
+    internal fun getProvider(propertyName: String): Provider<String> = propertiesBuildService.property(propertyName, project)
+
     /**
      * The directory where Kotlin global caches, logs, or project persistent data are stored.
      *
@@ -551,6 +554,11 @@ internal class PropertiesProvider private constructor(private val project: Proje
      */
     val kotlinProjectPersistentDirGradleDisableWrite: Boolean
         get() = booleanProperty(PropertyNames.KOTLIN_PROJECT_PERSISTENT_DIR_GRADLE_DISABLE_WRITE) ?: false
+
+    val kotlinCompilerArgumentsLogLevel: Provider<KotlinCompilerArgumentsLogLevel>
+        get() = getProvider(PropertyNames.KOTLIN_COMPILER_ARGUMENTS_LOG_LEVEL)
+            .map { KotlinCompilerArgumentsLogLevel.fromPropertyValue(it) }
+            .orElse(KotlinCompilerArgumentsLogLevel.DEFAULT)
 
     /**
      * Retrieves a comma-separated list of browsers to use when running karma tests for [target]
@@ -636,7 +644,7 @@ internal class PropertiesProvider private constructor(private val project: Proje
         val KOTLIN_RUN_COMPILER_VIA_BUILD_TOOLS_API = property("kotlin.compiler.runViaBuildToolsApi")
         val KOTLIN_MPP_ALLOW_LEGACY_DEPENDENCIES = property("kotlin.mpp.allow.legacy.dependencies")
         val KOTLIN_PUBLISH_JVM_ENVIRONMENT_ATTRIBUTE = property("kotlin.publishJvmEnvironmentAttribute")
-        val KOTLIN_EXPERIMENTAL_TRY_K2 = property("kotlin.experimental.tryK2")
+        val KOTLIN_EXPERIMENTAL_TRY_NEXT = property("kotlin.experimental.tryNext")
         val KOTLIN_SUPPRESS_GRADLE_PLUGIN_WARNINGS = property("kotlin.suppressGradlePluginWarnings")
         val KOTLIN_NATIVE_IGNORE_DISABLED_TARGETS = property("kotlin.native.ignoreDisabledTargets")
         val KOTLIN_NATIVE_SUPPRESS_EXPERIMENTAL_ARTIFACTS_DSL_WARNING = property("kotlin.native.suppressExperimentalArtifactsDslWarning")
@@ -660,6 +668,7 @@ internal class PropertiesProvider private constructor(private val project: Proje
         val MPP_13X_FLAGS_SET_BY_PLUGIN = property("$KOTLIN_INTERNAL_NAMESPACE.mpp.13X.flags.setByPlugin")
         val KOTLIN_CREATE_ARCHIVE_TASKS_FOR_CUSTOM_COMPILATIONS =
             property("$KOTLIN_INTERNAL_NAMESPACE.mpp.createArchiveTasksForCustomCompilations")
+        val KOTLIN_COMPILER_ARGUMENTS_LOG_LEVEL = property("$KOTLIN_INTERNAL_NAMESPACE.compiler.arguments.log.level")
     }
 
     companion object {
