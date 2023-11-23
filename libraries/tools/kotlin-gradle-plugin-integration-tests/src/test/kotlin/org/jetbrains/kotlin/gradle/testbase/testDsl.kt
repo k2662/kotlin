@@ -60,7 +60,6 @@ fun KGPBaseTest.project(
     projectPath.addDefaultBuildFiles()
     projectPath.enableCacheRedirector()
     projectPath.enableAndroidSdk()
-    projectPath.enableIosDerivedDataDir()
     if (buildOptions.languageVersion != null || buildOptions.languageApiVersion != null) {
         projectPath.applyKotlinCompilerArgsPlugin()
     }
@@ -88,6 +87,10 @@ fun KGPBaseTest.project(
     if (buildJdk != null) testProject.setupNonDefaultJdk(buildJdk)
 
     testProject.customizeProject()
+
+    if (testProject.darwinDerivedFilesDir.notExists()) {
+        testProject.darwinDerivedFilesDir.createDirectory()
+    }
 
     val result = runCatching {
         testProject.test()
@@ -342,6 +345,8 @@ open class GradleProject(
     fun relativeToProject(
         files: List<Path>,
     ): List<Path> = files.map { projectPath.relativize(it) }
+
+    val darwinDerivedFilesDir: Path get() = projectPath.resolve("DerivedSources")
 }
 
 /**
@@ -615,11 +620,6 @@ internal fun Path.enableAndroidSdk() {
         )
     acceptAndroidSdkLicenses(androidSdk)
     applyAndroidTestFixes()
-}
-
-internal fun Path.enableIosDerivedDataDir() {
-    resolve("DerivedSources")
-        .also { if (!it.exists()) it.createDirectory() }
 }
 
 internal fun Path.enableCacheRedirector() {

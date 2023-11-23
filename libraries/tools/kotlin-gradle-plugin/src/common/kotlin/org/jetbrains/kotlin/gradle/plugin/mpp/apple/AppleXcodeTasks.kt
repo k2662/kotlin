@@ -30,11 +30,13 @@ import org.jetbrains.kotlin.gradle.utils.mapToFile
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 
 internal object AppleXcodeTasks {
     const val embedAndSignTaskPrefix = "embedAndSign"
     const val embedAndSignTaskPostfix = "AppleFrameworkForXcode"
+    const val checkSandboxAndWriteProtection = "checkSandboxAndWriteProtection"
 }
 
 private object XcodeEnvironment {
@@ -149,73 +151,91 @@ private fun Project.registerAssembleAppleFrameworkTask(framework: Framework): Ta
     }
 }
 
-internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework) {
+private fun fireEnvException(frameworkTaskName: String) {
     val envBuildType = XcodeEnvironment.buildType
-    val envTargets = XcodeEnvironment.targets
-    val envEmbeddedFrameworksDir = XcodeEnvironment.embeddedFrameworksDir
-    val envFrameworkSearchDir = XcodeEnvironment.frameworkSearchDir
-    val envSign = XcodeEnvironment.sign
-    val derivedFileDir = XcodeEnvironment.derivedFileDir
+    val envConfiguration = System.getenv("CONFIGURATION")
+    if (envConfiguration != null && envBuildType == null) {
+        throw IllegalStateException(
+            "Unable to detect Kotlin framework build type for CONFIGURATION=$envConfiguration automatically. " +
+                    "Specify 'KOTLIN_FRAMEWORK_BUILD_TYPE' to 'debug' or 'release'" +
+                    "\n$XcodeEnvironment"
+        )
+    } else {
+        throw IllegalStateException(
+            "Please run the $frameworkTaskName task from Xcode " +
+                    "('SDK_NAME', 'CONFIGURATION', 'TARGET_BUILD_DIR', 'ARCHS', 'DERIVED_FILE_DIR' and 'FRAMEWORKS_FOLDER_PATH' not provided)" +
+                    "\n$XcodeEnvironment"
+        )
+    }
+}
+
+private fun fireSandboxException(frameworkTaskName: String) {
     val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
+    val message = if (userScriptSandboxingEnabled) "You " else "DERIVED_FILE_DIR is not accessible, probably you "
+    throw IllegalStateException(
+        message +
+                "have sandboxing for user scripts enabled." +
+                "\nTo make the $frameworkTaskName task pass, disable this feature. " +
+                "\nIn your Xcode project, navigate to \"Build Setting\", " +
+                "and under \"Build Options\" set \"User script sandboxing\" (ENABLE_USER_SCRIPT_SANDBOXING) to \"NO\". " +
+                "\nThen, run \"./gradlew --stop\" to stop the Gradle daemon" +
+                "\nFor more information, see documentation: https://jb.gg/ltd9e6"
+    )
+}
 
-    val frameworkTaskName = lowerCamelCaseName(AppleXcodeTasks.embedAndSignTaskPrefix, framework.namePrefix, AppleXcodeTasks.embedAndSignTaskPostfix)
+private fun derivedFileDirAccessible(): Boolean {
+    val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
+    val derivedFileDir = XcodeEnvironment.derivedFileDir
 
-    val derivedFileDirAccessible: Boolean = if (derivedFileDir != null && userScriptSandboxingEnabled.not()) {
+    return if (derivedFileDir != null && userScriptSandboxingEnabled.not()) {
         try {
             val tempFile = File.createTempFile("sandbox", null, derivedFileDir)
             if (tempFile.exists()) {
                 tempFile.delete()
             }
             true
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             false
         }
     } else {
         false
     }
+}
 
-    if (envBuildType == null || envTargets.isEmpty() || envEmbeddedFrameworksDir == null || envFrameworkSearchDir == null || derivedFileDir == null) {
+internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework) {
+    val envBuildType = XcodeEnvironment.buildType
+    val envTargets = XcodeEnvironment.targets
+    val envEmbeddedFrameworksDir = XcodeEnvironment.embeddedFrameworksDir
+    val envFrameworkSearchDir = XcodeEnvironment.frameworkSearchDir
+    val envSign = XcodeEnvironment.sign
+    val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
+
+    val frameworkTaskName = lowerCamelCaseName(
+        AppleXcodeTasks.embedAndSignTaskPrefix,
+        framework.namePrefix,
+        AppleXcodeTasks.embedAndSignTaskPostfix
+    )
+
+    if (envBuildType == null || envTargets.isEmpty() || envEmbeddedFrameworksDir == null || envFrameworkSearchDir == null) {
         locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
             task.group = BasePlugin.BUILD_GROUP
             task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
             task.doFirst {
-                val envConfiguration = System.getenv("CONFIGURATION")
-                if (envConfiguration != null && envBuildType == null) {
-                    throw IllegalStateException(
-                        "Unable to detect Kotlin framework build type for CONFIGURATION=$envConfiguration automatically. " +
-                                "Specify 'KOTLIN_FRAMEWORK_BUILD_TYPE' to 'debug' or 'release'" +
-                                "\n$XcodeEnvironment"
-                    )
-                } else {
-                    throw IllegalStateException(
-                        "Please run the $frameworkTaskName task from Xcode " +
-                                "('SDK_NAME', 'CONFIGURATION', 'TARGET_BUILD_DIR', 'ARCHS', 'DERIVED_FILE_DIR' and 'FRAMEWORKS_FOLDER_PATH' not provided)" +
-                                "\n$XcodeEnvironment"
-                    )
-                }
+                fireEnvException(frameworkTaskName)
             }
         }
         return
     }
 
-    if (userScriptSandboxingEnabled || derivedFileDirAccessible.not()) {
-        locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
-            task.group = BasePlugin.BUILD_GROUP
-            task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
-            task.doFirst {
-                val message = if (userScriptSandboxingEnabled) "You " else "DERIVED_FILE_DIR is not accessible, probably you "
-                throw IllegalStateException(
-                    message +
-                            "have sandboxing for user scripts enabled." +
-                            "\nTo make the $frameworkTaskName task pass, disable this feature. " +
-                            "\nIn your Xcode project, navigate to \"Build Setting\", " +
-                            "and under \"Build Options\" set \"User script sandboxing\" (ENABLE_USER_SCRIPT_SANDBOXING) to \"NO\". " +
-                            "\nThen, run \"./gradlew --stop\" to stop the Gradle daemon" +
-                            "\nFor more information, see documentation: https://jb.gg/ltd9e6"
-                )
+    val checkSandboxAndWriteProtectionTask = locateOrRegisterTask<DefaultTask>(AppleXcodeTasks.checkSandboxAndWriteProtection) { task ->
+        task.group = BasePlugin.BUILD_GROUP
+        task.description = "Check DERIVED_FILE_DIR accessible and ENABLE_USER_SCRIPT_SANDBOXING not enabled"
+        task.doFirst {
+            val dirAccessible = derivedFileDirAccessible()
+            if (dirAccessible.not() || userScriptSandboxingEnabled) {
+                fireSandboxException(frameworkTaskName)
             }
         }
-        return
     }
 
     val embedAndSignTask = locateOrRegisterTask<FrameworkCopy>(frameworkTaskName) { task ->
@@ -238,6 +258,7 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
 
     embedAndSignTask.configure { task ->
         val frameworkFile = framework.outputFile
+        task.dependsOn(checkSandboxAndWriteProtectionTask)
         task.dependsOn(assembleTask)
         task.sourceFramework.set(File(appleFrameworkDir(envFrameworkSearchDir), frameworkFile.name))
         task.destinationDirectory.set(envEmbeddedFrameworksDir)

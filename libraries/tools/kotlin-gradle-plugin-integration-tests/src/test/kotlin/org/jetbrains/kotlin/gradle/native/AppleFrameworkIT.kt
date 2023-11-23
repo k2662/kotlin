@@ -13,8 +13,11 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermission
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.appendText
+import kotlin.io.path.setPosixFilePermissions
+
 
 @OsCondition(supportedOn = [OS.MAC], enabledOnCI = [OS.MAC])
 @DisplayName("Tests for K/N with Apple Framework")
@@ -248,7 +251,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 ":shared:embedAndSignAppleFrameworkForXcode",
                 environmentVariables = EnvironmentalVariables(environmentVariables)
             ) {
-                assertTasksFailed(":shared:embedAndSignAppleFrameworkForXcode")
+                assertTasksFailed(":shared:checkSandboxAndWriteProtection")
                 assertOutputContains("You have sandboxing for user scripts enabled.")
             }
         }
@@ -270,13 +273,14 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "ARCHS" to "arm64",
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
-                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived"
+                "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
+                "DERIVED_FILE_DIR" to iosDerivedDataDir(true).absolutePathString(),
             )
             buildAndFail(
                 ":shared:embedAndSignAppleFrameworkForXcode",
                 environmentVariables = EnvironmentalVariables(environmentVariables)
             ) {
-                assertTasksFailed(":shared:embedAndSignAppleFrameworkForXcode")
+                assertTasksFailed(":shared:checkSandboxAndWriteProtection")
                 assertOutputContains("DERIVED_FILE_DIR is not accessible, probably you have sandboxing for user scripts enabled.")
             }
         }
@@ -584,4 +588,8 @@ class AppleFrameworkIT : KGPBaseTest() {
     }
 }
 
-private fun GradleProject.iosDerivedDataDir(): Path = projectPath.resolve("DerivedSources/")
+private fun GradleProject.iosDerivedDataDir(writeProtected: Boolean = false): Path = darwinDerivedFilesDir.apply {
+    if (writeProtected) {
+        setPosixFilePermissions(setOf(PosixFilePermission.OWNER_READ))
+    }
+}
