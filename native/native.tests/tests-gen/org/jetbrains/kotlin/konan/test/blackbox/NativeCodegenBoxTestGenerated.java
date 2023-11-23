@@ -2286,6 +2286,23 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
                 }
 
                 @Nested
+                @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt55252")
+                @TestDataPath("$PROJECT_ROOT")
+                @UseExtTestCaseGroupProvider()
+                public class Kt55252 {
+                    @Test
+                    public void testAllFilesPresentInKt55252() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt55252"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                    }
+
+                    @Test
+                    @TestMetadata("simplified.kt")
+                    public void testSimplified() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt55252/simplified.kt");
+                    }
+                }
+
+                @Nested
                 @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt55281")
                 @TestDataPath("$PROJECT_ROOT")
                 @UseExtTestCaseGroupProvider()
@@ -2482,6 +2499,23 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
                     @TestMetadata("simplified.kt")
                     public void testSimplified() throws Exception {
                         runTest("compiler/testData/codegen/box/builderInference/issues/kt63648/simplified.kt");
+                    }
+                }
+
+                @Nested
+                @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63733")
+                @TestDataPath("$PROJECT_ROOT")
+                @UseExtTestCaseGroupProvider()
+                public class Kt63733 {
+                    @Test
+                    public void testAllFilesPresentInKt63733() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63733"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                    }
+
+                    @Test
+                    @TestMetadata("simplified.kt")
+                    public void testSimplified() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt63733/simplified.kt");
                     }
                 }
             }
