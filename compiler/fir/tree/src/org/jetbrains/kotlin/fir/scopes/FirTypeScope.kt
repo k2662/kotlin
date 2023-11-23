@@ -64,18 +64,7 @@ abstract class FirTypeScope : FirContainingNamesAwareScope() {
     }
 }
 
-class MemberWithBaseScope<out D : FirCallableSymbol<*>>(val member: D, val baseScope: FirTypeScope) {
-    operator fun component1() = member
-    operator fun component2() = baseScope
-
-    override fun equals(other: Any?): Boolean {
-        return other is MemberWithBaseScope<*> && member == other.member
-    }
-
-    override fun hashCode(): Int {
-        return member.hashCode()
-    }
-}
+data class MemberWithBaseScope<out D : FirCallableSymbol<*>>(val member: D, val baseScope: FirTypeScope)
 
 typealias ProcessOverriddenWithBaseScope<D> = FirTypeScope.(D, (D, FirTypeScope) -> ProcessorAction) -> ProcessorAction
 typealias ProcessAllOverridden<D> = FirTypeScope.(D, (D) -> ProcessorAction) -> ProcessorAction
@@ -225,12 +214,11 @@ fun FirTypeScope.getDirectOverriddenMembersWithBaseScope(member: FirCallableSymb
 }
 
 fun FirTypeScope.getDirectOverriddenFunctionsWithBaseScope(
-    function: FirNamedFunctionSymbol,
+    baseSymbol: FirNamedFunctionSymbol
 ): List<MemberWithBaseScope<FirNamedFunctionSymbol>> {
     val overriddenFunctions = mutableSetOf<MemberWithBaseScope<FirNamedFunctionSymbol>>()
 
-    processDirectOverriddenFunctionsWithBaseScope(function) { symbol, baseScope ->
-
+    processDirectOverriddenFunctionsWithBaseScope(baseSymbol) { symbol, baseScope ->
         overriddenFunctions += MemberWithBaseScope(symbol, baseScope)
         ProcessorAction.NEXT
     }
@@ -239,11 +227,11 @@ fun FirTypeScope.getDirectOverriddenFunctionsWithBaseScope(
 }
 
 fun FirTypeScope.getDirectOverriddenPropertiesWithBaseScope(
-    property: FirPropertySymbol,
+    baseSymbol: FirPropertySymbol
 ): List<MemberWithBaseScope<FirPropertySymbol>> {
     val overriddenProperties = mutableSetOf<MemberWithBaseScope<FirPropertySymbol>>()
 
-    processDirectOverriddenPropertiesWithBaseScope(property) { symbol, baseScope ->
+    processDirectOverriddenPropertiesWithBaseScope(baseSymbol) { symbol, baseScope ->
         overriddenProperties += MemberWithBaseScope(symbol, baseScope)
         ProcessorAction.NEXT
     }
@@ -252,13 +240,13 @@ fun FirTypeScope.getDirectOverriddenPropertiesWithBaseScope(
 }
 
 fun FirTypeScope.getDirectOverriddenFunctions(
-    function: FirNamedFunctionSymbol,
+    baseSymbol: FirNamedFunctionSymbol,
     unwrapIntersectionAndSubstitutionOverride: Boolean = false,
 ): List<FirNamedFunctionSymbol> {
     val overriddenFunctions = mutableSetOf<FirNamedFunctionSymbol>()
 
-    processDirectlyOverriddenFunctions(function) {
-        overriddenFunctions.addOverridden(it, unwrapIntersectionAndSubstitutionOverride)
+    processDirectlyOverriddenFunctions(baseSymbol) {
+        overriddenFunctions.addOverridden(it, baseSymbol, unwrapIntersectionAndSubstitutionOverride)
         ProcessorAction.NEXT
     }
 
@@ -266,13 +254,13 @@ fun FirTypeScope.getDirectOverriddenFunctions(
 }
 
 fun FirTypeScope.getDirectOverriddenProperties(
-    property: FirPropertySymbol,
+    baseSymbol: FirPropertySymbol,
     unwrapIntersectionAndSubstitutionOverride: Boolean = false,
 ): List<FirPropertySymbol> {
     val overriddenProperties = mutableSetOf<FirPropertySymbol>()
 
-    processDirectlyOverriddenProperties(property) {
-        overriddenProperties.addOverridden(it, unwrapIntersectionAndSubstitutionOverride)
+    processDirectlyOverriddenProperties(baseSymbol) {
+        overriddenProperties.addOverridden(it, baseSymbol, unwrapIntersectionAndSubstitutionOverride)
         ProcessorAction.NEXT
     }
 
@@ -297,8 +285,10 @@ fun FirTypeScope.retrieveDirectOverriddenOf(memberSymbol: FirCallableSymbol<*>):
 
 private inline fun <reified D : FirCallableSymbol<*>> MutableCollection<D>.addOverridden(
     symbol: D,
+    baseSymbol: D,
     unwrapIntersectionAndSubstitutionOverride: Boolean
 ) {
+    if (baseSymbol == symbol) return
     if (unwrapIntersectionAndSubstitutionOverride) {
         if (symbol is FirIntersectionCallableSymbol) {
             @Suppress("UNCHECKED_CAST")

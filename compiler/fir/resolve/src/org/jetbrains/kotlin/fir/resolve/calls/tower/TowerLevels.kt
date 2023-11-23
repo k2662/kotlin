@@ -94,23 +94,28 @@ class MemberScopeTowerLevel(
         if (scopeWithoutSmartcast == null) {
             consumeCandidates(output, candidates)
         } else {
-            val isFromSmartCast: MutableMap<MemberWithBaseScope<T>, Boolean> = mutableMapOf()
+            val isFromSmartCast: MutableMap<T, Boolean> = mutableMapOf()
+            val scopeForSymbol: MutableMap<T, MemberWithBaseScope<T>> = mutableMapOf()
 
             scopeWithoutSmartcast.collectCandidates(processScopeMembers).let { (isEmpty, originalCandidates) ->
                 empty = empty && isEmpty
                 for (originalCandidate in originalCandidates) {
-                    isFromSmartCast[originalCandidate] = false
+                    val symbol = originalCandidate.member
+                    isFromSmartCast[symbol] = false
+                    scopeForSymbol[symbol] = originalCandidate
                 }
             }
 
             for (candidateFromSmartCast in candidates) {
-                isFromSmartCast[candidateFromSmartCast] = true
+                val symbol = candidateFromSmartCast.member
+                isFromSmartCast[symbol] = true
+                scopeForSymbol[symbol] = candidateFromSmartCast
             }
 
             consumeCandidates(
                 output,
                 // all the candidates, both from original type and smart cast
-                candidates = isFromSmartCast.keys,
+                candidates = scopeForSymbol.values,
                 isFromSmartCast,
             )
         }
@@ -189,12 +194,12 @@ class MemberScopeTowerLevel(
         // The map is not null only if there's a smart cast type on a dispatch receiver
         // and candidates are present both in smart cast and original types.
         // isFromSmartCast[candidate] == true iff exactly that member is present in smart cast type
-        isFromSmartCast: Map<MemberWithBaseScope<T>, Boolean>? = null
+        isFromSmartCast: Map<T, Boolean>? = null
     ) {
         for (candidateWithScope in candidates) {
             val (candidate, scope) = candidateWithScope
             if (candidate.hasConsistentExtensionReceiver(givenExtensionReceiverOptions)) {
-                val isFromOriginalTypeInPresenceOfSmartCast = isFromSmartCast != null && !isFromSmartCast.getValue(candidateWithScope)
+                val isFromOriginalTypeInPresenceOfSmartCast = isFromSmartCast != null && !isFromSmartCast.getValue(candidateWithScope.member)
 
                 val dispatchReceiverToUse = when {
                     isFromOriginalTypeInPresenceOfSmartCast ->
