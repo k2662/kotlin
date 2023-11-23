@@ -3,6 +3,7 @@
 
 expect enum class MyEnum : Enum<MyEnum> {
   private expect constructor() /* primary */
+
   FOO = MyEnum()
 
   BAR = MyEnum()

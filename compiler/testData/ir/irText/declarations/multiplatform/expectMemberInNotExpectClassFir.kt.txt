@@ -3,6 +3,7 @@
 
 expect open class C1 {
   expect constructor() /* primary */
+
   expect fun f(): String
 
   expect val p: Int

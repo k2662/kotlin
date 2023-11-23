@@ -10,6 +10,7 @@ expect enum class MyEnum : Enum<MyEnum> {
   //   Public signature: /MyEnum.<init>|-5645683436151566731[1]
   //   Public signature debug description: <init>(){}
   private expect constructor() /* primary */
+
   // CHECK:
   //   Mangled name: MyEnum.BAR
   //   Public signature: /MyEnum.BAR|null[1]
@@ -139,6 +140,7 @@ enum class MyEnum : Enum<MyEnum> {
   //   Public signature: /MyEnum.<init>|-5645683436151566731[0]
   //   Public signature debug description: <init>(){}
   private constructor() /* primary */
+
   // CHECK:
   //   Mangled name: MyEnum.BAR
   //   Public signature: /MyEnum.BAR|null[0]
