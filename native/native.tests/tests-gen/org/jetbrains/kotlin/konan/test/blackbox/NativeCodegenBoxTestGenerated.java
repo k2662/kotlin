@@ -15302,6 +15302,12 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
             }
 
             @Test
+            @TestMetadata("functionsDifferInTypeParameterBounds.kt")
+            public void testFunctionsDifferInTypeParameterBounds() throws Exception {
+                runTest("compiler/testData/codegen/box/fir/functionsDifferInTypeParameterBounds.kt");
+            }
+
+            @Test
             @TestMetadata("listAssignmentInWhen.kt")
             public void testListAssignmentInWhen() throws Exception {
                 runTest("compiler/testData/codegen/box/fir/listAssignmentInWhen.kt");
