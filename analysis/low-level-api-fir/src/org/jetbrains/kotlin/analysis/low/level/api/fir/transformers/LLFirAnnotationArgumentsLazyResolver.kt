@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.analysis.low.level.api.fir.api.throwUnexpectedFirEle
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.builder.LLFirLockProvider
 import org.jetbrains.kotlin.analysis.low.level.api.fir.lazy.resolve.FirLazyBodiesCalculator
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.llFirSession
-import org.jetbrains.kotlin.analysis.low.level.api.fir.util.checkAnnotationArgumentsMappingIsResolved
+import org.jetbrains.kotlin.analysis.low.level.api.fir.util.checkAnnotationsAreResolved
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.forEachDependentDeclaration
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.declarations.*
@@ -41,7 +41,38 @@ internal object LLFirAnnotationArgumentsLazyResolver : LLFirLazyResolver(FirReso
 
     override fun phaseSpecificCheckIsResolved(target: FirElementWithResolveState) {
         if (target !is FirAnnotationContainer) return
-        checkAnnotationArgumentsMappingIsResolved(target)
+        checkAnnotationsAreResolved(target)
+
+        when (target) {
+            is FirCallableDeclaration -> {
+                checkAnnotationsAreResolved(target, target.returnTypeRef)
+                val receiverParameter = target.receiverParameter
+                if (receiverParameter != null) {
+                    checkAnnotationsAreResolved(receiverParameter)
+                    checkAnnotationsAreResolved(target, receiverParameter.typeRef)
+                }
+
+                for (contextReceiver in target.contextReceivers) {
+                    checkAnnotationsAreResolved(target, contextReceiver.typeRef)
+                }
+            }
+
+            is FirTypeParameter -> {
+                for (bound in target.bounds) {
+                    checkAnnotationsAreResolved(target, bound)
+                }
+            }
+
+            is FirClass -> {
+                for (typeRef in target.superTypeRefs) {
+                    checkAnnotationsAreResolved(target, typeRef)
+                }
+            }
+
+            is FirTypeAlias -> {
+                checkAnnotationsAreResolved(target, target.expandedTypeRef)
+            }
+        }
     }
 }
 
