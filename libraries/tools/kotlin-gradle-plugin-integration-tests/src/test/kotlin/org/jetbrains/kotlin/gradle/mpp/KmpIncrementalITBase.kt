@@ -59,27 +59,27 @@ abstract class KmpIncrementalITBase : KGPBaseTest() {
         assertTasksUpToDate(allTasks - executedTasks)
     }
 
-    protected open fun TestProject.testCase(incrementalPath: Path? = null, executedTasks: Set<String>, assertions: BuildResult.() -> Unit = {}) {
+    protected open fun TestProject.checkIncrementalBuild(
+        tasksToExecute: Set<String>,
+        assertions: BuildResult.() -> Unit = {}
+    ) {
         build(gradleTask, buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
             assertSuccessOrUTD(
                 allTasks = mainCompileTasks,
-                executedTasks = executedTasks
+                executedTasks = tasksToExecute
             )
-            incrementalPath?.let {
-                assertIncrementalCompilation(listOf(it).relativizeTo(projectPath))
-            }
             assertions()
         }
     }
 
-    protected open fun TestProject.multiStepTestCase(
-        alteredPath: Path,
+    protected open fun TestProject.multiStepCheckIncrementalBuilds(
+        incrementalPath: Path,
         steps: List<String>,
         tasksToExecuteOnEachStep: Set<String>,
         afterEachStep: BuildResult.() -> Unit = {}
     ) {
         for (step in steps) {
-            alteredPath.replaceWithVersion(step)
+            incrementalPath.replaceWithVersion(step)
             build(gradleTask, buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
                 assertSuccessOrUTD(allTasks = mainCompileTasks, executedTasks = tasksToExecuteOnEachStep)
                 afterEachStep()

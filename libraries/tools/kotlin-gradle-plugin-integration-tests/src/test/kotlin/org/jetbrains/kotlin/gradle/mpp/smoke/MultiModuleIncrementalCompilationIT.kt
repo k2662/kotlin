@@ -10,11 +10,8 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.mpp.KmpIncrementalITBase
 import org.jetbrains.kotlin.gradle.testbase.*
-import org.jetbrains.kotlin.gradle.util.replaceFirst
-import org.jetbrains.kotlin.gradle.util.replaceText
 import org.jetbrains.kotlin.gradle.util.replaceWithVersion
 import org.junit.jupiter.api.DisplayName
-import java.nio.file.Path
 
 /**
  * Multi-module KMP tests assert that IC is fine, when API changes between two modules, or common/platform parts of a module.
@@ -36,8 +33,8 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
          */
         val usedInAppCommon = resolvePath("lib", "commonMain", "UsedInAppCommon.kt")
 
-        multiStepTestCase(
-            alteredPath = usedInAppCommon,
+        multiStepCheckIncrementalBuilds(
+            incrementalPath = usedInAppCommon,
             steps = listOf(
                 "1_addUnusedParameter",
                 "2_changeReturnType"
@@ -107,8 +104,8 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
          * Step 1 - jvm
          */
         val jvmUtil = resolvePath("lib", "jvmMain", "UsedInAppJvmAndLibTests.kt")
-        multiStepTestCase(
-            alteredPath = jvmUtil,
+        multiStepCheckIncrementalBuilds(
+            incrementalPath = jvmUtil,
             steps = commonSteps,
             tasksToExecuteOnEachStep = setOf(
                 ":app:compileKotlinJvm",
@@ -129,8 +126,8 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
          * Step 2 - js
          */
         val jsUtil = resolvePath("lib", "jsMain", "UsedInAppJsAndLibTests.kt")
-        multiStepTestCase(
-            alteredPath = jsUtil,
+        multiStepCheckIncrementalBuilds(
+            incrementalPath = jsUtil,
             steps = commonSteps,
             tasksToExecuteOnEachStep = setOf(
                 ":app:compileKotlinJs",
@@ -150,8 +147,8 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
          * Step 3 - native
          */
         val nativeUtil = resolvePath("lib", "nativeMain", "UsedInAppNativeAndLibTests.kt")
-        multiStepTestCase(
-            alteredPath = nativeUtil,
+        multiStepCheckIncrementalBuilds(
+            incrementalPath = nativeUtil,
             steps = commonSteps,
             tasksToExecuteOnEachStep = setOf(
                 ":app:compileKotlinNative",
@@ -170,8 +167,8 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val utilPath = resolvePath("app", "commonMain", "UsedInAppPlatform.kt")
 
-        multiStepTestCase(
-            alteredPath = utilPath,
+        multiStepCheckIncrementalBuilds(
+            incrementalPath = utilPath,
             steps = listOf(
                 "1_changeReturnType",
                 "2_addUnusedParameter"
@@ -208,8 +205,8 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
          */
         val changedJvmSource = resolvePath("app", "jvmMain", "UnusedJvm.kt")
             .replaceWithVersion("addParent")
-        testCase(
-            executedTasks = setOf(":app:compileKotlinJvm")
+        checkIncrementalBuild(
+            tasksToExecute = setOf(":app:compileKotlinJvm")
         ) {
             assertCompiledKotlinSources(listOf(changedJvmSource).relativizeTo(projectPath), output)
         }
@@ -217,19 +214,21 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
         /**
          * Step 2 - js
          */
-        testCase(
-            incrementalPath = resolvePath("app", "jsMain", "UnusedJs.kt")
-                .replaceWithVersion("addParent"),
-            executedTasks = setOf(":app:compileKotlinJs")
-        )
+        val changedJsSource = resolvePath("app", "jsMain", "UnusedJs.kt")
+            .replaceWithVersion("addParent")
+        checkIncrementalBuild(
+            tasksToExecute = setOf(":app:compileKotlinJs")
+        ) {
+            assertIncrementalCompilation(listOf(changedJsSource).relativizeTo(projectPath))
+        }
 
         /**
          * Step 3 - native
          */
         resolvePath("app", "nativeMain", "UnusedNative.kt")
             .replaceWithVersion("addParent")
-        testCase(
-            executedTasks = setOf(":app:compileKotlinNative")
+        checkIncrementalBuild(
+            tasksToExecute = setOf(":app:compileKotlinNative")
         )
     }
 }

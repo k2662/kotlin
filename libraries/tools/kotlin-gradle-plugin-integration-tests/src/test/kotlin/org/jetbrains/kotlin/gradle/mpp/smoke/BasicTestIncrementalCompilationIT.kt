@@ -45,18 +45,20 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
          * Step 1 - touch lib/common, affect all tests in app and lib
          */
 
-        testCase(
-            incrementalPath = resolvePath("lib", "commonMain", "UsedInLibPlatformTests.kt").addPrivateVal(),
-            executedTasks = mainCompileTasks,
-        )
+        val changedInLibCommon = resolvePath("lib", "commonMain", "UsedInLibPlatformTests.kt").addPrivateVal()
+        checkIncrementalBuild(
+            tasksToExecute = mainCompileTasks,
+        ) {
+            assertIncrementalCompilation(listOf(changedInLibCommon).relativizeTo(projectPath))
+        }
 
         /**
          * Step 2 - touch app/common, affect all tests in app
          */
 
-        testCase(
-            incrementalPath = resolvePath("app", "commonMain", "Unused.kt").addPrivateVal(),
-            executedTasks = setOf(
+        val changedInAppCommon = resolvePath("app", "commonMain", "Unused.kt").addPrivateVal()
+        checkIncrementalBuild(
+            tasksToExecute = setOf(
                 ":app:compileTestKotlinJvm",
                 ":app:compileTestKotlinNative",
                 ":app:compileTestKotlinJs",
@@ -64,16 +66,17 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
                 ":app:jvmTest",
                 ":app:nativeTest",
             ),
-        )
+        ) {
+            assertIncrementalCompilation(listOf(changedInAppCommon).relativizeTo(projectPath))
+        }
 
         /**
          * Step 3 - touch app/jvm, affect jvm tests in app
          */
 
         val touchedAppJvm = resolvePath("app", "jvmMain", "UnusedJvm.kt").addPrivateVal()
-        testCase(
-            incrementalPath = null,
-            executedTasks = setOf(
+        checkIncrementalBuild(
+            tasksToExecute = setOf(
                 ":app:compileTestKotlinJvm",
                 ":app:jvmTest",
             ),
@@ -85,22 +88,23 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
          * Step 4 - touch app/js, affect js tests in app
          */
 
-        testCase(
-            incrementalPath = resolvePath("app", "jsMain", "UnusedJs.kt").addPrivateVal(),
-            executedTasks = setOf(
+        val changedInAppJs = resolvePath("app", "jsMain", "UnusedJs.kt").addPrivateVal()
+        checkIncrementalBuild(
+            tasksToExecute = setOf(
                 ":app:compileTestKotlinJs",
                 ":app:jsTest",
             ),
-        )
+        ) {
+            assertIncrementalCompilation(listOf(changedInAppJs).relativizeTo(projectPath))
+        }
 
         /**
          * Step 5 - touch app/native, affect native tests in app
          */
 
         resolvePath("app", "nativeMain", "UnusedNative.kt").addPrivateVal()
-        testCase(
-            incrementalPath = null,
-            executedTasks = setOf(
+        checkIncrementalBuild(
+            tasksToExecute = setOf(
                 ":app:compileTestKotlinNative",
                 ":app:nativeTest",
             ),
