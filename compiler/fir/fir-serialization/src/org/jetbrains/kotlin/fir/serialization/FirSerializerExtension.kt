@@ -27,7 +27,7 @@ abstract class FirSerializerExtension {
     val annotationSerializer by lazy { FirAnnotationSerializer(session, stringTable, constValueProvider) }
 
     protected abstract val constValueProvider: ConstValueProvider?
-    protected abstract val additionalAnnotationsProvider: FirAdditionalMetadataAnnotationsProvider?
+    protected abstract val additionalAnnotationsProvider: FirAdditionalMetadataProvider?
 
     @OptIn(ConstValueProviderInternals::class)
     internal inline fun <T> processFile(firFile: FirFile, crossinline action: () -> T): T {
