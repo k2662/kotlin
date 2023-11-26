@@ -2592,6 +2592,43 @@ public class FirNativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTe
                 }
 
                 @Nested
+                @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt61310")
+                @TestDataPath("$PROJECT_ROOT")
+                @Tag("frontend-fir")
+                @FirPipeline()
+                @UseExtTestCaseGroupProvider()
+                public class Kt61310 {
+                    @Test
+                    public void testAllFilesPresentInKt61310() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt61310"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                    }
+
+                    @Test
+                    @TestMetadata("alternative1.kt")
+                    public void testAlternative1() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/alternative1.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("alternative2.kt")
+                    public void testAlternative2() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/alternative2.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("alternative3.kt")
+                    public void testAlternative3() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/alternative3.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("simplified.kt")
+                    public void testSimplified() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/simplified.kt");
+                    }
+                }
+
+                @Nested
                 @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63648")
                 @TestDataPath("$PROJECT_ROOT")
                 @Tag("frontend-fir")

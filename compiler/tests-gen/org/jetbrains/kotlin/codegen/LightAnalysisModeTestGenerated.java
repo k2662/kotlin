@@ -3027,6 +3027,39 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                 }
             }
 
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt61310")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt61310 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt61310() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt61310"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("alternative1.kt")
+                public void testAlternative1() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/alternative1.kt");
+                }
+
+                @TestMetadata("alternative2.kt")
+                public void testAlternative2() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/alternative2.kt");
+                }
+
+                @TestMetadata("alternative3.kt")
+                public void testAlternative3() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/alternative3.kt");
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt61310/simplified.kt");
+                }
+            }
+
             @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63648")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
