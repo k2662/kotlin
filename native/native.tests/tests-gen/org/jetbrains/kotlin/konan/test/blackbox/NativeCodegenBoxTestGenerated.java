@@ -2553,6 +2553,35 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
                         runTest("compiler/testData/codegen/box/builderInference/issues/kt63733/simplified.kt");
                     }
                 }
+
+                @Nested
+                @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63840")
+                @TestDataPath("$PROJECT_ROOT")
+                @UseExtTestCaseGroupProvider()
+                public class Kt63840 {
+                    @Test
+                    public void testAllFilesPresentInKt63840() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63840"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                    }
+
+                    @Test
+                    @TestMetadata("alternative1.kt")
+                    public void testAlternative1() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt63840/alternative1.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("alternative2.kt")
+                    public void testAlternative2() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt63840/alternative2.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("simplified.kt")
+                    public void testSimplified() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt63840/simplified.kt");
+                    }
+                }
             }
 
             @Nested
