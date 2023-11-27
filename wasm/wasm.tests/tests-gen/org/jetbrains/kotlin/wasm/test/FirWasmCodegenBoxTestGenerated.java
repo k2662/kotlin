@@ -2523,6 +2523,22 @@ public class FirWasmCodegenBoxTestGenerated extends AbstractFirWasmCodegenBoxTes
                     runTest("compiler/testData/codegen/box/builderInference/issues/kt63840/simplified.kt");
                 }
             }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63841")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt63841 {
+                @Test
+                public void testAllFilesPresentInKt63841() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63841"), Pattern.compile("^([^_](.+))\\.kt$"), null, TargetBackend.WASM, true);
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt63841/simplified.kt");
+                }
+            }
         }
 
         @Nested

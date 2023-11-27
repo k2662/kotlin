@@ -2810,6 +2810,27 @@ public class FirNativeCodegenBoxTestNoPLGenerated extends AbstractNativeCodegenB
                         runTest("compiler/testData/codegen/box/builderInference/issues/kt63840/simplified.kt");
                     }
                 }
+
+                @Nested
+                @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63841")
+                @TestDataPath("$PROJECT_ROOT")
+                @Tag("frontend-fir")
+                @FirPipeline()
+                @UseExtTestCaseGroupProvider()
+                @UsePartialLinkage(mode = Mode.DISABLED)
+                @Tag("no-partial-linkage-may-be-skipped")
+                public class Kt63841 {
+                    @Test
+                    public void testAllFilesPresentInKt63841() throws Exception {
+                        KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63841"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.NATIVE, true);
+                    }
+
+                    @Test
+                    @TestMetadata("simplified.kt")
+                    public void testSimplified() throws Exception {
+                        runTest("compiler/testData/codegen/box/builderInference/issues/kt63841/simplified.kt");
+                    }
+                }
             }
 
             @Nested

@@ -3123,6 +3123,24 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
                     runTest("compiler/testData/codegen/box/builderInference/issues/kt63840/simplified.kt");
                 }
             }
+
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63841")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Kt63841 extends AbstractLightAnalysisModeTest {
+                private void runTest(String testDataFilePath) throws Exception {
+                    KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+                }
+
+                public void testAllFilesPresentInKt63841() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63841"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+                }
+
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt63841/simplified.kt");
+                }
+            }
         }
 
         @TestMetadata("compiler/testData/codegen/box/builderInference/oneParameter")

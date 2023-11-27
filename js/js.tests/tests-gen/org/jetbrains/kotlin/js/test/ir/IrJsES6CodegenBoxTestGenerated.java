@@ -2535,6 +2535,22 @@ public class IrJsES6CodegenBoxTestGenerated extends AbstractIrJsES6CodegenBoxTes
                     runTest("compiler/testData/codegen/box/builderInference/issues/kt63840/simplified.kt");
                 }
             }
+
+            @Nested
+            @TestMetadata("compiler/testData/codegen/box/builderInference/issues/kt63841")
+            @TestDataPath("$PROJECT_ROOT")
+            public class Kt63841 {
+                @Test
+                public void testAllFilesPresentInKt63841() throws Exception {
+                    KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/builderInference/issues/kt63841"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JS_IR_ES6, true);
+                }
+
+                @Test
+                @TestMetadata("simplified.kt")
+                public void testSimplified() throws Exception {
+                    runTest("compiler/testData/codegen/box/builderInference/issues/kt63841/simplified.kt");
+                }
+            }
         }
 
         @Nested
