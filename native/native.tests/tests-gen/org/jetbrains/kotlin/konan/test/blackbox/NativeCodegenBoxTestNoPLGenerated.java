@@ -13347,6 +13347,12 @@ public class NativeCodegenBoxTestNoPLGenerated extends AbstractNativeCodegenBoxT
             }
 
             @Test
+            @TestMetadata("delegateToConstVal.kt")
+            public void testDelegateToConstVal() throws Exception {
+                runTest("compiler/testData/codegen/box/delegation/delegateToConstVal.kt");
+            }
+
+            @Test
             @TestMetadata("delegationDifferentModule.kt")
             public void testDelegationDifferentModule() throws Exception {
                 runTest("compiler/testData/codegen/box/delegation/delegationDifferentModule.kt");

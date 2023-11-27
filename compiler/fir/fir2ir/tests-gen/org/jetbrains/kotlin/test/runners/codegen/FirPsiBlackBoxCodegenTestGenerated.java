@@ -16290,6 +16290,12 @@ public class FirPsiBlackBoxCodegenTestGenerated extends AbstractFirPsiBlackBoxCo
         }
 
         @Test
+        @TestMetadata("delegateToConstVal.kt")
+        public void testDelegateToConstVal() throws Exception {
+            runTest("compiler/testData/codegen/box/delegation/delegateToConstVal.kt");
+        }
+
+        @Test
         @TestMetadata("delegationAndInheritanceFromJava.kt")
         public void testDelegationAndInheritanceFromJava() throws Exception {
             runTest("compiler/testData/codegen/box/delegation/delegationAndInheritanceFromJava.kt");

@@ -13431,6 +13431,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             runTest("compiler/testData/codegen/box/delegation/defaultOverride.kt");
         }
 
+        @TestMetadata("delegateToConstVal.kt")
+        public void testDelegateToConstVal() throws Exception {
+            runTest("compiler/testData/codegen/box/delegation/delegateToConstVal.kt");
+        }
+
         @TestMetadata("delegationAndInheritanceFromJava.kt")
         public void testDelegationAndInheritanceFromJava() throws Exception {
             runTest("compiler/testData/codegen/box/delegation/delegationAndInheritanceFromJava.kt");
