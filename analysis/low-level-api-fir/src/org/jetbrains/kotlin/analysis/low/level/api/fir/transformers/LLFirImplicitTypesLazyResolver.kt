@@ -10,17 +10,23 @@ import org.jetbrains.kotlin.analysis.low.level.api.fir.api.throwUnexpectedFirEle
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.builder.LLFirLockProvider
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.structure.LLFirDeclarationModificationService
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.checkReturnTypeRefIsResolved
+import org.jetbrains.kotlin.analysis.low.level.api.fir.util.forEachDependentDeclaration
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.isScriptDependentDeclaration
 import org.jetbrains.kotlin.fir.FirElementWithResolveState
 import org.jetbrains.kotlin.fir.FirFileAnnotationsContainer
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.expressions.FirAnnotationCall
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirImplicitAwareBodyResolveTransformer
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirResolveContextCollector
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.ImplicitBodyResolveComputationSession
 import org.jetbrains.kotlin.fir.scopes.callableCopySubstitutionForTypeUpdater
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.types.FirImplicitTypeRef
+import org.jetbrains.kotlin.fir.util.setMultimapOf
+import org.jetbrains.kotlin.fir.utils.exceptions.withFirEntry
+import org.jetbrains.kotlin.utils.exceptions.requireWithAttachment
 
 internal object LLFirImplicitTypesLazyResolver : LLFirLazyResolver(FirResolvePhase.IMPLICIT_TYPES_BODY_RESOLVE) {
     override fun resolve(
@@ -40,24 +46,39 @@ internal object LLFirImplicitTypesLazyResolver : LLFirLazyResolver(FirResolvePha
     }
 }
 
+internal class LLImplicitBodyResolveComputationSession : ImplicitBodyResolveComputationSession() {
+    private val postponed = setMultimapOf<FirBasedSymbol<*>, FirBasedSymbol<*>>()
+
+    fun postponeForeignAnnotationResolution(symbol: FirBasedSymbol<*>) {
+        val currentSymbol = getCurrentSymbol()
+        postponed.put(currentSymbol, symbol)
+    }
+
+    fun postponedSymbolsForAnnotationResolution(element: FirElementWithResolveState): Set<FirBasedSymbol<*>> {
+        if (element !is FirDeclaration) return emptySet()
+
+        return postponed[element.symbol]
+    }
+}
+
 internal class LLFirImplicitBodyTargetResolver(
     target: LLFirResolveTarget,
     lockProvider: LLFirLockProvider,
     session: FirSession,
     scopeSession: ScopeSession,
     firResolveContextCollector: FirResolveContextCollector?,
-    implicitBodyResolveComputationSession: ImplicitBodyResolveComputationSession? = null,
+    llImplicitBodyResolveComputationSessionParameter: LLImplicitBodyResolveComputationSession? = null,
 ) : LLFirAbstractBodyTargetResolver(
     target,
     lockProvider,
     scopeSession,
     FirResolvePhase.IMPLICIT_TYPES_BODY_RESOLVE,
-    implicitBodyResolveComputationSession = implicitBodyResolveComputationSession ?: ImplicitBodyResolveComputationSession(),
+    llImplicitBodyResolveComputationSession = llImplicitBodyResolveComputationSessionParameter ?: LLImplicitBodyResolveComputationSession(),
     isJumpingPhase = true,
 ) {
     override val transformer = object : FirImplicitAwareBodyResolveTransformer(
         session,
-        implicitBodyResolveComputationSession = this.implicitBodyResolveComputationSession,
+        implicitBodyResolveComputationSession = llImplicitBodyResolveComputationSession,
         phase = resolverPhase,
         implicitTypeOnly = true,
         scopeSession = scopeSession,
@@ -66,6 +87,10 @@ internal class LLFirImplicitBodyTargetResolver(
     ) {
         override val preserveCFGForClasses: Boolean get() = false
         override val buildCfgForFiles: Boolean get() = false
+        override fun transformForeignAnnotationCall(symbol: FirBasedSymbol<*>, annotationCall: FirAnnotationCall): FirAnnotationCall {
+            llImplicitBodyResolveComputationSession.postponeForeignAnnotationResolution(symbol)
+            return annotationCall
+        }
     }
 
     override fun doLazyResolveUnderLock(target: FirElementWithResolveState) {
@@ -107,6 +132,38 @@ internal class LLFirImplicitBodyTargetResolver(
                 // No implicit bodies here
             }
             else -> throwUnexpectedFirElementError(target)
+        }
+
+        dumpPostponedSymbols(target)
+    }
+
+    private fun postponedSymbols(target: FirElementWithResolveState): Collection<FirBasedSymbol<*>> {
+        val result = llImplicitBodyResolveComputationSession.postponedSymbolsForAnnotationResolution(target)
+        if (target !is FirScript) return result
+
+        val scriptResult = result.toMutableSet()
+        target.forEachDependentDeclaration {
+            scriptResult += llImplicitBodyResolveComputationSession.postponedSymbolsForAnnotationResolution(it)
+        }
+
+        return scriptResult
+    }
+
+    private fun dumpPostponedSymbols(target: FirElementWithResolveState) {
+        val postponedSymbols = postponedSymbols(target)
+        if (postponedSymbols.isNotEmpty()) {
+            requireWithAttachment(
+                target is FirDeclaration,
+                {
+                    "Unexpected target: ${target::class.simpleName}\n" +
+                            "We assume that only during ${FirDeclaration::class.simpleName} " +
+                            "resolution it is possible to get not empty result"
+                },
+            ) {
+                withFirEntry("target", target)
+            }
+
+            target.postponedSymbolsForAnnotationResolution = postponedSymbols
         }
     }
 

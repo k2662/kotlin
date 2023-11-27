@@ -226,7 +226,7 @@ FILE: [ResolvedTo(IMPORTS)] scriptWithResultWithPropagatedType.kts
 IMPLICIT_TYPES_BODY_RESOLVE:
 FILE: [ResolvedTo(IMPORTS)] scriptWithResultWithPropagatedType.kts
     context(<script>@R|kotlin/script/templates/standard/ScriptTemplateWithArgs|)
-    SCRIPT: [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] <script-scriptWithResultWithPropagatedType.kts>
+    SCRIPT: [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] [PostponedSymbolsForAnnotationResolutionKey=[FirNamedFunctionSymbol foo/explicitType]] <script-scriptWithResultWithPropagatedType.kts>
         [ResolvedTo(RAW_FIR)] lval args: R|kotlin/Array<kotlin/String>|
 
         @R|kotlin/annotation/Target|[CompilerRequiredAnnotations](Q|kotlin/annotation/AnnotationTarget|.R|kotlin/annotation/AnnotationTarget.TYPE|) public? final? [ResolvedTo(COMPILER_REQUIRED_ANNOTATIONS)] annotation class Anno : R|kotlin/Annotation| {
@@ -269,7 +269,7 @@ FILE: [ResolvedTo(IMPORTS)] scriptWithResultWithPropagatedType.kts
         public final const [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] val constant: R|kotlin/Int| = Int(0)
             public [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] get(): R|kotlin/Int|
 
-        public final [ResolvedTo(CONTRACTS)] fun explicitType(): R|@R|foo/Anno|(position = <strcat>(String(return type: ), R|foo/constant|))  kotlin/collections/List<@R|foo/Anno|(position = <strcat>(String(nested return type: ), R|foo/constant|))  kotlin/collections/Collection<@R|foo/Anno|(position = <strcat>(String(nested nested return type: ), R|foo/constant|))  kotlin/String>>| {
+        public final [ResolvedTo(ANNOTATION_ARGUMENTS)] fun explicitType(): R|@R|foo/Anno|(position = <strcat>(String(return type: ), R|foo/constant|))  kotlin/collections/List<@R|foo/Anno|(position = <strcat>(String(nested return type: ), R|foo/constant|))  kotlin/collections/Collection<@R|foo/Anno|(position = <strcat>(String(nested nested return type: ), R|foo/constant|))  kotlin/String>>| {
             ^explicitType IntegerLiteral(0)
         }
 
@@ -296,7 +296,7 @@ FILE: [ResolvedTo(IMPORTS)] scriptWithResultWithPropagatedType.kts
         public final const [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] val constant: R|kotlin/Int| = Int(0)
             public [ResolvedTo(IMPLICIT_TYPES_BODY_RESOLVE)] get(): R|kotlin/Int|
 
-        public final [ResolvedTo(CONTRACTS)] fun explicitType(): R|@R|foo/Anno|(position = <strcat>(String(return type: ), R|foo/constant|))  kotlin/collections/List<@R|foo/Anno|(position = <strcat>(String(nested return type: ), R|foo/constant|))  kotlin/collections/Collection<@R|foo/Anno|(position = <strcat>(String(nested nested return type: ), R|foo/constant|))  kotlin/String>>| {
+        public final [ResolvedTo(ANNOTATION_ARGUMENTS)] fun explicitType(): R|@R|foo/Anno|(position = <strcat>(String(return type: ), R|foo/constant|))  kotlin/collections/List<@R|foo/Anno|(position = <strcat>(String(nested return type: ), R|foo/constant|))  kotlin/collections/Collection<@R|foo/Anno|(position = <strcat>(String(nested nested return type: ), R|foo/constant|))  kotlin/String>>| {
             ^explicitType IntegerLiteral(0)
         }
 

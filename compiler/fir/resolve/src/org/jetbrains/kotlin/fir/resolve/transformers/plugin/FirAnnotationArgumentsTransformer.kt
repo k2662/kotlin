@@ -185,7 +185,7 @@ private class FirDeclarationsResolveTransformerForAnnotationArguments(
     }
 
     override fun transformRegularClass(regularClass: FirRegularClass, data: ResolutionMode): FirRegularClass {
-        context.insideClassHeader {
+        context.insideClassHeader(regularClass) {
             regularClass.transformAnnotations(this, ResolutionMode.ContextIndependent)
             regularClass.transformTypeParameters(this, ResolutionMode.ContextIndependent)
             regularClass.transformSuperTypeRefs(this, ResolutionMode.ContextIndependent)

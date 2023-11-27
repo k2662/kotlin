@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.fir.resolve.transformers.contracts.runContractResolv
 import org.jetbrains.kotlin.fir.scopes.CallableCopyTypeCalculator
 import org.jetbrains.kotlin.fir.scopes.impl.originalForWrappedIntegerOperator
 import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirSyntheticPropertySymbol
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhase
 import org.jetbrains.kotlin.fir.types.FirImplicitTypeRef
@@ -33,6 +34,7 @@ import org.jetbrains.kotlin.fir.types.builder.buildErrorTypeRef
 import org.jetbrains.kotlin.fir.utils.exceptions.withFirEntry
 import org.jetbrains.kotlin.fir.visitors.FirTransformer
 import org.jetbrains.kotlin.util.PrivateForInline
+import org.jetbrains.kotlin.utils.exceptions.errorWithAttachment
 import org.jetbrains.kotlin.utils.exceptions.requireWithAttachment
 
 @OptIn(AdapterForResolveProcessor::class)
@@ -175,11 +177,7 @@ open class FirImplicitAwareBodyResolveTransformer(
             "Unexpected status in transformCallableMember ($status) for ${member.render()}"
         }
 
-        implicitBodyResolveComputationSession.startComputing(symbol)
-        val result = transform()
-        implicitBodyResolveComputationSession.storeResult(symbol, result)
-
-        return result
+        return implicitBodyResolveComputationSession.compute(symbol, transform)
     }
 }
 
@@ -379,8 +377,15 @@ open class FirDesignatedBodyResolveTransformerForReturnTypeCalculator(
     }
 }
 
-class ImplicitBodyResolveComputationSession {
+open class ImplicitBodyResolveComputationSession {
     private val implicitBodyResolveStatusMap = hashMapOf<FirCallableSymbol<*>, ImplicitBodyResolveComputationStatus>()
+    private var currentSymbol: FirCallableSymbol<*>? = null
+
+    protected fun getCurrentSymbol(): FirCallableSymbol<*> {
+        return currentSymbol ?: errorWithAttachment("Unexpected state: the current symbol have to be here") {
+            withEntry("map", implicitBodyResolveStatusMap.entries.joinToString(separator = "\n"))
+        }
+    }
 
     internal fun getStatus(symbol: FirCallableSymbol<*>): ImplicitBodyResolveComputationStatus {
         if (symbol is FirSyntheticPropertySymbol) {
@@ -392,7 +397,26 @@ class ImplicitBodyResolveComputationSession {
         return implicitBodyResolveStatusMap[symbol] ?: ImplicitBodyResolveComputationStatus.NotComputed
     }
 
-    fun startComputing(symbol: FirCallableSymbol<*>) {
+    internal inline fun <D : FirCallableDeclaration> compute(symbol: FirCallableSymbol<*>, transformation: () -> D): D {
+        startComputing(symbol)
+        val oldCurrentSymbol = currentSymbol
+
+        // do not use local properties as an anchor
+        if (symbol !is FirPropertySymbol || !symbol.isLocal) {
+            currentSymbol = symbol
+        }
+
+        val result = try {
+            transformation()
+        } finally {
+            currentSymbol = oldCurrentSymbol
+        }
+
+        storeResult(symbol, result)
+        return result
+    }
+
+    internal fun startComputing(symbol: FirCallableSymbol<*>) {
         require(implicitBodyResolveStatusMap[symbol] == null) {
             "Unexpected static in startComputing for $symbol: ${implicitBodyResolveStatusMap[symbol]}"
         }
@@ -400,7 +424,7 @@ class ImplicitBodyResolveComputationSession {
         implicitBodyResolveStatusMap[symbol] = ImplicitBodyResolveComputationStatus.Computing
     }
 
-    fun storeResult(
+    internal fun storeResult(
         symbol: FirCallableSymbol<*>,
         transformedDeclaration: FirCallableDeclaration
     ) {

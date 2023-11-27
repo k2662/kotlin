@@ -13,12 +13,13 @@ import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.ImplicitBodyRe
 import org.jetbrains.kotlin.analysis.low.level.api.fir.element.builder.LLFirReturnTypeCalculatorWithJump
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.builder.LLFirLockProvider
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSession
+import org.jetbrains.kotlin.analysis.low.level.api.fir.transformers.LLImplicitBodyResolveComputationSession
 
 internal object PersistentCheckerContextFactory {
     fun createEmptyPersistenceCheckerContext(sessionHolder: SessionHolder): PersistentCheckerContext {
         val returnTypeCalculator = LLFirReturnTypeCalculatorWithJump(
             scopeSession = sessionHolder.scopeSession,
-            implicitBodyResolveComputationSession = ImplicitBodyResolveComputationSession(),
+            implicitBodyResolveComputationSession = LLImplicitBodyResolveComputationSession(),
             lockProvider = LLFirGlobalResolveComponents.getInstance(sessionHolder.session).lockProvider,
             towerDataContextCollector = null,
         )

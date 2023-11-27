@@ -16,8 +16,10 @@ import org.jetbrains.kotlin.fir.resolve.dfa.DataFlowAnalyzerContext
 import org.jetbrains.kotlin.fir.resolve.transformers.ReturnTypeCalculator
 import org.jetbrains.kotlin.fir.resolve.transformers.ReturnTypeCalculatorForFullBodyResolve
 import org.jetbrains.kotlin.fir.resolve.transformers.ScopeClassDeclaration
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.fir.visitors.FirTransformer
+import org.jetbrains.kotlin.fir.visitors.transformSingle
 
 abstract class FirAbstractBodyResolveTransformerDispatcher(
     session: FirSession,
@@ -105,7 +107,8 @@ abstract class FirAbstractBodyResolveTransformerDispatcher(
     override fun transformImplicitTypeRef(implicitTypeRef: FirImplicitTypeRef, data: ResolutionMode): FirTypeRef {
         if (data !is ResolutionMode.WithExpectedType)
             return implicitTypeRef
-        return data.expectedTypeRef
+
+        return data.expectedTypeRef.transformSingle(this, data)
     }
 
     // ------------------------------------- Expressions -------------------------------------
@@ -309,14 +312,25 @@ abstract class FirAbstractBodyResolveTransformerDispatcher(
         FirExpressionsResolveTransformer::transformAnnotation,
     )
 
+    protected open fun transformForeignAnnotationCall(symbol: FirBasedSymbol<*>, annotationCall: FirAnnotationCall): FirAnnotationCall {
+        return annotationCall
+    }
+
     override fun transformAnnotationCall(
         annotationCall: FirAnnotationCall,
         data: ResolutionMode,
-    ): FirStatement = expressionTransformation(
-        annotationCall,
-        data,
-        FirExpressionsResolveTransformer::transformAnnotationCall,
-    )
+    ): FirStatement {
+        val declarationSymbol = annotationCall.containingDeclarationSymbol
+        if (declarationSymbol != null && declarationSymbol.fir !in context.containers.asReversed()) {
+            return transformForeignAnnotationCall(declarationSymbol, annotationCall)
+        }
+
+        return expressionTransformation(
+            annotationCall,
+            data,
+            FirExpressionsResolveTransformer::transformAnnotationCall,
+        )
+    }
 
     override fun transformErrorAnnotationCall(
         errorAnnotationCall: FirErrorAnnotationCall,

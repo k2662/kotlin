@@ -81,17 +81,26 @@ class Context<T> {
         }
     }
 
+    var forcedContainerSymbol: FirBasedSymbol<*>? = null
+    private var counter = 0
+
     val containerSymbolStack: MutableList<FirBasedSymbol<*>> = mutableListOf<FirBasedSymbol<*>>()
 
     fun pushContainerSymbol(symbol: FirBasedSymbol<*>) {
-        containerSymbolStack += symbol
+        val containerSymbol = forcedContainerSymbol?.takeIf { counter++ == 0 } ?: symbol
+        containerSymbolStack += containerSymbol
     }
 
     fun popContainerSymbol(symbol: FirBasedSymbol<*>) {
+        val containerSymbol = forcedContainerSymbol?.takeIf { --counter == 0 } ?: symbol
         val removed = containerSymbolStack.removeLast()
-        checkWithAttachment(removed === symbol, { "Inconsistent declaration stack" }) {
-            withFirSymbolEntry("expected", symbol)
+        checkWithAttachment(removed === containerSymbol, { "Inconsistent declaration stack" }) {
+            withFirSymbolEntry("expected", containerSymbol)
             withFirSymbolEntry("actual", removed)
+            if (symbol != containerSymbol) {
+                withFirSymbolEntry("replaced symbol", symbol)
+            }
+
             withEntry("stack", containerSymbolStack.asReversed().toString())
         }
     }

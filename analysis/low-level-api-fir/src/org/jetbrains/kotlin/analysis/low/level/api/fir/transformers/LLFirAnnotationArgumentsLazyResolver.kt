@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.analysis.low.level.api.fir.api.throwUnexpectedFirEle
 import org.jetbrains.kotlin.analysis.low.level.api.fir.file.builder.LLFirLockProvider
 import org.jetbrains.kotlin.analysis.low.level.api.fir.lazy.resolve.FirLazyBodiesCalculator
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.llFirSession
+import org.jetbrains.kotlin.analysis.low.level.api.fir.util.checkAnnotationIsResolved
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.checkAnnotationsAreResolved
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.forEachDependentDeclaration
 import org.jetbrains.kotlin.fir.*
@@ -23,9 +24,13 @@ import org.jetbrains.kotlin.fir.resolve.ResolutionMode
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirResolveContextCollector
 import org.jetbrains.kotlin.fir.resolve.transformers.plugin.FirAnnotationArgumentsTransformer
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
+import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhase
 import org.jetbrains.kotlin.fir.types.FirTypeProjection
+import org.jetbrains.kotlin.fir.utils.exceptions.withFirEntry
 import org.jetbrains.kotlin.fir.visitors.FirVisitorVoid
 import org.jetbrains.kotlin.fir.visitors.transformSingle
+import org.jetbrains.kotlin.utils.exceptions.errorWithAttachment
 
 internal object LLFirAnnotationArgumentsLazyResolver : LLFirLazyResolver(FirResolvePhase.ANNOTATION_ARGUMENTS) {
     override fun resolve(
@@ -88,13 +93,38 @@ private class LLFirAnnotationArgumentsTargetResolver(
     scopeSession,
     FirResolvePhase.ANNOTATION_ARGUMENTS,
 ) {
-    override val transformer = FirAnnotationArgumentsTransformer(
+    override val transformer = object : FirAnnotationArgumentsTransformer(
         session,
         scopeSession,
         resolverPhase,
         returnTypeCalculator = createReturnTypeCalculator(firResolveContextCollector = firResolveContextCollector),
         firResolveContextCollector = firResolveContextCollector,
-    )
+    ) {
+        override fun transformForeignAnnotationCall(symbol: FirBasedSymbol<*>, annotationCall: FirAnnotationCall): FirAnnotationCall {
+            val annotationContainer = context.containerIfAny ?: errorWithAttachment("Container is not found") {
+                withFirEntry("annotation", annotationCall)
+            }
+
+            checkAnnotationIsResolved(annotationCall, annotationContainer)
+            return annotationCall
+        }
+    }
+
+    override fun doResolveWithoutLock(target: FirElementWithResolveState): Boolean {
+        if (target !is FirDeclaration) return false
+        var processed = false
+        var symbols: Collection<FirBasedSymbol<*>>? = null
+        withReadLock(target) {
+            processed = true
+            symbols = target.postponedSymbolsForAnnotationResolution
+        }
+
+        // some other thread already resolved this element to this phase or upper
+        if (!processed) return true
+        symbols?.forEach { it.lazyResolveToPhase(resolverPhase) }
+
+        return false
+    }
 
     override fun doLazyResolveUnderLock(target: FirElementWithResolveState) {
         resolveWithKeeper(
@@ -104,6 +134,10 @@ private class LLFirAnnotationArgumentsTargetResolver(
             prepareTarget = FirLazyBodiesCalculator::calculateAnnotations,
         ) {
             transformAnnotations(target)
+        }
+
+        if (target is FirDeclaration) {
+            target.postponedSymbolsForAnnotationResolution = null
         }
     }
 
@@ -119,7 +153,7 @@ private class LLFirAnnotationArgumentsTargetResolver(
         when {
             target is FirRegularClass -> {
                 val declarationTransformer = transformer.declarationsTransformer
-                declarationTransformer.context.insideClassHeader {
+                declarationTransformer.context.insideClassHeader(target) {
                     target.transformAnnotations(declarationTransformer, ResolutionMode.ContextIndependent)
                     target.transformTypeParameters(declarationTransformer, ResolutionMode.ContextIndependent)
                     target.transformSuperTypeRefs(declarationTransformer, ResolutionMode.ContextIndependent)

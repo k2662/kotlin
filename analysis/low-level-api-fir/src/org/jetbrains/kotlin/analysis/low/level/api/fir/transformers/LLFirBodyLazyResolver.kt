@@ -45,6 +45,7 @@ import org.jetbrains.kotlin.fir.resolve.dfa.cfg.isUsedInControlFlowGraphBuilderF
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirBodyResolveTransformer
 import org.jetbrains.kotlin.fir.resolve.transformers.body.resolve.FirResolveContextCollector
 import org.jetbrains.kotlin.fir.resolve.transformers.contracts.FirContractsDslNames
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhase
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.isResolved
@@ -105,6 +106,10 @@ private class LLFirBodyTargetResolver(
     ) {
         override val preserveCFGForClasses: Boolean get() = false
         override val buildCfgForFiles: Boolean get() = false
+        override fun transformForeignAnnotationCall(symbol: FirBasedSymbol<*>, annotationCall: FirAnnotationCall): FirAnnotationCall {
+            symbol.lazyResolveToPhase(FirResolvePhase.ANNOTATION_ARGUMENTS)
+            return annotationCall
+        }
     }
 
     /**
