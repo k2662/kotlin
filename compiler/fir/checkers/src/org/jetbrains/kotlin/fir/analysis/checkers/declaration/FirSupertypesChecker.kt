@@ -15,15 +15,13 @@ import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.*
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
-import org.jetbrains.kotlin.fir.declarations.FirClass
-import org.jetbrains.kotlin.fir.declarations.FirField
-import org.jetbrains.kotlin.fir.declarations.FirRegularClass
-import org.jetbrains.kotlin.fir.declarations.fullyExpandedClass
+import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.fir.declarations.utils.isExpect
+import org.jetbrains.kotlin.fir.declarations.utils.isInterface
 import org.jetbrains.kotlin.fir.declarations.utils.modality
 import org.jetbrains.kotlin.fir.declarations.utils.visibility
 import org.jetbrains.kotlin.fir.languageVersionSettings
 import org.jetbrains.kotlin.fir.resolve.fullyExpandedType
-import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassifierSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
@@ -98,6 +96,7 @@ object FirSupertypesChecker : FirClassChecker() {
         }
 
         checkDelegationNotToInterface(declaration, context, reporter)
+        checkDelegationWithoutPrimaryConstructor(declaration, context, reporter)
 
         if (declaration is FirRegularClass && declaration.superTypeRefs.size > 1) {
             checkInconsistentTypeParameters(listOf(Pair(null, declaration.symbol)), context, reporter, declaration.source, true)
@@ -107,7 +106,7 @@ object FirSupertypesChecker : FirClassChecker() {
     private fun checkAnnotationOnSuperclass(
         superTypeRef: FirTypeRef,
         context: CheckerContext,
-        reporter: DiagnosticReporter
+        reporter: DiagnosticReporter,
     ) {
         for (annotation in superTypeRef.annotations) {
             if (annotation.useSiteTarget != null) {
@@ -120,7 +119,7 @@ object FirSupertypesChecker : FirClassChecker() {
         symbol: FirClassifierSymbol<*>?,
         reporter: DiagnosticReporter,
         superTypeRef: FirTypeRef,
-        context: CheckerContext
+        context: CheckerContext,
     ) {
         if (symbol is FirRegularClassSymbol && symbol.classId == StandardClassIds.Enum) {
             reporter.reportOn(superTypeRef.source, FirErrors.CLASS_CANNOT_BE_EXTENDED_DIRECTLY, symbol, context)
@@ -131,7 +130,7 @@ object FirSupertypesChecker : FirClassChecker() {
         coneType: ConeKotlinType,
         superTypeRef: FirTypeRef,
         reporter: DiagnosticReporter,
-        context: CheckerContext
+        context: CheckerContext,
     ) {
         val typeRefAndSourcesForArguments = extractArgumentsTypeRefAndSource(superTypeRef) ?: return
         for ((index, typeArgument) in coneType.typeArguments.withIndex()) {
@@ -152,7 +151,7 @@ object FirSupertypesChecker : FirClassChecker() {
         reporter: DiagnosticReporter,
         superTypeRef: FirTypeRef,
         coneType: ConeKotlinType,
-        context: CheckerContext
+        context: CheckerContext,
     ) {
         if (symbol is FirRegularClassSymbol && symbol.classKind == ClassKind.INTERFACE) {
             for (typeArgument in fullyExpandedType.typeArguments) {
@@ -167,7 +166,7 @@ object FirSupertypesChecker : FirClassChecker() {
     private fun checkDelegationNotToInterface(
         declaration: FirClass,
         context: CheckerContext,
-        reporter: DiagnosticReporter
+        reporter: DiagnosticReporter,
     ) {
         for (subDeclaration in declaration.declarations) {
             if (subDeclaration is FirField) {
@@ -180,4 +179,26 @@ object FirSupertypesChecker : FirClassChecker() {
             }
         }
     }
+
+    private fun checkDelegationWithoutPrimaryConstructor(
+        declaration: FirClass,
+        context: CheckerContext,
+        reporter: DiagnosticReporter,
+    ) {
+        if (declaration.isInterface) return
+        if (declaration.isExpect) return
+        val primaryConstructor = declaration.primaryConstructorIfAny(context.session)
+        for (subDeclaration in declaration.declarations) {
+            if (subDeclaration !is FirField) continue
+            if (primaryConstructor == null && subDeclaration.visibility == Visibilities.Private && subDeclaration.name.isDelegated) {
+                reporter.reportOn(
+                    subDeclaration.source,
+                    FirErrors.UNSUPPORTED,
+                    "Delegation without primary constructor is not supported",
+                    context
+                )
+            }
+        }
+    }
+
 }
