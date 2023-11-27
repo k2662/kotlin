@@ -88,10 +88,6 @@ fun KGPBaseTest.project(
 
     testProject.customizeProject()
 
-    if (testProject.darwinDerivedFilesDir.notExists()) {
-        testProject.darwinDerivedFilesDir.createDirectory()
-    }
-
     val result = runCatching {
         testProject.test()
     }
@@ -345,8 +341,6 @@ open class GradleProject(
     fun relativeToProject(
         files: List<Path>,
     ): List<Path> = files.map { projectPath.relativize(it) }
-
-    val darwinDerivedFilesDir: Path get() = projectPath.resolve("DerivedSources")
 }
 
 /**

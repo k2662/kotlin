@@ -14,9 +14,7 @@ import org.junit.jupiter.api.condition.OS
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.appendText
-import kotlin.io.path.setPosixFilePermissions
+import kotlin.io.path.*
 
 
 @OsCondition(supportedOn = [OS.MAC], enabledOnCI = [OS.MAC])
@@ -587,6 +585,13 @@ class AppleFrameworkIT : KGPBaseTest() {
         }
     }
 }
+
+private val GradleProject.darwinDerivedFilesDir: Path
+    get() = projectPath.resolve("DerivedSources").apply {
+        if (notExists()) {
+            createDirectory()
+        }
+    }
 
 private fun GradleProject.iosDerivedDataDir(writeProtected: Boolean = false): Path = darwinDerivedFilesDir.apply {
     if (writeProtected) {
