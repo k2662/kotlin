@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.analysis.test.framework.project.structure.TestModule
 import org.jetbrains.kotlin.analysis.test.framework.services.configuration.AnalysisApiJvmEnvironmentConfigurator
 import org.jetbrains.kotlin.analysis.test.framework.test.configurators.AnalysisApiTestServiceRegistrar
 import org.jetbrains.kotlin.test.builders.TestConfigurationBuilder
+import org.jetbrains.kotlin.test.model.DependencyKind
 import org.jetbrains.kotlin.test.model.TestModule
 import org.jetbrains.kotlin.test.preprocessors.ExternalAnnotationsSourcePreprocessor
 import org.jetbrains.kotlin.test.services.TestModuleStructure
@@ -39,6 +40,7 @@ object StandaloneModeLibraryBinaryTestConfigurator : StandaloneModeConfiguratorB
             useSourcePreprocessor(::ExternalAnnotationsSourcePreprocessor)
 
             useAdditionalService<KtModuleFactory> { KtCombinedModuleFactory() }
+            this.defaultsProviderBuilder.dependencyKind = DependencyKind.Binary
         }
     }
 
