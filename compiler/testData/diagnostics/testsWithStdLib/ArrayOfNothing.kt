@@ -1,6 +1,7 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER -UNUSED_VARIABLE -UNCHECKED_CAST -USELESS_CAST
 // !LANGUAGE: +ProhibitNonReifiedArraysAsReifiedTypeArguments
 class A<T>
+class C<T, G>
 
 fun test1(
     a: <!UNSUPPORTED!>Array<Nothing><!>,
@@ -8,7 +9,8 @@ fun test1(
     c: <!UNSUPPORTED!>Array<in Nothing><!>,
     d: <!UNSUPPORTED!>Array<in Nothing?><!>,
     e: <!UNSUPPORTED!>Array<out Nothing><!>,
-    f: <!UNSUPPORTED!>Array<out Nothing?><!>
+    f: <!UNSUPPORTED!>Array<out Nothing?><!>,
+    g: C<String, <!UNSUPPORTED!>Array<Nothing><!>>
 ) {}
 
 fun test2(
@@ -46,7 +48,6 @@ fun test5() {
 fun <T> foo(): Array<T> = (object {} as Any) as Array<T>
 
 fun test6() = <!UNSUPPORTED!>foo<!><Nothing>()
-
 
 class B<T>(val array: Array<T>)
 
