@@ -217,6 +217,34 @@ public class ScriptLazyTypeAnnotationsTestGenerated extends AbstractScriptLazyTy
     }
 
     @Nested
+    @TestMetadata("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration")
+    @TestDataPath("$PROJECT_ROOT")
+    public class DestructuringDeclaration {
+        @Test
+        public void testAllFilesPresentInDestructuringDeclaration() throws Exception {
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration"), Pattern.compile("^(.+)\\.(kts)$"), null, true);
+        }
+
+        @Test
+        @TestMetadata("scriptClassLevel.kts")
+        public void testScriptClassLevel() throws Exception {
+            runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration/scriptClassLevel.kts");
+        }
+
+        @Test
+        @TestMetadata("scriptStatementLevel.kts")
+        public void testScriptStatementLevel() throws Exception {
+            runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration/scriptStatementLevel.kts");
+        }
+
+        @Test
+        @TestMetadata("scriptStatementLevelAsLastStatement.kts")
+        public void testScriptStatementLevelAsLastStatement() throws Exception {
+            runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration/scriptStatementLevelAsLastStatement.kts");
+        }
+    }
+
+    @Nested
     @TestMetadata("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/errorType")
     @TestDataPath("$PROJECT_ROOT")
     public class ErrorType {
@@ -299,6 +327,12 @@ public class ScriptLazyTypeAnnotationsTestGenerated extends AbstractScriptLazyTy
         @TestMetadata("implicitTypeUnavailableScript.kts")
         public void testImplicitTypeUnavailableScript() throws Exception {
             runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/function/implicitTypeUnavailableScript.kts");
+        }
+
+        @Test
+        @TestMetadata("multiDeclarationScript.kts")
+        public void testMultiDeclarationScript() throws Exception {
+            runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/function/multiDeclarationScript.kts");
         }
 
         @Test

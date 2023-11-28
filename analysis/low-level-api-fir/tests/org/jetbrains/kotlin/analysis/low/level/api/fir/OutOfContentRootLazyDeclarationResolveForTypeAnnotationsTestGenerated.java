@@ -241,6 +241,28 @@ public class OutOfContentRootLazyDeclarationResolveForTypeAnnotationsTestGenerat
     }
 
     @Nested
+    @TestMetadata("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration")
+    @TestDataPath("$PROJECT_ROOT")
+    public class DestructuringDeclaration {
+        @Test
+        public void testAllFilesPresentInDestructuringDeclaration() throws Exception {
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration"), Pattern.compile("^(.+)\\.(kt)$"), null, true);
+        }
+
+        @Test
+        @TestMetadata("classLevel.kt")
+        public void testClassLevel() throws Exception {
+            runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration/classLevel.kt");
+        }
+
+        @Test
+        @TestMetadata("topLevel.kt")
+        public void testTopLevel() throws Exception {
+            runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/destructuringDeclaration/topLevel.kt");
+        }
+    }
+
+    @Nested
     @TestMetadata("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/errorType")
     @TestDataPath("$PROJECT_ROOT")
     public class ErrorType {
@@ -335,6 +357,12 @@ public class OutOfContentRootLazyDeclarationResolveForTypeAnnotationsTestGenerat
         @TestMetadata("localFunctionImplicitType.kt")
         public void testLocalFunctionImplicitType() throws Exception {
             runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/function/localFunctionImplicitType.kt");
+        }
+
+        @Test
+        @TestMetadata("multiDeclaration.kt")
+        public void testMultiDeclaration() throws Exception {
+            runTest("analysis/low-level-api-fir/testData/lazyResolveTypeAnnotations/function/multiDeclaration.kt");
         }
 
         @Test
