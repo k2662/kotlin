@@ -49,16 +49,6 @@ abstract class AbstractBuilderPrinter<BuilderField, ElementField, Element, Imple
                     field.name,
                     ")",
                 )
-                field.notNull -> println(
-                    originalParameterName,
-                    ".",
-                    field.name,
-                    "?.let { ",
-                    copyBuilderVariableName,
-                    ".",
-                    field.name,
-                    " = it }",
-                )
                 else -> println(copyBuilderVariableName, ".", field.name, " = ", originalParameterName, ".", field.name)
             }
         }
@@ -211,7 +201,7 @@ abstract class AbstractBuilderPrinter<BuilderField, ElementField, Element, Imple
     }
 
     private fun BuilderField.needBackingField(fieldIsUseless: Boolean) =
-        (!nullable || notNull) && origin !is ListField && if (fieldIsUseless) {
+        !nullable && origin !is ListField && if (fieldIsUseless) {
             defaultValueInImplementation == null
         } else {
             defaultValueInBuilder == null
