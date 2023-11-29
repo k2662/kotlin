@@ -166,7 +166,7 @@ private fun fireEnvException(frameworkTaskName: String) {
     } else {
         throw IllegalStateException(
             "Please run the $frameworkTaskName task from Xcode " +
-                    "('SDK_NAME', 'CONFIGURATION', 'TARGET_BUILD_DIR', 'ARCHS', 'DERIVED_FILE_DIR' and 'FRAMEWORKS_FOLDER_PATH' not provided)" +
+                    "('SDK_NAME', 'CONFIGURATION', 'TARGET_BUILD_DIR', 'ARCHS' and 'FRAMEWORKS_FOLDER_PATH' not provided)" +
                     "\n$XcodeEnvironment"
         )
     }
