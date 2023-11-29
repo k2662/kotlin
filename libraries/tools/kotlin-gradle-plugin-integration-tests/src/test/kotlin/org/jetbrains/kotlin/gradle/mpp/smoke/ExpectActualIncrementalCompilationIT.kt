@@ -8,18 +8,15 @@ package org.jetbrains.kotlin.gradle.mpp.smoke
 import org.gradle.api.logging.LogLevel
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
-import org.jetbrains.kotlin.gradle.util.replaceFirst
+import org.jetbrains.kotlin.gradle.util.replaceWithVersion
 import org.jetbrains.kotlin.test.TestMetadata
 import org.junit.jupiter.api.DisplayName
-import kotlin.io.path.appendText
 
 /**
- *
  * Touch file with expect fun, target IC adds actual to the build set
  * Variants: expect class
  * Touch file with actual fun, target IC adds expect to the build set
  * Variants: expect class
- *
  */
 @DisplayName("Incremental scenarios with expect/actual - K2")
 @MppGradlePluginTests
@@ -39,7 +36,9 @@ open class ExpectActualIncrementalCompilationIT : KGPBaseTest() {
                 kotlinSourcesDir("nativeMain").resolve("ActualFunFoo.kt"),
                 kotlinSourcesDir("jsMain").resolve("ActualFunFoo.kt")
             ).forEach {
-                it.replaceFirst("\"foo", "\"bar")
+                // just touch the file. expected logic is this:
+                // actual declaration needs to be recompiled -> we add expect declaration to the list of compiled files
+                it.addPrivateVal()
             }
 
             build("assemble", buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
@@ -62,11 +61,8 @@ open class ExpectActualIncrementalCompilationIT : KGPBaseTest() {
         nativeProject("expect-actual-fun-or-class-ic", gradleVersion) {
             build("assemble")
 
-            val unusedKtPath = kotlinSourcesDir("commonMain").resolve("Unused.kt")
-            unusedKtPath.replaceFirst(
-                "val secret = 1",
-                "val secret = \"k2\""
-            )
+            val commonSourceKt = kotlinSourcesDir("commonMain").resolve("UsedInFileWithExpectFun.kt")
+            commonSourceKt.replaceWithVersion("sourceCompatibleAbiChange")
 
             build("assemble", buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
                 assertTasksExecuted(":compileKotlinJvm", ":compileKotlinJs", ":compileKotlinNative")
@@ -75,7 +71,7 @@ open class ExpectActualIncrementalCompilationIT : KGPBaseTest() {
                         kotlinSourcesDir("jvmMain").resolve("ActualFunFoo.kt"),
                         kotlinSourcesDir("jsMain").resolve("ActualFunFoo.kt"),
                         kotlinSourcesDir("commonMain").resolve("ExpectFunFoo.kt"),
-                        unusedKtPath
+                        commonSourceKt
                     ).relativizeTo(projectPath)
                 )
             }
@@ -89,7 +85,7 @@ open class ExpectActualIncrementalCompilationIT : KGPBaseTest() {
         nativeProject("expect-actual-fun-or-class-ic", gradleVersion) {
             build("assemble")
 
-            kotlinSourcesDir("commonMain").resolve("ExpectClassBar.kt").appendText("val irrelevant = 2")
+            kotlinSourcesDir("commonMain").resolve("ExpectClassBar.kt").addPrivateVal()
 
             build("assemble", buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
                 assertTasksExecuted(":compileKotlinJvm", ":compileKotlinJs", ":compileKotlinNative")
