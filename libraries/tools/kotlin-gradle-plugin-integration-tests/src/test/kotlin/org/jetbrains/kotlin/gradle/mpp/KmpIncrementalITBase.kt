@@ -9,7 +9,6 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
-import org.jetbrains.kotlin.gradle.testbase.relativizeTo
 import org.jetbrains.kotlin.gradle.util.replaceWithVersion
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
@@ -54,20 +53,13 @@ abstract class KmpIncrementalITBase : KGPBaseTest() {
         return this@addPrivateVal
     }
 
-    protected open fun BuildResult.assertSuccessOrUTD(allTasks: Set<String>, executedTasks: Set<String>) {
-        assertTasksExecuted(executedTasks)
-        assertTasksUpToDate(allTasks - executedTasks)
-    }
-
     protected open fun TestProject.checkIncrementalBuild(
         tasksToExecute: Set<String>,
         assertions: BuildResult.() -> Unit = {}
     ) {
         build(gradleTask, buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
-            assertSuccessOrUTD(
-                allTasks = mainCompileTasks,
-                executedTasks = tasksToExecute
-            )
+            assertTasksExecuted(tasksToExecute)
+            assertTasksUpToDate(mainCompileTasks - tasksToExecute)
             assertions()
         }
     }
@@ -81,7 +73,8 @@ abstract class KmpIncrementalITBase : KGPBaseTest() {
         for (step in steps) {
             incrementalPath.replaceWithVersion(step)
             build(gradleTask, buildOptions = defaultBuildOptions.copy(logLevel = LogLevel.DEBUG)) {
-                assertSuccessOrUTD(allTasks = mainCompileTasks, executedTasks = tasksToExecuteOnEachStep)
+                assertTasksExecuted(tasksToExecuteOnEachStep)
+                assertTasksUpToDate(mainCompileTasks - tasksToExecuteOnEachStep)
                 afterEachStep()
             }
         }
