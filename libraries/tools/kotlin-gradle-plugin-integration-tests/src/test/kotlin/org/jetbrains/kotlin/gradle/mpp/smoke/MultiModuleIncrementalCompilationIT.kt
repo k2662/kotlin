@@ -11,6 +11,7 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.mpp.KmpIncrementalITBase
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.util.replaceWithVersion
+import org.jetbrains.kotlin.test.TestMetadata
 import org.junit.jupiter.api.DisplayName
 
 /**
@@ -25,6 +26,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
      */
     @DisplayName("Verify IC builds on change in lib/commonMain")
     @GradleTest
+    @TestMetadata("generic-kmp-app-plus-lib-with-tests")
     fun testTouchLibCommon(gradleVersion: GradleVersion) = withProject(gradleVersion) {
         build("assemble")
 
@@ -95,6 +97,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
      */
     @DisplayName("Verify IC builds on change in lib/platformMain")
     @GradleTest
+    @TestMetadata("generic-kmp-app-plus-lib-with-tests")
     fun testTouchLibPlatform(gradleVersion: GradleVersion) = withProject(gradleVersion) {
         build("assemble")
 
@@ -162,6 +165,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
      */
     @DisplayName("Verify IC builds on change in app/commonMain")
     @GradleTest
+    @TestMetadata("generic-kmp-app-plus-lib-with-tests")
     fun testTouchAppCommon(gradleVersion: GradleVersion) = withProject(gradleVersion) {
         build("assemble")
 
@@ -197,6 +201,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
      */
     @DisplayName("Verify IC builds on change in app/platformMain")
     @GradleTest
+    @TestMetadata("generic-kmp-app-plus-lib-with-tests")
     fun testTouchAppPlatform(gradleVersion: GradleVersion) = withProject(gradleVersion) {
         build("assemble")
 

@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.gradle.mpp.smoke
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.mpp.KmpIncrementalITBase
 import org.jetbrains.kotlin.gradle.testbase.*
+import org.jetbrains.kotlin.test.TestMetadata
 import org.junit.jupiter.api.DisplayName
 
 /**
@@ -19,6 +20,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
     @DisplayName("Base test case - local change, local recompilation")
     @GradleTest
+    @TestMetadata("generic-kmp-app-plus-lib-with-tests")
     fun testStrictlyLocalChange(gradleVersion: GradleVersion): Unit = withProject(gradleVersion) {
         build("assemble")
 

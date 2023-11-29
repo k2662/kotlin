@@ -9,6 +9,7 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.util.replaceFirst
+import org.jetbrains.kotlin.test.TestMetadata
 import org.junit.jupiter.api.DisplayName
 import kotlin.io.path.appendText
 
@@ -28,6 +29,7 @@ open class ExpectActualIncrementalCompilationIT : KGPBaseTest() {
 
     @DisplayName("File with actual declaration needs recompiling")
     @GradleTest
+    @TestMetadata("expect-actual-fun-or-class-ic")
     fun testRecompilationOfActualFun(gradleVersion: GradleVersion) {
         nativeProject("expect-actual-fun-or-class-ic", gradleVersion) {
             build("assemble")
@@ -55,6 +57,7 @@ open class ExpectActualIncrementalCompilationIT : KGPBaseTest() {
 
     @DisplayName("File with expect declaration needs recompiling indirectly")
     @GradleTest
+    @TestMetadata("expect-actual-fun-or-class-ic")
     fun testRecompilationOfExpectFun(gradleVersion: GradleVersion) {
         nativeProject("expect-actual-fun-or-class-ic", gradleVersion) {
             build("assemble")
@@ -81,6 +84,7 @@ open class ExpectActualIncrementalCompilationIT : KGPBaseTest() {
 
     @DisplayName("File with expect class declaration needs recompiling")
     @GradleTest
+    @TestMetadata("expect-actual-fun-or-class-ic")
     fun testRecompilationOfExpectClass(gradleVersion: GradleVersion) {
         nativeProject("expect-actual-fun-or-class-ic", gradleVersion) {
             build("assemble")
