@@ -38,19 +38,28 @@ private inline fun isInsideSpecificClass(
 }
 
 internal fun FirMemberDeclaration.isEffectivelyFinal(context: CheckerContext): Boolean =
-    this.isFinal || this.symbol.isEffectivelyFinalIn(context.containingDeclarations.lastOrNull()?.symbol as? FirRegularClassSymbol)
+    this.symbol.isEffectivelyFinal(context.session)
 
-internal fun FirCallableSymbol<*>.isEffectivelyFinal(session: FirSession): Boolean =
-    this.isFinal || this.isEffectivelyFinalIn(this.getContainingClassSymbol(session) as? FirClassSymbol<*>)
+internal fun FirBasedSymbol<*>.isEffectivelyFinal(session: FirSession): Boolean {
+    if (this.isFinal()) return true
 
-private fun FirBasedSymbol<*>.isEffectivelyFinalIn(containingClass: FirClassSymbol<*>?): Boolean {
-    if (containingClass == null) return true
+    val containingClass = this.getContainingClassSymbol(session) as? FirClassSymbol<*> ?: return true
 
     if (containingClass.isEnumClass) {
         // Enum class has enum entries and hence is not considered final
         return false
     }
     return containingClass.isFinal
+}
+
+private fun FirBasedSymbol<*>.isFinal(): Boolean {
+    when (this) {
+        is FirCallableSymbol<*> -> if (this.isFinal) return true
+        is FirClassLikeSymbol<*> -> if (this.isFinal) return true
+        else -> return true
+    }
+
+    return false
 }
 
 internal fun FirMemberDeclaration.isEffectivelyExpect(
