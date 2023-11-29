@@ -25,9 +25,11 @@ abstract class KmpIncrementalITBase : KGPBaseTest() {
     protected open val gradleTask = "assemble"
     protected open val projectName = "generic-kmp-app-plus-lib-with-tests"
     protected open val mainCompileTasks = setOf(
+        ":app:compileCommonMainKotlinMetadata",
         ":app:compileKotlinJvm",
         ":app:compileKotlinJs",
         ":app:compileKotlinNative",
+        ":lib:compileCommonMainKotlinMetadata",
         ":lib:compileKotlinJvm",
         ":lib:compileKotlinJs",
         ":lib:compileKotlinNative",

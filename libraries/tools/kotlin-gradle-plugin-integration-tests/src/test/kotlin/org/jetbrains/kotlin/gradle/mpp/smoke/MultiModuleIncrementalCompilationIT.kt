@@ -179,6 +179,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
                 // test changes in a different order for robustness
             ),
             tasksExpectedToExecuteOnEachStep = setOf(
+                ":app:compileCommonMainKotlinMetadata",
                 ":app:compileKotlinJvm",
                 ":app:compileKotlinJs",
                 ":app:compileKotlinNative"

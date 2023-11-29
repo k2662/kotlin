@@ -31,6 +31,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
         val sourceInAppCommon = resolvePath("app", "commonMain", "Unused.kt").addPrivateVal()
         checkIncrementalBuild(
             tasksExpectedToExecute = setOf(
+                ":app:compileCommonMainKotlinMetadata",
                 ":app:compileKotlinJvm",
                 ":app:compileKotlinJs",
                 ":app:compileKotlinNative"
@@ -88,7 +89,10 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInLibJvm = resolvePath("lib", "jvmMain", "UsedInAppJvmAndLibTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksExpectedToExecute = setOf(":app:compileKotlinJvm", ":lib:compileKotlinJvm"),
+            tasksExpectedToExecute = setOf(
+                ":app:compileKotlinJvm",
+                ":lib:compileKotlinJvm"
+            ),
         ) {
             assertCompiledKotlinSources(listOf(sourceInLibJvm).relativizeTo(projectPath), output)
         }
@@ -99,7 +103,10 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInLibJs = resolvePath("lib", "jsMain", "UsedInAppJsAndLibTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksExpectedToExecute = setOf(":app:compileKotlinJs", ":lib:compileKotlinJs"),
+            tasksExpectedToExecute = setOf(
+                ":app:compileKotlinJs",
+                ":lib:compileKotlinJs"
+            ),
         ) {
             assertIncrementalCompilation(listOf(sourceInLibJs).relativizeTo(projectPath))
         }
@@ -110,7 +117,10 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         resolvePath("lib", "nativeMain", "UsedInAppNativeAndLibTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksExpectedToExecute = setOf(":app:compileKotlinNative", ":lib:compileKotlinNative"),
+            tasksExpectedToExecute = setOf(
+                ":app:compileKotlinNative",
+                ":lib:compileKotlinNative"
+            ),
         )
     }
 }

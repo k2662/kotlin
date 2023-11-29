@@ -16,6 +16,9 @@ import org.junit.jupiter.api.DisplayName
 open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
     override val mainCompileTasks: Set<String>
         get() = setOf(
+            ":app:compileCommonMainKotlinMetadata",
+            ":lib:compileCommonMainKotlinMetadata",
+
             ":app:compileTestKotlinJvm",
             ":lib:compileTestKotlinJvm",
 
@@ -61,6 +64,7 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
         val changedInAppCommon = resolvePath("app", "commonMain", "Unused.kt").addPrivateVal()
         checkIncrementalBuild(
             tasksExpectedToExecute = setOf(
+                ":app:compileCommonMainKotlinMetadata",
                 ":app:compileTestKotlinJvm",
                 ":app:compileTestKotlinNative",
                 ":app:compileTestKotlinJs",
