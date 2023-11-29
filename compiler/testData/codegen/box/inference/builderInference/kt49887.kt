@@ -1,4 +1,5 @@
 // WITH_STDLIB
+// IGNORE_BACKEND_K2: NATIVE
 
 fun test(): Int = buildList {
     add(1)

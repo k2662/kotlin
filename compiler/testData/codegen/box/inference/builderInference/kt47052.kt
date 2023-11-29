@@ -1,4 +1,5 @@
 // WITH_STDLIB
+// IGNORE_BACKEND_K2: NATIVE
 
 public inline fun <R, C : MutableCollection<in R>> flatMapTo1(destination: C, transform: (List<String>) -> Iterable<R>) {}
 

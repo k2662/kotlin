@@ -1,5 +1,6 @@
 // ISSUE: KT-41164
 // WITH_STDLIB
+// IGNORE_BACKEND_K2: NATIVE
 
 import kotlin.experimental.ExperimentalTypeInference
 

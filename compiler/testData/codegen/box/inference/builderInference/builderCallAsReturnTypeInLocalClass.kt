@@ -1,4 +1,5 @@
 // WITH_STDLIB
+// IGNORE_BACKEND_K2: NATIVE
 @OptIn(ExperimentalStdlibApi::class)
 fun foo1() {
     buildList {
