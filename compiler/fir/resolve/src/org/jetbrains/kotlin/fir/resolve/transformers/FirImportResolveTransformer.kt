@@ -72,7 +72,7 @@ open class FirImportResolveTransformer protected constructor(
         get() = true
 
     private fun transformImportForFqName(fqName: FqName, delegate: FirImport): FirImport {
-        val (packageFqName, relativeClassFqName) = lightResolveToPackageOrClass(symbolProvider, fqName)
+        val (packageFqName, relativeClassFqName) = findLongestExistingPackage(symbolProvider, fqName)
 
         return buildResolvedImport {
             this.delegate = delegate
