@@ -68,13 +68,14 @@ class IrTextDumpHandler(
             Name.identifier("clone"), // JVM-specific fake override from kotlin.Enum (not java.lang.Enum !).
         )
 
-        private fun IrSimpleFunction.isHiddenEnumMethod(irBuiltIns: IrBuiltIns): Boolean =
-            if (!isFakeOverride)
+        private fun IrSimpleFunction.isHiddenEnumMethod(irBuiltIns: IrBuiltIns): Boolean {
+            return if (!isFakeOverride)
                 false
             else
                 allOverridden(includeSelf = true).any {
                     it.dispatchReceiverParameter?.type?.classOrNull == irBuiltIns.enumClass && it.name in HIDDEN_ENUM_METHOD_NAMES
                 }
+        }
 
         fun isHiddenDeclaration(declaration: IrDeclaration, irBuiltIns: IrBuiltIns): Boolean =
             (declaration as? IrSimpleFunction)?.isHiddenEnumMethod(irBuiltIns) == true
