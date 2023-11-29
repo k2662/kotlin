@@ -70,7 +70,7 @@ fun IrProperty.isJvmOptimizableDelegate(): Boolean =
     isDelegated && !isFakeOverride && backingField != null && // fast path
             (getPropertyReferenceForOptimizableDelegatedProperty() != null || getSingletonOrConstantForOptimizableDelegatedProperty() != null)
 
-val IrMemberAccessExpression<*>.constInitializer: IrExpression?
+internal val IrMemberAccessExpression<*>.constInitializer: IrExpression?
     get() {
         if (this !is IrPropertyReference) return null
         val constPropertyField = if (field == null) {
