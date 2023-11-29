@@ -162,7 +162,7 @@ abstract class AbstractBuilderPrinter<BuilderField, ElementField, Element, Imple
     }
 
     private fun builderFunctionName(builder: LeafBuilder<BuilderField, Element, Implementation>) =
-        "build" + (builder.implementation.name ?: builder.implementation.element.name)
+        "build" + builder.implementation.run { name?.removePrefix(namePrefix) ?: element.name }
 
     context(ImportCollector)
     private fun SmartPrinter.printDslBuildFunction(

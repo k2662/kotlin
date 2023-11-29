@@ -27,7 +27,7 @@ abstract class AbstractImplementation<Implementation, Element, Field>(
         get() = element.namePrefix
 
     override val typeName: String
-        get() = namePrefix + (name ?: (element.name + "Impl"))
+        get() = name ?: (element.typeName + "Impl")
 
     context(ImportCollector)
     override fun renderTo(appendable: Appendable) {
