@@ -216,8 +216,8 @@ abstract class KotlinLibrarySearchPathResolver<L : KotlinLibrary>(
 
     private fun Sequence<File>.filterOutPre_1_4_libraries(): Sequence<File> = this.filter {
         if (it.isPre_1_4_Library) {
-            logger.warning("KLIB resolver: Skipping '$it'. This is a pre 1.4 library.")
-            false
+            logger.fatal("KLIB resolver: Skipping '$it'. This is a pre 1.4 library.")
+//            false
         } else {
             true
         }
@@ -327,22 +327,22 @@ abstract class KotlinLibraryProperResolverWithAttributes<L : KotlinLibrary>(
         // Please, don't add checks for other versions here. For example, check for the metadata version should be
         // implemented in KlibDeserializedContainerSource.incompatibility
         if (candidateAbiVersion?.isCompatible() != true) {
-            logger.warning("KLIB resolver: Skipping '$candidatePath'. Incompatible ABI version. The current default is '${KotlinAbiVersion.CURRENT}', found '${candidateAbiVersion}'. The library was produced by '$candidateCompilerVersion' compiler.")
-            return false
+            logger.fatal("KLIB resolver: Skipping '$candidatePath'. Incompatible ABI version. The current default is '${KotlinAbiVersion.CURRENT}', found '${candidateAbiVersion}'. The library was produced by '$candidateCompilerVersion' compiler.")
+            //return false
         }
 
         if (candidateLibraryVersion != unresolved.libraryVersion &&
             candidateLibraryVersion != null &&
             unresolved.libraryVersion != null
         ) {
-            logger.warning("KLIB resolver: Skipping '$candidatePath'. Library versions don't match. Expected '${unresolved.libraryVersion}', found '${candidateLibraryVersion}'.")
-            return false
+            logger.fatal("KLIB resolver: Skipping '$candidatePath'. Library versions don't match. Expected '${unresolved.libraryVersion}', found '${candidateLibraryVersion}'.")
+            //return false
         }
 
         candidate.irProviderName?.let {
             if (it !in knownIrProviders) {
-                logger.warning("KLIB resolver: Skipping '$candidatePath'. The library requires unknown IR provider: $it")
-                return false
+                logger.fatal("KLIB resolver: Skipping '$candidatePath'. The library requires unknown IR provider: $it")
+                //return false
             }
         }
 

@@ -84,7 +84,7 @@ class KotlinLibraryResolverImpl<L : KotlinLibrary> internal constructor(
         val librariesWithDuplicatedUniqueNames: Map<String, List<KotlinLibrary>> = groupBy { it.uniqueName }.filterValues { it.size > 1 }
         if (librariesWithDuplicatedUniqueNames.isNotEmpty()) {
             librariesWithDuplicatedUniqueNames.entries.sortedBy { it.key }.forEach { (uniqueName, libraries) ->
-                logger.warning(
+                logger.fatal(
                     "The same 'unique_name=$uniqueName' found in more than one library: " +
                             libraries.map { it.libraryFile.absolutePath }.sorted().joinToString()
                 )
