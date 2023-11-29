@@ -1,4 +1,5 @@
 // FIR_IDENTICAL
+// ISSUE: KT-62609
 // FILE: I.java
 public interface I<T> {}
 

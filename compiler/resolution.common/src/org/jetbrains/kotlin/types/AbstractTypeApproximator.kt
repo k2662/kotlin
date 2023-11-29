@@ -178,6 +178,12 @@ abstract class AbstractTypeApproximator(
         val upperBoundConstructor = upperBound.typeConstructor()
         if (lowerBound.typeConstructor() != upperBoundConstructor) return true
 
+        // Flexible arrays have the shape `Array<X>..Array<out X>?`.
+        // When such a type is captured, it results in `Array<X>..Array<Captured(out X)>?`, therefore it's necessary to approximate the
+        // upper bound separately.
+        // As an important performance optimization, we explicitly check if the type in question is an array with a captured type argument
+        // that needs to be approximated.
+        // This saves us from doing twice the work unnecessarily in many cases.
         return isK2 &&
                 upperBoundConstructor.isArrayConstructor() &&
                 upperBound.getArgumentOrNull(0).let { it is CapturedTypeMarker && conf.capturedType(ctx, it) }
