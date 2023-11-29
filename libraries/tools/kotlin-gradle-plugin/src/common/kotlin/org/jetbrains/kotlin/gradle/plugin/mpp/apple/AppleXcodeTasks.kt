@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
 import javax.inject.Inject
 
 internal object AppleXcodeTasks {
@@ -76,9 +77,9 @@ private object XcodeEnvironment {
             return File(xcodeTargetBuildDir, xcodeFrameworksFolderPath).absoluteFile
         }
 
-    val derivedFileDir: File?
+    val buildProductsDir: File?
         get() {
-            val derivedFileDir = System.getenv("DERIVED_FILE_DIR") ?: return null
+            val derivedFileDir = System.getenv("BUILT_PRODUCTS_DIR") ?: return null
             return File(derivedFileDir).absoluteFile
         }
 
@@ -92,7 +93,9 @@ private object XcodeEnvironment {
           targets=$targets
           frameworkSearchDir=$frameworkSearchDir
           embeddedFrameworksDir=$embeddedFrameworksDir
+          buildProductsDir=$buildProductsDir
           sign=$sign
+          userScriptSandboxingEnabled = $userScriptSandboxingEnabled
     """.trimIndent()
 }
 
@@ -171,7 +174,7 @@ private fun fireEnvException(frameworkTaskName: String) {
 
 private fun fireSandboxException(frameworkTaskName: String) {
     val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
-    val message = if (userScriptSandboxingEnabled) "You " else "DERIVED_FILE_DIR is not accessible, probably you "
+    val message = if (userScriptSandboxingEnabled) "You " else "BUILT_PRODUCTS_DIR is not accessible, probably you "
     throw IllegalStateException(
         message +
                 "have sandboxing for user scripts enabled." +
@@ -183,13 +186,14 @@ private fun fireSandboxException(frameworkTaskName: String) {
     )
 }
 
-private fun derivedFileDirAccessible(): Boolean {
+private fun buildProductsDirAccessible(): Boolean {
     val userScriptSandboxingEnabled = XcodeEnvironment.userScriptSandboxingEnabled
-    val derivedFileDir = XcodeEnvironment.derivedFileDir
+    val buildProductsDir = XcodeEnvironment.buildProductsDir
 
-    return if (derivedFileDir != null && userScriptSandboxingEnabled.not()) {
+    return if (buildProductsDir != null && userScriptSandboxingEnabled.not()) {
         try {
-            val tempFile = File.createTempFile("sandbox", null, derivedFileDir)
+            Files.createDirectories(buildProductsDir.toPath())
+            val tempFile = File.createTempFile("sandbox", ".tmp", buildProductsDir)
             if (tempFile.exists()) {
                 tempFile.delete()
             }
@@ -229,9 +233,9 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
 
     val checkSandboxAndWriteProtectionTask = locateOrRegisterTask<DefaultTask>(AppleXcodeTasks.checkSandboxAndWriteProtection) { task ->
         task.group = BasePlugin.BUILD_GROUP
-        task.description = "Check DERIVED_FILE_DIR accessible and ENABLE_USER_SCRIPT_SANDBOXING not enabled"
+        task.description = "Check BUILT_PRODUCTS_DIR accessible and ENABLE_USER_SCRIPT_SANDBOXING not enabled"
         task.doFirst {
-            val dirAccessible = derivedFileDirAccessible()
+            val dirAccessible = buildProductsDirAccessible()
             if (dirAccessible.not() || userScriptSandboxingEnabled) {
                 fireSandboxException(frameworkTaskName)
             }

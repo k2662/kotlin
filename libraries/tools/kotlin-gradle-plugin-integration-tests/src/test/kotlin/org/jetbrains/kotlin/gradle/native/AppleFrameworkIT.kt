@@ -41,7 +41,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "ARCHS" to "arm64",
                 "TARGET_BUILD_DIR" to "no use",
                 "FRAMEWORKS_FOLDER_PATH" to "no use",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
             )
 
             build(
@@ -82,7 +82,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "ARCHS" to "arm64 x86_64",
                 "TARGET_BUILD_DIR" to "no use",
                 "FRAMEWORKS_FOLDER_PATH" to "no use",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
             )
             build("assembleReleaseAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertTasksExecuted(":shared:linkReleaseFrameworkIosSimulatorArm64")
@@ -113,7 +113,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to testBuildDir.toString(),
                 "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
             )
             build(":shared:embedAndSignAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertTasksExecuted(":shared:assembleDebugAppleFrameworkForXcodeMacosX64")
@@ -140,7 +140,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "ARCHS" to "arm64",
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
                 "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
             )
             build(":shared:embedAndSignAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertDirectoryInProjectExists("build/xcode-derived/sdk.framework")
@@ -166,7 +166,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
                 "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
             )
             build(":shared:embedAndSignAppleFrameworkForXcode", environmentVariables = EnvironmentalVariables(environmentVariables)) {
                 assertDirectoryInProjectExists("build/xcode-derived/sdk.framework")
@@ -205,7 +205,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to testBuildDir.toString(),
                 "FRAMEWORKS_FOLDER_PATH" to "testFrameworksDir",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
             )
             buildAndAssertAllTasks(
                 registeredTasks = listOf(
@@ -243,7 +243,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
                 "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
                 "ENABLE_USER_SCRIPT_SANDBOXING" to "YES",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
             )
             buildAndFail(
                 ":shared:embedAndSignAppleFrameworkForXcode",
@@ -255,7 +255,7 @@ class AppleFrameworkIT : KGPBaseTest() {
         }
     }
 
-    @DisplayName("embedAndSignAppleFrameworkForXcode was registered with missing DERIVED_FILE_DIR directory")
+    @DisplayName("embedAndSignAppleFrameworkForXcode was registered with missing BUILT_PRODUCTS_DIR directory")
     @OptIn(EnvironmentalVariablesOverride::class)
     @GradleTest
     fun shouldFailEmbedAndSignAppleFrameworkForXcodeWithMissingSRCROOT(
@@ -272,14 +272,14 @@ class AppleFrameworkIT : KGPBaseTest() {
                 "EXPANDED_CODE_SIGN_IDENTITY" to "-",
                 "TARGET_BUILD_DIR" to projectPath.absolutePathString(),
                 "FRAMEWORKS_FOLDER_PATH" to "build/xcode-derived",
-                "DERIVED_FILE_DIR" to iosDerivedDataDir(true).absolutePathString(),
+                "BUILT_PRODUCTS_DIR" to iosBuildProductsDir(true).absolutePathString(),
             )
             buildAndFail(
                 ":shared:embedAndSignAppleFrameworkForXcode",
                 environmentVariables = EnvironmentalVariables(environmentVariables)
             ) {
                 assertTasksFailed(":shared:checkSandboxAndWriteProtection")
-                assertOutputContains("DERIVED_FILE_DIR is not accessible, probably you have sandboxing for user scripts enabled.")
+                assertOutputContains("BUILT_PRODUCTS_DIR is not accessible, probably you have sandboxing for user scripts enabled.")
             }
         }
     }
@@ -299,7 +299,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "CONFIGURATION" to "Debug",
                     "SDK_NAME" to "iphoneos",
                     "ARCHS" to "arm64",
-                    "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                    "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
                 )
             )
             buildAndAssertAllTasks(
@@ -348,7 +348,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
                     "FRAMEWORKS_FOLDER_PATH" to "no use",
-                    "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                    "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
                 )
             )
 
@@ -385,7 +385,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
                     "FRAMEWORKS_FOLDER_PATH" to "no use",
-                    "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                    "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
                 )
             )
 
@@ -422,7 +422,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
                     "FRAMEWORKS_FOLDER_PATH" to "no use",
-                    "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                    "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
                 )
             )
 
@@ -453,7 +453,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
                     "FRAMEWORKS_FOLDER_PATH" to "no use",
-                    "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                    "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
                 )
             )
 
@@ -484,7 +484,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
                     "FRAMEWORKS_FOLDER_PATH" to "no use",
-                    "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                    "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
                 )
             )
 
@@ -519,7 +519,7 @@ class AppleFrameworkIT : KGPBaseTest() {
                     "ARCHS" to "arm64",
                     "TARGET_BUILD_DIR" to "no use",
                     "FRAMEWORKS_FOLDER_PATH" to "no use",
-                    "DERIVED_FILE_DIR" to iosDerivedDataDir().absolutePathString(),
+                    "BUILT_PRODUCTS_DIR" to iosBuildProductsDir().absolutePathString(),
                 )
             )
 
@@ -586,14 +586,14 @@ class AppleFrameworkIT : KGPBaseTest() {
     }
 }
 
-private val GradleProject.darwinDerivedFilesDir: Path
+private val GradleProject.darwinBuildProductsDir: Path
     get() = projectPath.resolve("DerivedSources").apply {
         if (notExists()) {
             createDirectory()
         }
     }
 
-private fun GradleProject.iosDerivedDataDir(writeProtected: Boolean = false): Path = darwinDerivedFilesDir.apply {
+private fun GradleProject.iosBuildProductsDir(writeProtected: Boolean = false): Path = darwinBuildProductsDir.apply {
     if (writeProtected) {
         setPosixFilePermissions(setOf(PosixFilePermission.OWNER_READ))
     }
