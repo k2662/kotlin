@@ -36,11 +36,12 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
             > env KONAN_LLDB_DONT_SKIP_BRIDGING_FUNCTIONS=1
             > run
             > thread step-in
-            > frame select
+            [..] stop reason = step in
             [..]`objc2kotlin_kfun:#bar(){} at <compiler-generated>:1
             > c
             """.trimIndent(),
             CLANG_FILE_NAME,
+            KOTLIN_FILE_NAME,
             "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepInFromObjCToKotlin___WithDisabledStopHook___StopsAtABridgingRoutine.name}"
         )
     }
@@ -52,7 +53,7 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
             > b ${CLANG_FILE_NAME}:3
             > run
             > thread step-in
-            > frame select
+            [..] stop reason = Python thread plan implemented by class konan_lldb.KonanStepIn.
             [..]`kfun:#bar(){} at lib.kt:1:1
             -> 1   	fun bar() {
                     ^
@@ -61,13 +62,95 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
             > c
             """.trimIndent(),
             CLANG_FILE_NAME,
+            KOTLIN_FILE_NAME,
             "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepInFromObjCToKotlin___WithStopHook___StepsThroughToKotlinCode.name}"
+        )
+    }
+
+    @Test
+    fun stepOutFromKotlinToObjC___WithDisabledStopHook___StopsAtABridgingRoutine() {
+        testSteppingFromObjcToKotlin(
+            """
+            > b ${KOTLIN_FILE_NAME}:2
+            > env KONAN_LLDB_DONT_SKIP_BRIDGING_FUNCTIONS=1
+            > run
+            > thread step-out
+            [..] stop reason = step out
+            [..]`objc2kotlin_kfun:#bar(){} at <compiler-generated>:1
+            > c
+            """.trimIndent(),
+            CLANG_FILE_NAME,
+            KOTLIN_FILE_NAME,
+            "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepOutFromKotlinToObjC___WithDisabledStopHook___StopsAtABridgingRoutine.name}"
+        )
+    }
+
+    @Test
+    fun stepOutFromKotlinToObjC___WithStopHook___StepsOutToObjCCode() {
+        testSteppingFromObjcToKotlin(
+            """
+            > b ${KOTLIN_FILE_NAME}:2
+            > run
+            > thread step-out
+            [..] stop reason = Python thread plan implemented by class konan_lldb.KonanStepOut.
+            [..]`main at main.m:3:5
+               1   	@import Kotlin;
+               2   	int main() {
+            -> 3   	    [KotlinLibKt bar];
+                        ^
+               4   	}
+            > c
+            """.trimIndent(),
+            CLANG_FILE_NAME,
+            KOTLIN_FILE_NAME,
+            "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepOutFromKotlinToObjC___WithStopHook___StepsOutToObjCCode.name}"
+        )
+    }
+
+    @Test
+    fun stepOverFromKotlinToObjC___WithDisabledStopHook___StopsAtABridgingRoutine() {
+        testSteppingFromObjcToKotlin(
+            """
+            > b ${KOTLIN_FILE_NAME}:3
+            > env KONAN_LLDB_DONT_SKIP_BRIDGING_FUNCTIONS=1
+            > run
+            > thread step-over
+            [..] stop reason = step over
+            [..]`objc2kotlin_kfun:#bar(){} at <compiler-generated>:1
+            > c
+            """.trimIndent(),
+            CLANG_FILE_NAME,
+            KOTLIN_FILE_NAME,
+            "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepOverFromKotlinToObjC___WithDisabledStopHook___StopsAtABridgingRoutine.name}"
+        )
+    }
+
+    @Test
+    fun stepOverFromKotlinToObjC___WithStopHook___StepsOverToObjCCode() {
+        testSteppingFromObjcToKotlin(
+            """
+            > b ${KOTLIN_FILE_NAME}:3
+            > run
+            > thread step-over
+            [..] stop reason = Python thread plan implemented by class konan_lldb.KonanStepOver.
+            [..]`main at main.m:3:5
+               1   	@import Kotlin;
+               2   	int main() {
+            -> 3   	    [KotlinLibKt bar];
+                        ^
+               4   	}
+            > c
+            """.trimIndent(),
+            CLANG_FILE_NAME,
+            KOTLIN_FILE_NAME,
+            "${ObjCToKotlinSteppingInLLDBTest::class.qualifiedName}.${::stepOverFromKotlinToObjC___WithStopHook___StepsOverToObjCCode.name}"
         )
     }
 
     private fun testSteppingFromObjcToKotlin(
         lldbSpec: String,
         clangFileName: String,
+        kotlinFileName: String,
         testName: String,
     ) {
         if (!targets.testTarget.family.isAppleFamily) { Assumptions.abort<Nothing>("This test is supported only on Apple targets") }
@@ -80,7 +163,6 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
             }
         """.trimIndent()
 
-        val kotlinFileName = "lib.kt"
         val kotlinLibrarySources = """
             fun bar() {
                 print("")
@@ -137,17 +219,22 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
         val clangExecutableName = "clangMain"
         val executableFile = File(buildDir, clangExecutableName)
 
-        assert(
-            ProcessBuilder(
-                "${testRunSettings.configurables.absoluteTargetToolchain}/bin/clang",
-                clangFile.absolutePath,
-                "-isysroot", testRunSettings.configurables.absoluteTargetSysRoot,
-                "-target", testRunSettings.configurables.targetTriple.toString(),
-                "-g", "-fmodules",
-                "-F", buildDir.absolutePath,
-                "-o", executableFile.absolutePath
-            ).inheritIO().start().waitFor() == 0
-        )
+        // FIXME: absoluteTargetToolchain might not work correctly with KONAN_USE_INTERNAL_SERVER because
+        // :kotlin-native:dependencies:update is not a dependency of :native:native.tests:test where this test runs
+        val process = ProcessBuilder(
+            "${testRunSettings.configurables.absoluteTargetToolchain}/bin/clang",
+            clangFile.absolutePath,
+            "-isysroot", testRunSettings.configurables.absoluteTargetSysRoot,
+            "-target", testRunSettings.configurables.targetTriple.toString(),
+            "-g", "-fmodules",
+            "-F", buildDir.absolutePath,
+            "-o", executableFile.absolutePath
+        ).redirectErrorStream(true).start()
+        val clangOutput = process.inputStream.readBytes()
+
+        check(
+            process.waitFor() == 0
+        ) { clangOutput.decodeToString() }
 
         // 4. Generate the test case
         val testExecutable = TestExecutable(
@@ -183,6 +270,7 @@ class ObjCToKotlinSteppingInLLDBTest : AbstractNativeSimpleTest() {
 
     companion object {
         val CLANG_FILE_NAME = "main.m"
+        val KOTLIN_FILE_NAME = "lib.kt"
     }
 
 }
