@@ -11,13 +11,11 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.gradle.util.replaceWithVersion
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.io.path.appendText
 
 /**
- * KmpIncrementalITBase is used as a "limited scope" for experimental test utils.
- * If some of them can be reused widely, consider moving them to KGPBaseTest
- * or the appropriate util package. //TODO: KT-63876
+ * Convenience class for KMP incremental compilation tests.
+ *
+ * Consider moving all general-purpose logic to `org.jetbrains.kotlin.gradle.testbase` package.
  */
 abstract class KmpIncrementalITBase : KGPBaseTest() {
 
@@ -48,11 +46,6 @@ abstract class KmpIncrementalITBase : KGPBaseTest() {
         return subProject(subproject).kotlinSourcesDir(srcDir).resolve(name)
     }
 
-    protected fun Path.addPrivateVal(): Path {
-        this@addPrivateVal.appendText("private val nothingMuch${changeCounter.incrementAndGet()} = 24")
-        return this@addPrivateVal
-    }
-
     protected open fun TestProject.checkIncrementalBuild(
         tasksToExecute: Set<String>,
         assertions: BuildResult.() -> Unit = {}
@@ -78,9 +71,5 @@ abstract class KmpIncrementalITBase : KGPBaseTest() {
                 afterEachStep()
             }
         }
-    }
-
-    companion object {
-        private val changeCounter = AtomicInteger(0)
     }
 }
