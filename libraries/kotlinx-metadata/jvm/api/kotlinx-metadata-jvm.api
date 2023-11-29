@@ -1123,6 +1123,7 @@ public final class kotlinx/metadata/KmVersionRequirementVersionKind : java/lang/
 	public static final field API_VERSION Lkotlinx/metadata/KmVersionRequirementVersionKind;
 	public static final field COMPILER_VERSION Lkotlinx/metadata/KmVersionRequirementVersionKind;
 	public static final field LANGUAGE_VERSION Lkotlinx/metadata/KmVersionRequirementVersionKind;
+	public static final field UNKNOWN Lkotlinx/metadata/KmVersionRequirementVersionKind;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lkotlinx/metadata/KmVersionRequirementVersionKind;
 	public static fun values ()[Lkotlinx/metadata/KmVersionRequirementVersionKind;
