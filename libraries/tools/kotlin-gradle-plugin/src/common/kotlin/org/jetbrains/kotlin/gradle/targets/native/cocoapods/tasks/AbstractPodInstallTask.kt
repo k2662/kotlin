@@ -45,7 +45,7 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
 
     @TaskAction
     open fun doPodInstall() {
-        podInstall(false)
+        runPodInstall(false)
 
         with(podsXcodeProjDirProvider.get()) {
             check(exists() && isDirectory) {
@@ -54,7 +54,7 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
         }
     }
 
-    private fun podInstall(updateRepo: Boolean): String {
+    private fun runPodInstall(updateRepo: Boolean): String {
         // env is used here to work around the JVM PATH caching when spawning a child process with custom environment, i.e. LC_ALL
         // The caching causes the ProcessBuilder to ignore changes in the PATH that may occur on incremental runs of the Gradle daemon
         // KT-60394
@@ -64,7 +64,7 @@ abstract class AbstractPodInstallTask : CocoapodsTask() {
                           logger,
                           fallback = { _, output ->
                               if (output.contains("out-of-date source repos which you can update with `pod repo update` or with `pod install --repo-update`") && updateRepo.not()) {
-                                  podInstall(true)
+                                  runPodInstall(true)
                               } else {
                                   null
                               }

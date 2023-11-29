@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.gradle.utils
 
 import org.gradle.api.logging.Logger
-import java.io.IOException
 import kotlin.concurrent.thread
 
 internal fun runCommand(
