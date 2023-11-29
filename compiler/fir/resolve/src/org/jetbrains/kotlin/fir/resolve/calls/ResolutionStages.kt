@@ -471,12 +471,17 @@ internal object CheckArguments : CheckerStage() {
         candidate.symbol.lazyResolveToPhase(FirResolvePhase.STATUS)
         val argumentMapping =
             candidate.argumentMapping ?: error("Argument should be already mapped while checking arguments!")
-        for (argument in callInfo.arguments) {
+
+        val isInvokeFromExtensionFunctionType = candidate.explicitReceiverKind == DISPATCH_RECEIVER
+                && candidate.dispatchReceiver?.resolvedType?.isExtensionFunctionType == true
+                && (candidate.symbol as? FirNamedFunctionSymbol)?.name == OperatorNameConventions.INVOKE
+
+        for ((index, argument) in callInfo.arguments.withIndex()) {
             candidate.resolveArgument(
                 callInfo,
                 argument,
                 argumentMapping[argument],
-                isReceiver = false,
+                isReceiver = index == 0 && isInvokeFromExtensionFunctionType,
                 sink = sink,
                 context = context
             )
@@ -777,6 +782,15 @@ internal object ConstraintSystemForks : ResolutionStage() {
 
         candidate.system.checkIfForksMightBeSuccessfullyResolved()?.let { csError ->
             sink.yieldDiagnostic(InferenceError(csError))
+        }
+    }
+}
+
+internal object TypeParameterAsCallable : ResolutionStage() {
+    override suspend fun check(candidate: Candidate, callInfo: CallInfo, sink: CheckerSink, context: ResolutionContext) {
+        val symbol = candidate.symbol
+        if (symbol is FirTypeParameterSymbol && !(callInfo.isUsedAsGetClassReceiver && symbol.isReified)) {
+            sink.yieldDiagnostic(TypeParameterAsExpression)
         }
     }
 }

@@ -6,20 +6,13 @@
 package org.jetbrains.kotlin.fir.tree.generator.model
 
 import org.jetbrains.kotlin.generators.tree.*
-import org.jetbrains.kotlin.generators.tree.ElementOrRef as GenericElementOrRef
 
-sealed class Field : AbstractField() {
+sealed class Field : AbstractField<Field>() {
     open var withReplace: Boolean = false
-    abstract val isFirType: Boolean
 
     open var needsSeparateTransform: Boolean = false
     var parentHasSeparateTransform: Boolean = true
     open var needTransformInOtherChildren: Boolean = false
-
-    /**
-     * @see org.jetbrains.kotlin.fir.tree.generator.util.detectBaseTransformerTypes
-     */
-    var useInBaseTransformerDetection = true
 
     open var customInitializationCall: String? = null
 
@@ -29,7 +22,6 @@ sealed class Field : AbstractField() {
     open var isMutableInInterface: Boolean = false
     open val fromDelegate: Boolean get() = false
 
-    open val overridenTypes: MutableSet<TypeRefWithNullability> = mutableSetOf()
     open var useNullableForReplace: Boolean = false
     open var notNull: Boolean = false
 
@@ -45,29 +37,34 @@ sealed class Field : AbstractField() {
 
     abstract override var isMutable: Boolean
 
-    fun copy(): Field = internalCopy().also {
+    override fun replaceType(newType: TypeRefWithNullability): Field = copy()
+
+    override fun copy(): Field = internalCopy().also {
         updateFieldsInCopy(it)
     }
 
-    protected fun updateFieldsInCopy(copy: Field) {
+    override fun updateFieldsInCopy(copy: Field) {
+        super.updateFieldsInCopy(copy)
         if (copy !is FieldWithDefault) {
             copy.needsSeparateTransform = needsSeparateTransform
             copy.needTransformInOtherChildren = needTransformInOtherChildren
-            copy.useInBaseTransformerDetection = useInBaseTransformerDetection
-            copy.isMutable = isMutable
-            copy.overridenTypes += overridenTypes
-            copy.arbitraryImportables += arbitraryImportables
             copy.useNullableForReplace = useNullableForReplace
             copy.customInitializationCall = customInitializationCall
-            copy.optInAnnotation = optInAnnotation
         }
-        copy.fromParent = fromParent
         copy.parentHasSeparateTransform = parentHasSeparateTransform
-        copy.kDoc = kDoc
     }
 
     protected abstract fun internalCopy(): Field
 
+    override fun updatePropertiesFromOverriddenField(parentField: Field, haveSameClass: Boolean) {
+        needsSeparateTransform = needsSeparateTransform || parentField.needsSeparateTransform
+        needTransformInOtherChildren = needTransformInOtherChildren || parentField.needTransformInOtherChildren
+        withReplace = withReplace || parentField.withReplace
+        parentHasSeparateTransform = parentField.needsSeparateTransform
+        if (parentField.nullable != nullable && haveSameClass) {
+            useNullableForReplace = true
+        }
+    }
 }
 
 // ----------- Field with default -----------
@@ -79,7 +76,8 @@ class FieldWithDefault(val origin: Field) : Field() {
     override var withReplace: Boolean
         get() = origin.withReplace
         set(_) {}
-    override val isFirType: Boolean get() = origin.isFirType
+    override val containsElement: Boolean
+        get() = origin.containsElement
     override var needsSeparateTransform: Boolean
         get() = origin.needsSeparateTransform
         set(_) {}
@@ -118,9 +116,8 @@ class FieldWithDefault(val origin: Field) : Field() {
     override var withGetter: Boolean = false
     override var customSetter: String? = null
     override var fromDelegate: Boolean = false
-    var needAcceptAndTransform: Boolean = true
-    override val overridenTypes: MutableSet<TypeRefWithNullability>
-        get() = origin.overridenTypes
+    override val overriddenTypes: MutableSet<TypeRefWithNullability>
+        get() = origin.overriddenTypes
 
     override val arbitraryImportables: MutableList<Importable>
         get() = origin.arbitraryImportables
@@ -149,7 +146,6 @@ class SimpleField(
     override var isLateinit: Boolean = false,
     override var isParameter: Boolean = false,
 ) : Field() {
-    override val isFirType: Boolean = false
     override var isMutable: Boolean = withReplace
 
     override fun internalCopy(): Field {
@@ -166,7 +162,7 @@ class SimpleField(
         }
     }
 
-    fun replaceType(newType: TypeRefWithNullability) = SimpleField(
+    override fun replaceType(newType: TypeRefWithNullability) = SimpleField(
         name = name,
         typeRef = newType,
         withReplace = withReplace,
@@ -186,11 +182,10 @@ class FirField(
     override var withReplace: Boolean,
 ) : Field() {
 
-    override val typeRef: TypeRefWithNullability
+    override val typeRef: ElementRef
         get() = element
     override var isVolatile: Boolean = false
     override var isFinal: Boolean = false
-    override val isFirType: Boolean = true
 
     override var isMutable: Boolean = true
     override var isLateinit: Boolean = false
@@ -211,13 +206,17 @@ class FirField(
 
 class FieldList(
     override val name: String,
-    val baseType: TypeRef,
+    override val baseType: TypeRef,
     override var withReplace: Boolean,
     useMutableOrEmpty: Boolean = false
-) : Field() {
+) : Field(), ListField {
     override var defaultValueInImplementation: String? = null
+
     override val typeRef: ClassRef<PositionTypeParameterRef>
-        get() = StandardTypes.list.withArgs(baseType)
+        get() = super.typeRef
+
+    override val listType: ClassRef<PositionTypeParameterRef>
+        get() = StandardTypes.list
 
     override var isVolatile: Boolean = false
     override var isFinal: Boolean = false
@@ -234,6 +233,4 @@ class FieldList(
             isMutableOrEmptyList
         )
     }
-
-    override val isFirType: Boolean = baseType is GenericElementOrRef<*, *> && baseType.element is Element
 }

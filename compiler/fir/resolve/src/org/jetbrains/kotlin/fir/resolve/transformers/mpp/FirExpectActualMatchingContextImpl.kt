@@ -11,8 +11,12 @@ import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.utils.isActual
+import org.jetbrains.kotlin.fir.declarations.utils.isExpect
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.resolve.*
+import org.jetbrains.kotlin.fir.resolve.providers.getRegularClassSymbolByClassId
+import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
+import org.jetbrains.kotlin.fir.resolve.providers.toSymbol
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
 import org.jetbrains.kotlin.fir.scopes.*
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
@@ -30,20 +34,18 @@ import org.jetbrains.kotlin.resolve.calls.mpp.ExpectActualMatchingContext.Annota
 import org.jetbrains.kotlin.resolve.checkers.OptInNames
 import org.jetbrains.kotlin.resolve.multiplatform.ExpectActualMatchingCompatibility
 import org.jetbrains.kotlin.types.AbstractTypeChecker
+import org.jetbrains.kotlin.types.AbstractTypeRefiner
 import org.jetbrains.kotlin.types.TypeCheckerState
 import org.jetbrains.kotlin.types.Variance
-import org.jetbrains.kotlin.types.model.KotlinTypeMarker
-import org.jetbrains.kotlin.types.model.SimpleTypeMarker
-import org.jetbrains.kotlin.types.model.TypeSubstitutorMarker
-import org.jetbrains.kotlin.types.model.TypeSystemContext
+import org.jetbrains.kotlin.types.model.*
 import org.jetbrains.kotlin.utils.zipIfSizesAreEqual
 
 class FirExpectActualMatchingContextImpl private constructor(
     private val actualSession: FirSession,
-    private val scopeSession: ScopeSession,
+    private val actualScopeSession: ScopeSession,
     private val allowedWritingMemberExpectForActualMapping: Boolean,
 ) : FirExpectActualMatchingContext, TypeSystemContext by actualSession.typeContext {
-    override val shouldCheckAbsenceOfDefaultParamsInActual: Boolean
+    override val shouldCheckDefaultParams: Boolean
         get() = true
 
     override val allowClassActualizationWithWiderVisibility: Boolean
@@ -51,6 +53,11 @@ class FirExpectActualMatchingContextImpl private constructor(
 
     override val allowTransitiveSupertypesActualization: Boolean
         get() = true
+
+    override val expectScopeSession: ScopeSession
+        // todo KT-63773 design a way for managing scope sessions for common scopes during matching.
+        //  Right now we create a new session every time
+        get() = ScopeSession()
 
     private fun DeclarationSymbolMarker.asSymbol(): FirBasedSymbol<*> = this as FirBasedSymbol<*>
     private fun CallableSymbolMarker.asSymbol(): FirCallableSymbol<*> = this as FirCallableSymbol<*>
@@ -170,7 +177,7 @@ class FirExpectActualMatchingContextImpl private constructor(
 
         val scope = symbol.defaultType().scope(
             useSiteSession = session,
-            scopeSession,
+            if (isActualDeclaration) actualScopeSession else expectScopeSession,
             CallableCopyTypeCalculator.DoNothing,
             requiredMembersPhase = FirResolvePhase.STATUS,
         ) ?: return emptyList()
@@ -196,7 +203,7 @@ class FirExpectActualMatchingContextImpl private constructor(
         val symbol = asSymbol()
         val scope = symbol.defaultType().scope(
             useSiteSession = symbol.moduleData.session,
-            scopeSession,
+            expectScopeSession,
             CallableCopyTypeCalculator.DoNothing,
             requiredMembersPhase = FirResolvePhase.STATUS,
         ) ?: return emptyList()
@@ -252,14 +259,14 @@ class FirExpectActualMatchingContextImpl private constructor(
     override val CallableSymbolMarker.typeParameters: List<TypeParameterSymbolMarker>
         get() = asSymbol().typeParameterSymbols
 
-    override fun FunctionSymbolMarker.allOverriddenDeclarationsRecursive(): Sequence<CallableSymbolMarker> {
+    override fun FunctionSymbolMarker.allRecursivelyOverriddenDeclarationsIncludingSelf(): Sequence<CallableSymbolMarker> {
         return when (val symbol = asSymbol()) {
             is FirConstructorSymbol, is FirFunctionWithoutNameSymbol -> sequenceOf(this)
             is FirNamedFunctionSymbol -> {
                 val session = symbol.moduleData.session
                 val containingClass = symbol.containingClassLookupTag()?.toFirRegularClassSymbol(session)
                     ?: return sequenceOf(symbol)
-                (sequenceOf(symbol) + symbol.overriddenFunctions(containingClass, session, scopeSession).asSequence())
+                (sequenceOf(symbol) + symbol.overriddenFunctions(containingClass, session, actualScopeSession).asSequence())
                     // Tests work even if you don't filter out fake-overrides. Filtering fake-overrides is needed because
                     // the returned descriptors are compared by `equals`. And `equals` for fake-overrides is weird.
                     // I didn't manage to invent a test that would check this condition
@@ -278,6 +285,9 @@ class FirExpectActualMatchingContextImpl private constructor(
     override val ValueParameterSymbolMarker.isCrossinline: Boolean
         get() = asSymbol().isCrossinline
     override val ValueParameterSymbolMarker.hasDefaultValue: Boolean
+        get() = asSymbol().hasDefaultValue
+
+    override val ValueParameterSymbolMarker.hasDefaultValueNonRecursive: Boolean
         get() = asSymbol().hasDefaultValue
 
     override fun CallableSymbolMarker.isAnnotationConstructor(): Boolean {
@@ -313,21 +323,23 @@ class FirExpectActualMatchingContextImpl private constructor(
                 return false
             }
         }
+        val actualizedExpectType = (expectType as ConeKotlinType).actualize()
+        val actualizedActualType = (actualType as ConeKotlinType).actualize()
 
-        if (parameterOfAnnotationComparisonMode && expectType is ConeClassLikeType && expectType.isArrayType &&
-            actualType is ConeClassLikeType && actualType.isArrayType
+        if (parameterOfAnnotationComparisonMode && actualizedExpectType is ConeClassLikeType && actualizedExpectType.isArrayType &&
+            actualizedActualType is ConeClassLikeType && actualizedActualType.isArrayType
         ) {
             return AbstractTypeChecker.equalTypes(
                 createTypeCheckerState(),
-                expectType.convertToArrayWithOutProjections(),
-                actualType.convertToArrayWithOutProjections()
+                actualizedExpectType.convertToArrayWithOutProjections(),
+                actualizedActualType.convertToArrayWithOutProjections()
             )
         }
 
         return AbstractTypeChecker.equalTypes(
             actualSession.typeContext,
-            expectType,
-            actualType
+            actualizedExpectType,
+            actualizedActualType
         )
     }
 
@@ -348,26 +360,78 @@ class FirExpectActualMatchingContextImpl private constructor(
         )
     }
 
+    private fun ConeKotlinType.actualize(): ConeKotlinType {
+        val classId = classId
+        if (this is ConeClassLikeType && classId?.isNestedClass == true) {
+            val classSymbol = classId.toSymbol(actualSession)
+            if (classSymbol is FirRegularClassSymbol && classSymbol.isExpect) {
+                tryExpandExpectNestedClassActualizedViaTypealias(this, classSymbol)?.let {
+                    return it.actualizeTypeArguments()
+                }
+            }
+        }
+        return fullyExpandedType(actualSession).actualizeTypeArguments()
+    }
+
+    private fun ConeKotlinType.actualizeTypeArguments(): ConeKotlinType {
+        if (this !is ConeClassLikeType) {
+            return this
+        }
+        return withArguments { arg ->
+            if (arg is ConeKotlinTypeProjection) {
+                arg.replaceType(arg.type.actualize()) as ConeTypeProjection
+            } else arg
+        }
+    }
+
+    /**
+     * In case of `expect` nested classes actualized via typealias we can't simply find actual symbol by `expect` `ClassId`
+     * (like we do for top-level classes), because `ClassId` is different.
+     * For example, `expect` class `com/example/ExpectClass.Nested` may have actual with id `real/package/ActualTypeliasTarget.Nested`.
+     * So, we first expand outermost class, and then construct `ClassId` for nested class.
+     */
+    private fun tryExpandExpectNestedClassActualizedViaTypealias(
+        expectNestedClassType: ConeClassLikeType,
+        expectNestedClassSymbol: FirRegularClassSymbol,
+    ): ConeClassLikeType? {
+        val expectNestedClassId = expectNestedClassSymbol.classId
+        val expectOutermostClassId = expectNestedClassId.outermostClassId
+        val actualTypealiasSymbol = expectOutermostClassId.toSymbol(actualSession) as? FirTypeAliasSymbol ?: return null
+        val actualOutermostClassId = actualTypealiasSymbol.fullyExpandedClass(actualSession)?.classId ?: return null
+        val actualNestedClassId = ClassId.fromString(
+            expectNestedClassId.asString().replaceFirst(
+                expectOutermostClassId.asString(), actualOutermostClassId.asString()
+            )
+        )
+        return actualNestedClassId.constructClassLikeType(
+            expectNestedClassType.typeArguments, expectNestedClassType.isNullable, expectNestedClassType.attributes
+        )
+    }
+
     private fun createTypeCheckerState(): TypeCheckerState {
         return actualSession.typeContext.newTypeCheckerState(errorTypesEqualToAnything = true, stubTypesEqualToAnything = false)
     }
 
     override fun RegularClassSymbolMarker.isNotSamInterface(): Boolean {
         val type = asSymbol().defaultType()
-        val isSam = FirSamResolver(actualSession, scopeSession).isSamType(type)
+        val isSam = FirSamResolver(actualSession, actualScopeSession).isSamType(type)
         return !isSam
     }
 
-    override fun CallableSymbolMarker.shouldSkipMatching(containingExpectClass: RegularClassSymbolMarker): Boolean {
+    override fun CallableSymbolMarker.isFakeOverride(containingExpectClass: RegularClassSymbolMarker?): Boolean {
+        if (containingExpectClass == null) {
+            return false
+        }
         val symbol = asSymbol()
         val classSymbol = containingExpectClass.asSymbol()
         if (symbol !is FirConstructorSymbol && symbol.dispatchReceiverType?.classId != classSymbol.classId) {
-            // Skip fake overrides
             return true
         }
-        return symbol.isSubstitutionOrIntersectionOverride // Skip fake overrides
-                || !symbol.isExpect // Skip non-expect declarations like equals, hashCode, toString and any inherited declarations from non-expect super types
+        return symbol.isSubstitutionOrIntersectionOverride
     }
+
+    override val CallableSymbolMarker.isDelegatedMember: Boolean
+        get() = asSymbol().isDelegated
 
     override val CallableSymbolMarker.hasStableParameterNames: Boolean
         get() = asSymbol().rawStatus.hasStableParameterNames
@@ -439,7 +503,7 @@ class FirExpectActualMatchingContextImpl private constructor(
             getAnnotationConeType()?.toRegularClassSymbol(actualSession)
 
         private fun getAnnotationConeType(): ConeClassLikeType? {
-            val coneType = annotation.toAnnotationClassLikeType(actualSession)
+            val coneType = annotation.toAnnotationClassLikeType(actualSession)?.actualize() as? ConeClassLikeType
             if (coneType is ConeErrorType) {
                 return null
             }
@@ -613,9 +677,9 @@ class FirExpectActualMatchingContextImpl private constructor(
 
     object Factory : FirExpectActualMatchingContextFactory {
         override fun create(
-            session: FirSession, scopeSession: ScopeSession,
+            actualSession: FirSession, actualScopeSession: ScopeSession,
             allowedWritingMemberExpectForActualMapping: Boolean,
         ): FirExpectActualMatchingContextImpl =
-            FirExpectActualMatchingContextImpl(session, scopeSession, allowedWritingMemberExpectForActualMapping)
+            FirExpectActualMatchingContextImpl(actualSession, actualScopeSession, allowedWritingMemberExpectForActualMapping)
     }
 }

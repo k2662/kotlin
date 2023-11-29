@@ -12664,6 +12664,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             runTest("compiler/testData/codegen/box/delegatedProperty/delegatedPropertyInEnum.kt");
         }
 
+        @TestMetadata("DelegationByFunctionWithEnumUpperBound.kt")
+        public void testDelegationByFunctionWithEnumUpperBound() throws Exception {
+            runTest("compiler/testData/codegen/box/delegatedProperty/DelegationByFunctionWithEnumUpperBound.kt");
+        }
+
         @TestMetadata("extensionDelegatesWithSameNames.kt")
         public void testExtensionDelegatesWithSameNames() throws Exception {
             runTest("compiler/testData/codegen/box/delegatedProperty/extensionDelegatesWithSameNames.kt");
@@ -25499,6 +25504,11 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
     public static class JavaInterop extends AbstractLightAnalysisModeTest {
         private void runTest(String testDataFilePath) throws Exception {
             KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+        }
+
+        @TestMetadata("abstractMethodsOfAny.kt")
+        public void testAbstractMethodsOfAny() throws Exception {
+            runTest("compiler/testData/codegen/box/javaInterop/abstractMethodsOfAny.kt");
         }
 
         public void testAllFilesPresentInJavaInterop() throws Exception {

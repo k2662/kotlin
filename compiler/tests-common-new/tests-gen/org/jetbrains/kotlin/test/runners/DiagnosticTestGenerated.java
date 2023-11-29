@@ -1741,6 +1741,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("classAnnotationsInLocalClass.kt")
+            public void testClassAnnotationsInLocalClass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/classAnnotationsInLocalClass.kt");
+            }
+
+            @Test
             @TestMetadata("constantFromOuterScopeAsAnnotaionParameter.kt")
             public void testConstantFromOuterScopeAsAnnotaionParameter() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/annotations/constantFromOuterScopeAsAnnotaionParameter.kt");
@@ -1873,6 +1879,18 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("danglingAnnotation.kt")
+            public void testDanglingAnnotation() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/danglingAnnotation.kt");
+            }
+
+            @Test
+            @TestMetadata("danglingAnnotationInLocalClass.kt")
+            public void testDanglingAnnotationInLocalClass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/danglingAnnotationInLocalClass.kt");
+            }
+
+            @Test
             @TestMetadata("DanglingInScript.kts")
             public void testDanglingInScript() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/annotations/DanglingInScript.kts");
@@ -1963,6 +1981,18 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("initializerWithNestedAnnotation.kt")
+            public void testInitializerWithNestedAnnotation() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/initializerWithNestedAnnotation.kt");
+            }
+
+            @Test
+            @TestMetadata("initializerWithNestedAnnotationInLocalClass.kt")
+            public void testInitializerWithNestedAnnotationInLocalClass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/initializerWithNestedAnnotationInLocalClass.kt");
+            }
+
+            @Test
             @TestMetadata("invalidTypesInAnnotationConstructor.kt")
             public void testInvalidTypesInAnnotationConstructor() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/annotations/invalidTypesInAnnotationConstructor.kt");
@@ -2032,6 +2062,18 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             @TestMetadata("MutuallyRecursivelyAnnotatedGlobalFunction.kt")
             public void testMutuallyRecursivelyAnnotatedGlobalFunction() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/annotations/MutuallyRecursivelyAnnotatedGlobalFunction.kt");
+            }
+
+            @Test
+            @TestMetadata("nestedAliasWithNestedAnnotation.kt")
+            public void testNestedAliasWithNestedAnnotation() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/nestedAliasWithNestedAnnotation.kt");
+            }
+
+            @Test
+            @TestMetadata("nestedAliasWithNestedAnnotationInLocalClass.kt")
+            public void testNestedAliasWithNestedAnnotationInLocalClass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/nestedAliasWithNestedAnnotationInLocalClass.kt");
             }
 
             @Test
@@ -2206,6 +2248,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             @TestMetadata("typeParameterAnnotations.kt")
             public void testTypeParameterAnnotations() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/annotations/typeParameterAnnotations.kt");
+            }
+
+            @Test
+            @TestMetadata("typeParameterAnnotationsInLocalClass.kt")
+            public void testTypeParameterAnnotationsInLocalClass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/annotations/typeParameterAnnotationsInLocalClass.kt");
             }
 
             @Test
@@ -23708,6 +23756,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("actualTypealiasForNotExpectClass.kt")
+            public void testActualTypealiasForNotExpectClass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/actualTypealiasForNotExpectClass.kt");
+            }
+
+            @Test
             @TestMetadata("actualTypealiasToSpecialAnnotation.kt")
             public void testActualTypealiasToSpecialAnnotation() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/multiplatform/actualTypealiasToSpecialAnnotation.kt");
@@ -23717,6 +23771,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             @TestMetadata("actualTypealiasToSpecialAnnotation_oldLanguageVersion.kt")
             public void testActualTypealiasToSpecialAnnotation_oldLanguageVersion() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/multiplatform/actualTypealiasToSpecialAnnotation_oldLanguageVersion.kt");
+            }
+
+            @Test
+            @TestMetadata("actualTypealiasWithoutExpect.kt")
+            public void testActualTypealiasWithoutExpect() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/actualTypealiasWithoutExpect.kt");
             }
 
             @Test
@@ -23869,6 +23929,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("extraNestedClassOnActualViaActualTypealias.kt")
+            public void testExtraNestedClassOnActualViaActualTypealias() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/extraNestedClassOnActualViaActualTypealias.kt");
+            }
+
+            @Test
             @TestMetadata("headerFunInNonHeaderClass.kt")
             public void testHeaderFunInNonHeaderClass() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/multiplatform/headerFunInNonHeaderClass.kt");
@@ -23965,6 +24031,30 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("nestedClassViaActualTypealias.kt")
+            public void testNestedClassViaActualTypealias() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/nestedClassViaActualTypealias.kt");
+            }
+
+            @Test
+            @TestMetadata("nestedClassViaActualTypealiasExpandInTypeParam.kt")
+            public void testNestedClassViaActualTypealiasExpandInTypeParam() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/nestedClassViaActualTypealiasExpandInTypeParam.kt");
+            }
+
+            @Test
+            @TestMetadata("nestedClassViaActualTypealiasIncompatibilities.kt")
+            public void testNestedClassViaActualTypealiasIncompatibilities() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/nestedClassViaActualTypealiasIncompatibilities.kt");
+            }
+
+            @Test
+            @TestMetadata("nestedClassViaActualTypealiasWithTypeParam.kt")
+            public void testNestedClassViaActualTypealiasWithTypeParam() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/nestedClassViaActualTypealiasWithTypeParam.kt");
+            }
+
+            @Test
             @TestMetadata("optionalExpectationDiagnostics.kt")
             public void testOptionalExpectationDiagnostics() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/multiplatform/optionalExpectationDiagnostics.kt");
@@ -24016,6 +24106,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             @TestMetadata("supertypeActualizationWithAny.kt")
             public void testSupertypeActualizationWithAny() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/multiplatform/supertypeActualizationWithAny.kt");
+            }
+
+            @Test
+            @TestMetadata("typeResolutionOfNestedClassActualizedViaTypealias.kt")
+            public void testTypeResolutionOfNestedClassActualizedViaTypealias() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/multiplatform/typeResolutionOfNestedClassActualizedViaTypealias.kt");
             }
 
             @Test
@@ -24205,6 +24301,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
                 @TestMetadata("kotlinAnaloguesForJavaAnnotations.kt")
                 public void testKotlinAnaloguesForJavaAnnotations() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/multiplatform/actualAnnotationsNotMatchExpect/kotlinAnaloguesForJavaAnnotations.kt");
+                }
+
+                @Test
+                @TestMetadata("nestedAnnotationClassViaActualTypeAlias.kt")
+                public void testNestedAnnotationClassViaActualTypeAlias() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/multiplatform/actualAnnotationsNotMatchExpect/nestedAnnotationClassViaActualTypeAlias.kt");
                 }
 
                 @Test
@@ -24766,6 +24868,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
                 }
 
                 @Test
+                @TestMetadata("annotationDefaultArgKclassWithNestedClassViaActualTypeAlias.kt")
+                public void testAnnotationDefaultArgKclassWithNestedClassViaActualTypeAlias() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/multiplatform/defaultArguments/annotationDefaultArgKclassWithNestedClassViaActualTypeAlias.kt");
+                }
+
+                @Test
                 @TestMetadata("annotations.kt")
                 public void testAnnotations() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/multiplatform/defaultArguments/annotations.kt");
@@ -24874,6 +24982,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
                     @TestMetadata("delegation.kt")
                     public void testDelegation() throws Exception {
                         runTest("compiler/testData/diagnostics/tests/multiplatform/defaultArguments/methodDefaultArgsViaActualFakeOverride/delegation.kt");
+                    }
+
+                    @Test
+                    @TestMetadata("delegation2.kt")
+                    public void testDelegation2() throws Exception {
+                        runTest("compiler/testData/diagnostics/tests/multiplatform/defaultArguments/methodDefaultArgsViaActualFakeOverride/delegation2.kt");
                     }
 
                     @Test
@@ -27258,6 +27372,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             @TestMetadata("diamondWithDiagonal.kt")
             public void testDiamondWithDiagonal() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/override/diamondWithDiagonal.kt");
+            }
+
+            @Test
+            @TestMetadata("dnnOverridesFlexible.kt")
+            public void testDnnOverridesFlexible() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/override/dnnOverridesFlexible.kt");
             }
 
             @Test
@@ -30458,12 +30578,6 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             @TestMetadata("capturedTypesInLambdaParameter.kt")
             public void testCapturedTypesInLambdaParameter() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/resolve/capturedTypesInLambdaParameter.kt");
-            }
-
-            @Test
-            @TestMetadata("companionPropertyAndTypeParameter.kt")
-            public void testCompanionPropertyAndTypeParameter() throws Exception {
-                runTest("compiler/testData/diagnostics/tests/resolve/companionPropertyAndTypeParameter.kt");
             }
 
             @Test
@@ -37357,6 +37471,18 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             }
 
             @Test
+            @TestMetadata("companionPropertyAndTypeParameter.kt")
+            public void testCompanionPropertyAndTypeParameter() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeParameters/companionPropertyAndTypeParameter.kt");
+            }
+
+            @Test
+            @TestMetadata("companionPropertyAndTypeParameter2.kt")
+            public void testCompanionPropertyAndTypeParameter2() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeParameters/companionPropertyAndTypeParameter2.kt");
+            }
+
+            @Test
             @TestMetadata("deprecatedSyntax.kt")
             public void testDeprecatedSyntax() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/typeParameters/deprecatedSyntax.kt");
@@ -37456,6 +37582,24 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
             @TestMetadata("kt46186withEmptyIntersections.kt")
             public void testKt46186withEmptyIntersections() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/typeParameters/kt46186withEmptyIntersections.kt");
+            }
+
+            @Test
+            @TestMetadata("memberTypeParameterVsNestedClass.kt")
+            public void testMemberTypeParameterVsNestedClass() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeParameters/memberTypeParameterVsNestedClass.kt");
+            }
+
+            @Test
+            @TestMetadata("memberTypeParameterVsNestedClass2.kt")
+            public void testMemberTypeParameterVsNestedClass2() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeParameters/memberTypeParameterVsNestedClass2.kt");
+            }
+
+            @Test
+            @TestMetadata("memberTypeParameterVsNestedClassReference.kt")
+            public void testMemberTypeParameterVsNestedClassReference() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/typeParameters/memberTypeParameterVsNestedClassReference.kt");
             }
 
             @Test

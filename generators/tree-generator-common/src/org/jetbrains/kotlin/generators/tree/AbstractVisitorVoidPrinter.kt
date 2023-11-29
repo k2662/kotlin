@@ -11,10 +11,9 @@ import org.jetbrains.kotlin.utils.SmartPrinter
 
 abstract class AbstractVisitorVoidPrinter<Element, Field>(
     printer: SmartPrinter,
-    visitSuperTypeByDefault: Boolean,
-) : AbstractVisitorPrinter<Element, Field>(printer, visitSuperTypeByDefault)
+) : AbstractVisitorPrinter<Element, Field>(printer)
         where Element : AbstractElement<Element, Field>,
-              Field : AbstractField {
+              Field : AbstractField<Field> {
 
     final override val visitorTypeParameters: List<TypeVariable>
         get() = emptyList()
@@ -26,11 +25,8 @@ abstract class AbstractVisitorVoidPrinter<Element, Field>(
 
     abstract val visitorSuperClass: ClassRef<PositionTypeParameterRef>
 
-    override val visitorSuperType: ClassRef<PositionTypeParameterRef>
-        get() = if (visitSuperTypeByDefault)
-            visitorSuperClass
-        else
-            visitorSuperClass.withArgs(StandardTypes.unit, visitorDataType)
+    final override val visitorSuperType: ClassRef<PositionTypeParameterRef>
+        get() = visitorSuperClass.withArgs(StandardTypes.unit, visitorDataType)
 
     abstract val useAbstractMethodForRootElement: Boolean
 

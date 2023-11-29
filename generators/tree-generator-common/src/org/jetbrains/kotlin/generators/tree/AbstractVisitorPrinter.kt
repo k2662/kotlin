@@ -11,9 +11,8 @@ import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.utils.SmartPrinter
 import org.jetbrains.kotlin.utils.withIndent
 
-abstract class AbstractVisitorPrinter<Element : AbstractElement<Element, Field>, Field : AbstractField>(
+abstract class AbstractVisitorPrinter<Element : AbstractElement<Element, Field>, Field : AbstractField<Field>>(
     val printer: SmartPrinter,
-    val visitSuperTypeByDefault: Boolean,
 ) {
 
     /**
@@ -58,6 +57,8 @@ abstract class AbstractVisitorPrinter<Element : AbstractElement<Element, Field>,
      * If returns `null`, methods for this element will not be overridden in this visitor class (except the root element).
      */
     open fun parentInVisitor(element: Element): Element? = element.parentInVisitor
+
+    open fun skipElement(element: Element): Boolean = false
 
     /**
      * Prints a single visitor method declaration, without body.
@@ -149,8 +150,7 @@ abstract class AbstractVisitorPrinter<Element : AbstractElement<Element, Field>,
             printBlock {
                 printAdditionalMethods()
                 for (element in elements) {
-                    if (element.isRootElement && visitSuperTypeByDefault) continue
-                    if (visitSuperTypeByDefault && parentInVisitor(element) == null) continue
+                    if (skipElement(element)) continue
                     printMethodsForElement(element)
                 }
             }
