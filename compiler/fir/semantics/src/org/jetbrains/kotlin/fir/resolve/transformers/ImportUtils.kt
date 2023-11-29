@@ -11,6 +11,8 @@ import org.jetbrains.kotlin.fir.resolve.providers.FirSymbolProvider
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.parentOrNull
+import org.jetbrains.kotlin.name.tail
 
 fun resolveToPackageOrClass(symbolProvider: FirSymbolProvider, fqName: FqName): PackageResolutionResult {
     var currentPackage = fqName
@@ -43,3 +45,23 @@ sealed class PackageResolutionResult {
 
     class Error(val diagnostic: ConeDiagnostic) : PackageResolutionResult()
 }
+
+/**
+ * Compared to [resolveToPackageOrClass], does not perform the actual resolve.
+ *
+ * Instead of it, it just looks for the longest existing package name prefix in the [fqName],
+ * and assumes that the rest of the name (if present) is a relative class name.
+ *
+ * Given that [FqName.ROOT] package is always present in any [FirSymbolProvider],
+ * this function **can never fail**.
+ */
+fun lightResolveToPackageOrClass(symbolProvider: FirSymbolProvider, fqName: FqName): LightPackageResolutionResult {
+    val possiblePackageNames = generateSequence(fqName) { it.parentOrNull() }
+
+    val longestExistingPackageName = possiblePackageNames.first { symbolProvider.getPackage(it) != null }
+    val remainingClassName = fqName.tail(longestExistingPackageName).takeUnless { it.isRoot }
+
+    return LightPackageResolutionResult(longestExistingPackageName, remainingClassName)
+}
+
+data class LightPackageResolutionResult(val packageFqName: FqName, val relativeClassFqName: FqName?)
