@@ -220,6 +220,12 @@ public class FirOutOfContentRootLazyBodiesCalculatorTestGenerated extends Abstra
         }
 
         @Test
+        @TestMetadata("kotlinAny.kt")
+        public void testKotlinAny() throws Exception {
+            runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/kotlinAny.kt");
+        }
+
+        @Test
         @TestMetadata("localDeclarationsInEnumEntry.kt")
         public void testLocalDeclarationsInEnumEntry() throws Exception {
             runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/localDeclarationsInEnumEntry.kt");

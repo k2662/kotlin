@@ -994,15 +994,15 @@ open class PsiRawFirBuilder(
                 }
             }
 
+            val isKotlinAny = this.isKotlinAny()
             val defaultDelegatedSuperTypeRef =
                 when {
                     classKind == ClassKind.ENUM_ENTRY && this is KtClass -> delegatedEnumSuperTypeRef ?: implicitAnyType
-                    container.superTypeRefs.isEmpty() -> implicitAnyType
+                    container.superTypeRefs.isEmpty() && !isKotlinAny() -> implicitAnyType
                     else -> FirImplicitTypeRefImplWithoutSource
                 }
 
-
-            if (container.superTypeRefs.isEmpty()) {
+            if (container.superTypeRefs.isEmpty() && !isKotlinAny) {
                 container.superTypeRefs += implicitAnyType
                 delegatedSuperTypeRef = implicitAnyType
             }
@@ -1029,13 +1029,22 @@ open class PsiRawFirBuilder(
                     containingClassIsExpectClass,
                     copyConstructedTypeRefWithImplicitSource = true,
                     isErrorConstructor = !hasPrimaryConstructor,
-                    isImplicitlyActual = container.status.isActual && (container.status.isInline || classKind == ClassKind.ANNOTATION_CLASS)
+                    isImplicitlyActual = container.status.isActual && (container.status.isInline || classKind == ClassKind.ANNOTATION_CLASS),
+                    isKotlinAny = isKotlinAny,
                 )
                 container.declarations += firPrimaryConstructor
             }
 
             delegateFieldsMap.values.mapTo(container.declarations) { it.fir }
             return delegatedSuperTypeRef!! to delegateFieldsMap.takeIf { it.isNotEmpty() }
+        }
+
+        private fun KtClassOrObject.isKotlinAny(): Boolean {
+            if (nameAsName != StandardNames.FqNames.any.shortName()) return false
+            if (parent !is KtFile) return false
+            return parent.findDescendantOfType<KtPackageDirective> { packageDirective ->
+                packageDirective.packageNames.singleOrNull()?.getReferencedNameAsName() == StandardNames.BUILT_INS_PACKAGE_NAME
+            } != null
         }
 
         /**
@@ -1052,6 +1061,7 @@ open class PsiRawFirBuilder(
             copyConstructedTypeRefWithImplicitSource: Boolean,
             isErrorConstructor: Boolean = false,
             isImplicitlyActual: Boolean = false,
+            isKotlinAny: Boolean = false,
         ): FirConstructor {
             val constructorSource = this?.toFirSourceElement()
                 ?: owner.toKtPsiSourceElement(KtFakeSourceElementKind.ImplicitConstructor)
@@ -1079,7 +1089,7 @@ open class PsiRawFirBuilder(
                 }
             }
 
-            val firDelegatedCall = runUnless(containingClassIsExpectClass) {
+            val firDelegatedCall = runUnless(containingClassIsExpectClass || isKotlinAny) {
                 if (allSuperTypeCallEntries.size <= 1) {
                     buildDelegatedCall(superTypeCallEntry, delegatedSuperTypeRef!!)
                 } else {

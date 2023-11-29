@@ -196,6 +196,11 @@ public class LightTree2FirConverterTestCaseGenerated extends AbstractLightTree2F
             runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/invalidDestructing.kt");
         }
 
+        @TestMetadata("kotlinAny.kt")
+        public void testKotlinAny() throws Exception {
+            runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/kotlinAny.kt");
+        }
+
         @TestMetadata("localDeclarationsInEnumEntry.kt")
         public void testLocalDeclarationsInEnumEntry() throws Exception {
             runTest("compiler/fir/raw-fir/psi2fir/testData/rawBuilder/declarations/localDeclarationsInEnumEntry.kt");
