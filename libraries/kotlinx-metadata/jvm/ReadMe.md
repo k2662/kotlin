@@ -169,7 +169,7 @@ It's also the only method that allows metadata transformation and `KotlinClassMe
 
 `readLenient()`: This method allows you to read the metadata leniently. 
 If the metadata version is higher than what kotlinx-metadata-jvm can interpret, it may ignore parts of the metadata it doesn't understand.
-It’s more suitable when your tooling needs to read metadata of possibly newer Kotlin versions and can handle incomplete data, because it is interested only in part of it (e.g. visibility of declarations)
+It’s more suitable when your tooling needs to read metadata of possibly newer Kotlin versions and can handle incomplete data, because it is interested only in part of it (e.g. visibility of declarations).
 Keep in mind that this method will still throw an exception if metadata is changed in an unpredictable way.
 **Metadata read in lenient mode can not be written back.**
 
