@@ -30,7 +30,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInAppCommon = resolvePath("app", "commonMain", "Unused.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(
+            tasksExpectedToExecute = setOf(
                 ":app:compileKotlinJvm",
                 ":app:compileKotlinJs",
                 ":app:compileKotlinNative"
@@ -45,7 +45,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInAppJvm = resolvePath("app", "jvmMain", "UnusedJvm.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinJvm")
+            tasksExpectedToExecute = setOf(":app:compileKotlinJvm")
         ) {
             //TODO: it just doesn't print "Incremental compilation completed", why? (KT-63476)
             assertCompiledKotlinSources(listOf(sourceInAppJvm).relativizeTo(projectPath), output)
@@ -57,7 +57,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInAppJs = resolvePath("app", "jsMain", "UnusedJs.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinJs"),
+            tasksExpectedToExecute = setOf(":app:compileKotlinJs"),
         ) {
             assertIncrementalCompilation(listOf(sourceInAppJs).relativizeTo(projectPath))
         }
@@ -68,7 +68,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         resolvePath("app", "nativeMain", "UnusedNative.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinNative"),
+            tasksExpectedToExecute = setOf(":app:compileKotlinNative"),
         )
 
         /**
@@ -77,7 +77,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInLibCommon = resolvePath("lib", "commonMain", "UsedInLibPlatformTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = mainCompileTasks // TODO: KT-62642 - bad compile avoidance here
+            tasksExpectedToExecute = mainCompileTasks // TODO: KT-62642 - bad compile avoidance here
         ) {
             assertIncrementalCompilation(listOf(sourceInLibCommon).relativizeTo(projectPath))
         }
@@ -88,7 +88,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInLibJvm = resolvePath("lib", "jvmMain", "UsedInAppJvmAndLibTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinJvm", ":lib:compileKotlinJvm"),
+            tasksExpectedToExecute = setOf(":app:compileKotlinJvm", ":lib:compileKotlinJvm"),
         ) {
             assertCompiledKotlinSources(listOf(sourceInLibJvm).relativizeTo(projectPath), output)
         }
@@ -99,7 +99,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val sourceInLibJs = resolvePath("lib", "jsMain", "UsedInAppJsAndLibTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinJs", ":lib:compileKotlinJs"),
+            tasksExpectedToExecute = setOf(":app:compileKotlinJs", ":lib:compileKotlinJs"),
         ) {
             assertIncrementalCompilation(listOf(sourceInLibJs).relativizeTo(projectPath))
         }
@@ -110,7 +110,7 @@ open class BasicIncrementalCompilationIT : KmpIncrementalITBase() {
 
         resolvePath("lib", "nativeMain", "UsedInAppNativeAndLibTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinNative", ":lib:compileKotlinNative"),
+            tasksExpectedToExecute = setOf(":app:compileKotlinNative", ":lib:compileKotlinNative"),
         )
     }
 }

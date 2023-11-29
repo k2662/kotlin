@@ -41,7 +41,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
                 "1_addUnusedParameter",
                 "2_changeReturnType"
             ),
-            tasksToExecuteOnEachStep = mainCompileTasks,
+            tasksExpectedToExecuteOnEachStep = mainCompileTasks,
             afterEachStep = {
                 assertIncrementalCompilation(
                     listOf(
@@ -110,7 +110,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
         multiStepCheckIncrementalBuilds(
             incrementalPath = jvmUtil,
             steps = commonSteps,
-            tasksToExecuteOnEachStep = setOf(
+            tasksExpectedToExecuteOnEachStep = setOf(
                 ":app:compileKotlinJvm",
                 ":lib:compileKotlinJvm"
             ),
@@ -132,7 +132,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
         multiStepCheckIncrementalBuilds(
             incrementalPath = jsUtil,
             steps = commonSteps,
-            tasksToExecuteOnEachStep = setOf(
+            tasksExpectedToExecuteOnEachStep = setOf(
                 ":app:compileKotlinJs",
                 ":lib:compileKotlinJs"
             ),
@@ -153,7 +153,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
         multiStepCheckIncrementalBuilds(
             incrementalPath = nativeUtil,
             steps = commonSteps,
-            tasksToExecuteOnEachStep = setOf(
+            tasksExpectedToExecuteOnEachStep = setOf(
                 ":app:compileKotlinNative",
                 ":lib:compileKotlinNative"
             )
@@ -178,7 +178,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
                 "2_addUnusedParameter"
                 // test changes in a different order for robustness
             ),
-            tasksToExecuteOnEachStep = setOf(
+            tasksExpectedToExecuteOnEachStep = setOf(
                 ":app:compileKotlinJvm",
                 ":app:compileKotlinJs",
                 ":app:compileKotlinNative"
@@ -211,7 +211,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
         val changedJvmSource = resolvePath("app", "jvmMain", "UnusedJvm.kt")
             .replaceWithVersion("addParent")
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinJvm")
+            tasksExpectedToExecute = setOf(":app:compileKotlinJvm")
         ) {
             assertCompiledKotlinSources(listOf(changedJvmSource).relativizeTo(projectPath), output)
         }
@@ -222,7 +222,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
         val changedJsSource = resolvePath("app", "jsMain", "UnusedJs.kt")
             .replaceWithVersion("addParent")
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinJs")
+            tasksExpectedToExecute = setOf(":app:compileKotlinJs")
         ) {
             assertIncrementalCompilation(listOf(changedJsSource).relativizeTo(projectPath))
         }
@@ -233,7 +233,7 @@ open class MultiModuleIncrementalCompilationIT : KmpIncrementalITBase() {
         resolvePath("app", "nativeMain", "UnusedNative.kt")
             .replaceWithVersion("addParent")
         checkIncrementalBuild(
-            tasksToExecute = setOf(":app:compileKotlinNative")
+            tasksExpectedToExecute = setOf(":app:compileKotlinNative")
         )
     }
 }

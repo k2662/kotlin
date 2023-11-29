@@ -49,7 +49,7 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val changedInLibCommon = resolvePath("lib", "commonMain", "UsedInLibPlatformTests.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = mainCompileTasks,
+            tasksExpectedToExecute = mainCompileTasks,
         ) {
             assertIncrementalCompilation(listOf(changedInLibCommon).relativizeTo(projectPath))
         }
@@ -60,7 +60,7 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val changedInAppCommon = resolvePath("app", "commonMain", "Unused.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(
+            tasksExpectedToExecute = setOf(
                 ":app:compileTestKotlinJvm",
                 ":app:compileTestKotlinNative",
                 ":app:compileTestKotlinJs",
@@ -78,7 +78,7 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val touchedAppJvm = resolvePath("app", "jvmMain", "UnusedJvm.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(
+            tasksExpectedToExecute = setOf(
                 ":app:compileTestKotlinJvm",
                 ":app:jvmTest",
             ),
@@ -92,7 +92,7 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
 
         val changedInAppJs = resolvePath("app", "jsMain", "UnusedJs.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(
+            tasksExpectedToExecute = setOf(
                 ":app:compileTestKotlinJs",
                 ":app:jsTest",
             ),
@@ -106,7 +106,7 @@ open class BasicTestIncrementalCompilationIT : KmpIncrementalITBase() {
 
         resolvePath("app", "nativeMain", "UnusedNative.kt").addPrivateVal()
         checkIncrementalBuild(
-            tasksToExecute = setOf(
+            tasksExpectedToExecute = setOf(
                 ":app:compileTestKotlinNative",
                 ":app:nativeTest",
             ),
