@@ -16692,6 +16692,12 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
                 }
 
                 @Test
+                @TestMetadata("builderInferenceAnnotationInLambdaWithTVExpectedType.kt")
+                public void testBuilderInferenceAnnotationInLambdaWithTVExpectedType() throws Exception {
+                    runTest("compiler/testData/diagnostics/tests/inference/builderInference/builderInferenceAnnotationInLambdaWithTVExpectedType.kt");
+                }
+
+                @Test
                 @TestMetadata("changingResolveIfDontUseBuilderInference.kt")
                 public void testChangingResolveIfDontUseBuilderInference() throws Exception {
                     runTest("compiler/testData/diagnostics/tests/inference/builderInference/changingResolveIfDontUseBuilderInference.kt");

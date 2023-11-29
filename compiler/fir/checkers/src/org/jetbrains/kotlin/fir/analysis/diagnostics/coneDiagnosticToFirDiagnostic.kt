@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.isLocalMember
 import org.jetbrains.kotlin.fir.analysis.getChild
 import org.jetbrains.kotlin.fir.builder.FirSyntaxErrors
+import org.jetbrains.kotlin.fir.declarations.FirAnonymousFunction
 import org.jetbrains.kotlin.fir.declarations.FirMemberDeclaration
 import org.jetbrains.kotlin.fir.declarations.utils.*
 import org.jetbrains.kotlin.fir.diagnostics.*
@@ -526,6 +527,16 @@ private fun ConstraintSystemError.toDiagnostic(
             FirErrors.TYPE_INFERENCE_ONLY_INPUT_TYPES_ERROR.createOn(
                 source,
                 (typeVariable as ConeTypeParameterBasedTypeVariable).typeParameterSymbol
+            )
+        }
+
+        is MultiLambdaBuilderInferenceRestriction -> {
+            val typeParameterSymbol = (typeParameter as ConeTypeParameterLookupTag).typeParameterSymbol
+            FirErrors.BUILDER_INFERENCE_MULTI_LAMBDA_RESTRICTION.createOn(
+                (anonymous as? FirAnonymousFunction)?.source ?: source,
+                typeParameterSymbol.name,
+                @OptIn(SymbolInternals::class)
+                (typeParameterSymbol.containingDeclarationSymbol.fir as FirMemberDeclaration).nameOrSpecialName
             )
         }
 

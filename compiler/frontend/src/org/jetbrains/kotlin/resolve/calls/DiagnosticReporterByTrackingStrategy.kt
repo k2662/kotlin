@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.inference.BuilderInferenceExpectedTypeConstraintPosition
 import org.jetbrains.kotlin.resolve.calls.inference.model.*
 import org.jetbrains.kotlin.resolve.calls.model.*
+import org.jetbrains.kotlin.resolve.calls.model.MultiLambdaBuilderInferenceRestriction
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory
 import org.jetbrains.kotlin.resolve.calls.smartcasts.SingleSmartCast
 import org.jetbrains.kotlin.resolve.calls.smartcasts.SmartCastManager
@@ -813,6 +814,8 @@ class DiagnosticReporterByTrackingStrategy(
             is LowerPriorityToPreserveCompatibility -> {}
             // NoSuccessfulFork does not exist in K1
             is NoSuccessfulFork -> {}
+            // MultiLambdaBuilderInferenceRestriction does not exist in K1
+            is org.jetbrains.kotlin.resolve.calls.inference.model.MultiLambdaBuilderInferenceRestriction -> {}
             // NotEnoughInformationForTypeParameterImpl is already considered above
             is NotEnoughInformationForTypeParameter<*> -> {
                 throw AssertionError("constraintError should not be called with ${error::class.java}")
